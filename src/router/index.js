@@ -1,32 +1,43 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import ProductView from '@/views/ProductView.vue'
+import IndexView from '@/views/IndexView.vue'
+import AboutView from '@/views/About/AboutView.vue'
+import NewsView from '@/views/News/NewsView.vue'
+import EventsView from '@/views/Events/EventsView.vue'
+import RepairView from '@/views/Repair/RepairView.vue'
+import MemberView from '@/views/Member/MemberView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'index',
+      component: () => import('@/views/IndexView.vue'),
     },
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'), //動態載入，點擊才載
+      component: () => import('@/views/About/AboutView.vue'),
     },
     {
-      path: '/product',
-      name: 'product',
-      component: ProductView,
+      path: '/news',
+      name: 'news',
+      component: () => import('@/views/News/NewsView.vue'),
     },
     {
-      path: '/cart',
-      name: 'cart',
-      component: () => import('../views/CartView.vue'),
+      path: '/events',
+      name: 'events',
+      component: () => import('@/views/Events/EventsView.vue'),
+    },
+    {
+      path: '/repair',
+      name: 'repair',
+      component: () => import('@/views/Repair/RepairView.vue'),
+    },
+    {
+      path: '/member',
+      name: 'member',
+      component: () => import('@/views/Member/MemberView.vue'),
     },
   ],
 })

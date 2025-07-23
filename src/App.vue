@@ -1,16 +1,15 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import Header from '@/components/Header.vue'
 import Button from '@/components/Button.vue'
-import MainHeader from '@/components/MainHeader.vue'
+import Footer from '@/components/Footer.vue'
 </script>
 
 <template>
-  <MainHeader />
-
+  <Header />
   <main>
-    <!-- <HelloWorld msg="You did it!" /> -->
-    <Button></Button>
+    <!-- <Button></Button> -->
     <RouterView />
   </main>
+  <Footer />
 </template>
