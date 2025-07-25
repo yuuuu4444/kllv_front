@@ -14,7 +14,7 @@
   letter-spacing: 2.4px;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-sm;
+  border-radius: $border-r-sm;
   color: $white;
   background-color: $tag-c3;
   border: 5px solid $tag-c3;
@@ -47,7 +47,7 @@
   letter-spacing: 2.4px;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-sm;
+  border-radius: $border-r-sm;
   color: $tag-c3;
   border: 5px solid $tag-c3;
   cursor: pointer;
@@ -75,7 +75,7 @@
   background-color: $primary-c500;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-sm;
+  border-radius: $border-r-sm;
   cursor: pointer;
   transition: 0.3s all ease;
 
@@ -90,7 +90,7 @@
   background-color: $white;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-sm;
+  border-radius: $border-r-sm;
   border: 1px solid $black;
   cursor: pointer;
 }
@@ -109,7 +109,7 @@
   background-color: $primary-c500;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-sm;
+  border-radius: $border-r-sm;
   cursor: pointer;
   transition: 0.3s all ease;
 
@@ -140,7 +140,7 @@
   background-color: $primary-c500;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-xs;
+  border-radius: $border-r-xs;
   cursor: pointer;
   transition: 0.3s all ease;
 
@@ -172,7 +172,7 @@
   background-color: $primary-c50;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-xs;
+  border-radius: $border-r-xs;
   cursor: pointer;
   transition: 0.3s all ease;
 
@@ -201,7 +201,7 @@
   background-color: $primary-c700;
   @include flex-center;
   text-align: center;
-  border-radius: $border-radius-xs;
+  border-radius: $border-r-xs;
   cursor: pointer;
   transition: 0.3s all ease;
 
@@ -230,7 +230,7 @@
   @include flex-center;
   text-align: center;
   border: 1px solid $black;
-  border-radius: $border-radius-xs;
+  border-radius: $border-r-xs;
   cursor: pointer;
   transition: 0.3s all ease;
 
