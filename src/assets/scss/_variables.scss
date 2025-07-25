@@ -1,0 +1,66 @@
+//說明
+//.box{ color: $white; }
+
+//黑白色
+$white: #ffffff;
+$white50: rgba(255, 255, 255, 0.5);
+$black: #000000;
+
+// 主副顏色
+$primary-c: #54b8ff;
+$primary-c700: #004b80;
+$primary-c500: #007cd4;
+$primary-c300: #2aa7ff;
+$primary-c100: #abcff8;
+$primary-c50: #daeef5;
+$primary-c25: #e5f1ff;
+$primary-c000: #dff2ff;
+
+$secondary-c: #81cf92;
+$secondary-c700: #246d13;
+$secondary-c500: #3cb520;
+$secondary-c300: #67df4a;
+$secondary-c100: #a4ec92;
+$secondary-c000: #e1f9db;
+
+$highlight-c: #f66541;
+$highlight-c700: #7a1d06;
+$highlight-c500: #cb300a;
+$highlight-c300: #f55b34;
+$highlight-c100: #f99c85;
+$highlight-c50: #ffbfaf;
+$highlight-c000: #fdded6;
+
+//input 描述顏色
+$neutral-c: #bfbfbf;
+
+//tag 顏色
+$tag-c1: #7fa4bf;
+$tag-c2: #7fbde9;
+$tag-c3: #a0c0d6;
+
+//#顏色
+$semantic-r: #d93e39;
+$semantic-y: #fa0;
+$semantic-g: #3da755;
+
+// 字體
+$font-sans: 'Noto Sans';
+
+// letterspacing
+$spacing-m: 0.1em;
+$spacing-l: 0.2em;
+
+// 圓角
+$border-r-xs: 5px;
+$border-r-sm: 10px;
+$border-r-md: 15px;
+$border-r-lg: 30px;
+$border-r-xl: 50px;
+
+// 陰影
+$box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+
+//斷點
+$desktop: '(max-width: 1920px)';
+$mobile: '(max-width: 768px)';

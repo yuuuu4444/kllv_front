@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 html,
 body,
 div,
@@ -14,7 +19,9 @@ h6,
 p,
 blockquote,
 pre,
-a,
+a {
+  text-decoration: none;
+}
 abbr,
 acronym,
 address,
@@ -24,7 +31,9 @@ code,
 del,
 dfn,
 em,
-img,
+img {
+  display: block;
+}
 ins,
 kbd,
 q,

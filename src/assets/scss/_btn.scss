@@ -1,0 +1,247 @@
+//說明
+//<button class="btn--tag">公告</button>
+//預設有填入字體及背景顏色，有需要再自行更改
+
+//標籤按鈕 公告
+.btn--tag {
+  width: 133px;
+  height: 37px;
+  font-family: 'Noto Sans';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 2.4px;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-sm;
+  color: $white;
+  background-color: $tag-c3;
+  border: 5px solid $tag-c3;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $white;
+    color: $tag-c3;
+  }
+
+  @media #{$mobile} {
+    width: 60px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1.2px;
+    border: 2px solid $tag-c3;
+  }
+}
+
+.btn--tag2 {
+  width: 133px;
+  height: 37px;
+  font-family: 'Noto Sans';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 2.4px;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-sm;
+  color: $tag-c3;
+  border: 5px solid $tag-c3;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $tag-c3;
+    color: $white;
+  }
+
+  @media #{$mobile} {
+    width: 60px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1.2px;
+    border: 2px solid $tag-c3;
+  }
+}
+
+//切換頁面按鈕 < 1/2 >
+.btn--changepage {
+  width: 60px;
+  height: 50px;
+  background-color: $primary-c500;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $primary-c100;
+  }
+}
+
+.btn--page {
+  width: 80px;
+  height: 50px;
+  background-color: $white;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-sm;
+  border: 1px solid $black;
+  cursor: pointer;
+}
+
+//流程按鈕 下一頁
+.btn--process {
+  width: 350px;
+  height: 60px;
+  font-family: 'Noto Sans';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 2.4px;
+  color: $white;
+  background-color: $primary-c500;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $primary-c100;
+  }
+
+  @media #{$mobile} {
+    width: 173px;
+    height: 39px;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1.4px;
+  }
+}
+
+//彈窗按鈕
+.btn--popup {
+  width: 187px;
+  height: 60px;
+  font-family: 'Noto Sans';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 2.4px;
+  color: $white;
+  background-color: $primary-c500;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $primary-c100;
+  }
+
+  @media #{$mobile} {
+    width: 173px;
+    height: 39px;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1.4px;
+  }
+}
+
+//會員頁面左側按鈕
+//預設沒點擊狀態顏色
+.btn--member {
+  width: 205px;
+  height: 42px;
+  font-family: 'Noto Sans';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 3.2px;
+  color: $black;
+  background-color: $primary-c50;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $primary-c500;
+  }
+
+  @media #{$mobile} {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1.4px;
+  }
+}
+
+//登入會員頁面按鈕
+.btn--membersend {
+  width: 76px;
+  height: 42px;
+  font-family: 'Noto Sans';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 3.2px;
+  color: $white;
+  background-color: $primary-c700;
+  @include flex-center;
+  text-align: center;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    background-color: $primary-c500;
+  }
+
+  @media #{$mobile} {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1.4px;
+  }
+}
+
+.btn--membercancel {
+  width: 76px;
+  height: 42px;
+  font-family: 'Noto Sans';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 3.2px;
+  color: $black;
+  background-color: $white;
+  @include flex-center;
+  text-align: center;
+  border: 1px solid $black;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  transition: 0.3s all ease;
+
+  &:hover {
+    color: $primary-c700;
+    border: 1px solid $primary-c700;
+  }
+
+  @media #{$mobile} {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1.4px;
+  }
+}

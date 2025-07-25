@@ -1,0 +1,183 @@
+//Title字體大小
+
+//說明
+// <h1 class="bold">粗體標題</h1>
+// <h1 class="regular">細體標題</h1>
+h1 {
+  font-family: 'Noto Sans';
+  font-size: 48px;
+  letter-spacing: 0.2em;
+
+  &.regular {
+    font-weight: 400;
+  }
+
+  &.bold {
+    font-weight: 700;
+  }
+  @media #{$mobile} {
+    font-size: 24px;
+    letter-spacing: 0.1em;
+  }
+}
+
+h2 {
+  font-family: 'Noto Sans';
+  font-size: 40px;
+  letter-spacing: 0.2em;
+
+  &.regular {
+    font-weight: 400;
+  }
+
+  &.bold {
+    font-weight: 700;
+  }
+  @media #{$mobile} {
+    font-size: 20px;
+    letter-spacing: 0.1em;
+  }
+}
+
+h3 {
+  font-family: 'Noto Sans';
+  font-size: 32px;
+  letter-spacing: 0.2em;
+
+  &.regular {
+    font-weight: 400;
+  }
+
+  &.bold {
+    font-weight: 700;
+  }
+  @media #{$mobile} {
+    font-size: 18px;
+    letter-spacing: 0.1em;
+  }
+}
+
+h4 {
+  font-family: 'Noto Sans';
+  font-size: 28px;
+  letter-spacing: 0.2em;
+
+  &.regular {
+    font-weight: 400;
+  }
+
+  &.bold {
+    font-weight: 700;
+  }
+  @media #{$mobile} {
+    font-size: 18px;
+    letter-spacing: 0.1em;
+  }
+}
+
+h5 {
+  font-family: 'Noto Sans';
+  font-size: 24px;
+  letter-spacing: 0.2em;
+
+  &.regular {
+    font-weight: 400;
+  }
+
+  &.bold {
+    font-weight: 700;
+  }
+  @media #{$mobile} {
+    font-size: 18px;
+    letter-spacing: 0.1em;
+  }
+}
+
+//Body字體大小
+
+//說明
+//<p class="body--b1">這是最大段落文字</p>
+//<p class="body--c1">這是最小的說明文字</p>
+p {
+  // 24px
+  &.body--b1 {
+    font-family: 'Noto Sans';
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 38px;
+    letter-spacing: 0.2em;
+  }
+
+  // 20px
+  &.body--b2 {
+    font-family: 'Noto Sans';
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 32px;
+    letter-spacing: 0.2em;
+  }
+
+  //16px
+  &.body--b3 {
+    font-family: 'Noto Sans';
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    letter-spacing: 0.2em;
+  }
+
+  //14px
+  &.body--b4 {
+    font-family: 'Noto Sans';
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0.1em;
+  }
+  // 備註
+  &.body--c1 {
+    font-family: 'Noto Sans';
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    letter-spacing: 0.1em;
+  }
+
+  // 手機螢幕字體
+  @media #{$mobile} {
+    &.body--b1 {
+      font-size: 18px;
+      line-height: 28px;
+      letter-spacing: 0.1em;
+    }
+    &.body--b2 {
+      font-size: 16px;
+      line-height: 26px;
+      letter-spacing: 0.1em;
+    }
+    &.body--b3 {
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.1em;
+    }
+    &.body--b4 {
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.1em;
+    }
+    &.body--c1 {
+      font-size: 12px;
+      line-height: 18px;
+      letter-spacing: 0.1em;
+    }
+  }
+}
+
+body {
+  font-family: $font-sans;
+}
