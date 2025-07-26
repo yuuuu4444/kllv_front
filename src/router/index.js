@@ -4,6 +4,7 @@ import AboutView from '@/views/About/AboutView.vue'
 import NewsView from '@/views/News/NewsView.vue'
 import EventsView from '@/views/Events/EventsView.vue'
 import RepairView from '@/views/Repair/RepairView.vue'
+import CommunityView from '@/views/Community/CommunityView.vue' 
 import MemberView from '@/views/Member/MemberView.vue'
 
 const router = createRouter({
@@ -12,32 +13,37 @@ const router = createRouter({
     {
       path: '/',
       name: 'index',
-      component: () => import('@/views/IndexView.vue'),
+      component: IndexView,
     },
     {
       path: '/about',
       name: 'about',
-      component: () => import('@/views/About/AboutView.vue'),
+      component: AboutView,
     },
     {
       path: '/news',
       name: 'news',
-      component: () => import('@/views/News/NewsView.vue'),
+      component: NewsView,
     },
     {
       path: '/events',
       name: 'events',
-      component: () => import('@/views/Events/EventsView.vue'),
+      component: EventsView,
     },
     {
       path: '/repair',
       name: 'repair',
-      component: () => import('@/views/Repair/RepairView.vue'),
+      component: RepairView,
+    },
+    {
+      path: '/community',
+      name: 'community',
+      component: CommunityView,
     },
     {
       path: '/member',
       name: 'member',
-      component: () => import('@/views/Member/MemberView.vue'),
+      component: MemberView,
     },
   ],
 })
