@@ -13,3 +13,18 @@
   justify-content: space-between;
   align-items: center;
 }
+
+// === RWD 斷點 ===
+// 手機（max-width: 767px）
+@mixin mobile {
+  @media screen and (max-width: $device-m) {
+    @content;
+  }
+}
+
+// 桌機（min-width: 768px）
+@mixin desktop {
+  @media screen and (min-width: $device-p) {
+    @content;
+  }
+}

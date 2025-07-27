@@ -6,7 +6,7 @@
 .btn--tag {
   width: 133px;
   height: 37px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -26,7 +26,7 @@
     color: $tag-c3;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 60px;
     height: 24px;
     font-size: 12px;
@@ -39,7 +39,7 @@
 .btn--tag2 {
   width: 133px;
   height: 37px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -58,7 +58,7 @@
     color: $white;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 60px;
     height: 24px;
     font-size: 12px;
@@ -99,7 +99,7 @@
 .btn--process {
   width: 350px;
   height: 60px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -117,7 +117,7 @@
     background-color: $primary-c100;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 173px;
     height: 39px;
     font-size: 14px;
@@ -130,7 +130,7 @@
 .btn--popup {
   width: 187px;
   height: 60px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -148,7 +148,7 @@
     background-color: $primary-c100;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 173px;
     height: 39px;
     font-size: 14px;
@@ -162,7 +162,7 @@
 .btn--member {
   width: 205px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -180,7 +180,7 @@
     background-color: $primary-c500;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
@@ -191,7 +191,7 @@
 .btn--membersend {
   width: 76px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -209,7 +209,7 @@
     background-color: $primary-c500;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
@@ -219,7 +219,7 @@
 .btn--membercancel {
   width: 76px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -239,7 +239,7 @@
     border: 1px solid $primary-c700;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
