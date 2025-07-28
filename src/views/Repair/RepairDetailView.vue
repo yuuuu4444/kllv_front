@@ -1,13 +1,21 @@
 <script setup>
-  import { RouterLink } from 'vue-router';
-  import { useRoute } from 'vue-router';
+  import { useRouter } from 'vue-router';
   import SubBanner from '@/components/SubBanner.vue';
-  import repairData from '@/assets/data/Repair/repair_reports_test.json';
+  import RepairData from '@/assets/data/Repair/repair_reports_test.json';
+  import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
-  const route = useRoute();
-  const reportNo = route.params.report_no;
+  const props = defineProps(['report_no']);
+  const router = useRouter();
+  const reportNo = props.report_no;
 
-  const reportItem = repairData.find((item) => item.report_no === reportNo);
+  const reportItem = RepairData.find((item) => item.report_no === reportNo);
+  const categoryItem = Categories.find((item) => item.category_no === reportItem?.category_no);
+  const categoryName = categoryItem ? categoryItem.category_name : '未分類';
+
+  // 回到上一頁
+  const Back = () => {
+    router.back();
+  };
 </script>
 
 <template>
@@ -16,7 +24,12 @@
 
     <div class="repair-detail__container">
       <nav class="repair-detail__breadcrumb">
-        <p class="body--b2">首頁</p>
+        <RouterLink
+          to="/"
+          class="repair-detail__breadcrumb-link"
+        >
+          首頁
+        </RouterLink>
         &#45;
         <p class="body--b2">里民服務</p>
         &#45;
@@ -39,9 +52,9 @@
               v-if="reportItem"
             >
               <th>案件編號</th>
-              <td class="detail-table__value">{{ reportItem.report_no }}</td>
+              <td class="detail-table__value">{{ reportNo }}</td>
               <th>查報類別</th>
-              <td class="detail-table__value">路燈損壞</td>
+              <td class="detail-table__value">{{ categoryName }}</td>
             </tr>
             <tr class="detail-table__row">
               <th>所在地點</th>
@@ -61,15 +74,15 @@
               <td colspan="3">
                 <div class="detail-table__photos">
                   <img
-                    src="..."
+                    src="https://picsum.photos/300/500"
                     class="detail-table__photo"
                   />
                   <img
-                    src="..."
+                    src="https://picsum.photos/500/300"
                     class="detail-table__photo"
                   />
                   <img
-                    src="..."
+                    src="https://picsum.photos/500/300"
                     class="detail-table__photo"
                   />
                 </div>
@@ -80,7 +93,12 @@
       </section>
 
       <div class="repair-detail__action">
-        <button class="repair-detail__back btn--process">返回上一頁</button>
+        <button
+          class="repair-detail__back btn--process"
+          @click="Back"
+        >
+          返回上一頁
+        </button>
       </div>
     </div>
   </div>
@@ -93,18 +111,6 @@
     background-color: $primary-c000;
     padding-bottom: 30px;
 
-    &__banner {
-      @include flex-center;
-      background-color: $primary-c700;
-      min-height: 435px;
-      padding-top: 200px;
-      margin-bottom: 30px;
-    }
-
-    &__title {
-      color: $white;
-    }
-
     &__container {
       padding: 1.5625vw 18.75vw 6.25vw;
     }
@@ -114,6 +120,15 @@
       align-items: center;
       gap: 5px;
       margin-bottom: 50px;
+    }
+
+    &__breadcrumb-link {
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
+      color: $primary-c700;
     }
 
     .detail-table {
@@ -164,12 +179,20 @@
       &__photos {
         @include flex-center;
         gap: 20px;
-        margin: 20px 0;
+        margin: 20px auto;
+        width: 80%;
+        flex-wrap: wrap; // 確保小螢幕不會超出
+        overflow: hidden;
       }
 
       &__photo {
-        width: 285px;
-        height: 200px;
+        width: 30%;
+        object-fit: cover;
+        flex: 1 1 1;
+
+        @include mobile {
+          width: 100%;
+        }
       }
     }
 
