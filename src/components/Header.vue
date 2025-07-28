@@ -9,7 +9,7 @@
   };
 
   // 隱藏導覽列
-  const isHidden = ref(false)
+  const isHidden = ref(false);
   const hideHaeder = () => {
     const scrollY = window.scrollY;
     const scrollLimit = window.innerHeight / 4;
@@ -17,10 +17,10 @@
   };
   onMounted(() => {
     window.addEventListener('scroll', hideHaeder)
-  })
+  });
   onBeforeUnmount(() => {
     window.removeEventListener('scroll', hideHaeder)
-  })
+  });
 </script>
 
 <template>
@@ -92,9 +92,10 @@
 <style scoped lang="scss">
   @import "@/assets/scss/style";
 
+  
   header {
     position: fixed;
-    top: 30px;
+    top: 1.5625vw;
     left: 3.125vw;
     width: calc(100% - 6.25vw);
     z-index: 99;
@@ -181,6 +182,6 @@
     }
   }
   header.hidden {
-    transform: translateY(-100%);
+    transform: translateY(-91%);
   }
 </style>

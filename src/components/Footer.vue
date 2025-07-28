@@ -4,35 +4,35 @@
 
 <template>
   <footer>
-    <div class="main">
-      <div class="main__logo">
+    <div class="mainblock">
+      <div class="mainblock__logo">
         <RouterLink to="/index">
           <img src="/src/assets/image/logo.png" alt="logo">
         </RouterLink>
       </div>
-      <ul class="main__list" role="navigation">
-        <li class="main__item">
+      <ul class="mainblock__list" role="navigation">
+        <li class="mainblock__item">
           <RouterLink to="/news">
             <h5 class="medium">最新消息</h5>
           </RouterLink>
         </li>
-        <li class="main__item">
+        <li class="mainblock__item">
           <RouterLink to="/about">
             <h5 class="medium">關於社區</h5>
           </RouterLink>
         </li>
-        <li class="main__item">
+        <li class="mainblock__item">
           <RouterLink to="/events">
             <h5 class="medium">活動報名</h5>
           </RouterLink>
         </li>
-        <li class="main__item">
+        <li class="mainblock__item">
           <RouterLink to="/repair">
             <h5 class="medium">維修通報</h5>
           </RouterLink>
         </li>
       </ul>
-      <div class="main__info">
+      <div class="mainblock__info">
         <h5 class="medium">聯絡資訊</h5>
         <h5 class="regular">聯絡電話：0987654321</h5>
         <h5 class="regular">聯絡信箱：konlongzhood@gmail.com</h5>
@@ -60,13 +60,12 @@
     height: 28vw;
     z-index: 99;
 
-    background-color: $primary-c000;
     background-image: url(/src/assets/image/footer.png);
 
-    .main {
+    .mainblock {
       width: 100%;
       height: 23vw;
-      padding: 0 6.252vw;
+      padding: 0 2.5vw 0 10vw;
       @include flex-space-between;
 
       &__logo {
@@ -81,7 +80,7 @@
       &__list, &__info {
         display: flex;
         flex-direction: column;
-        gap: 1.25vw;
+        gap: 1.5vw;
         
         h5{
           font-size: 1.25vw;
