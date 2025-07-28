@@ -6,7 +6,7 @@
 .btn--tag {
   width: 133px;
   height: 37px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -26,7 +26,7 @@
     color: $tag-c3;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 60px;
     height: 24px;
     font-size: 12px;
@@ -39,7 +39,7 @@
 .btn--tag2 {
   width: 133px;
   height: 37px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -58,7 +58,7 @@
     color: $white;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 60px;
     height: 24px;
     font-size: 12px;
@@ -92,14 +92,14 @@
   text-align: center;
   border-radius: $border-r-sm;
   border: 1px solid $black;
-  cursor: pointer;
+  // cursor: pointer;
 }
 
 //流程按鈕 下一頁
 .btn--process {
   width: 350px;
   height: 60px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -117,7 +117,7 @@
     background-color: $primary-c100;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 173px;
     height: 39px;
     font-size: 14px;
@@ -130,7 +130,7 @@
 .btn--popup {
   width: 187px;
   height: 60px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -148,7 +148,7 @@
     background-color: $primary-c100;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     width: 173px;
     height: 39px;
     font-size: 14px;
@@ -162,7 +162,7 @@
 .btn--member {
   width: 205px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -180,7 +180,7 @@
     background-color: $primary-c500;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
@@ -191,7 +191,7 @@
 .btn--membersend {
   width: 76px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -209,7 +209,7 @@
     background-color: $primary-c500;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
@@ -219,7 +219,7 @@
 .btn--membercancel {
   width: 76px;
   height: 42px;
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -239,9 +239,85 @@
     border: 1px solid $primary-c700;
   }
 
-  @media #{$mobile} {
+  @include mobile {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 1.4px;
+  }
+}
+
+//標籤按鈕 公告 (最新消息
+.btn--tab1 {
+  width: 7.5vw;
+  aspect-ratio: 3/1;
+  font-family: $font-sans;
+  font-size: 1.25vw;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  @include flex-center;
+  color: $tag-c1;
+  background-color: $white;
+  border: 0.2085vw solid $tag-c1;
+  border-radius: $border-r-sm;
+  cursor: pointer;
+
+  &:focus {
+    color: $white;
+    background-color: $tag-c1;
+  }
+  
+  @include mobile {
+    width: 3.75vw;
+    font-size: 0.625vw;
+  }
+}
+
+.btn--tab2 {
+  width: 7.5vw;
+  aspect-ratio: 3/1;
+  font-family: $font-sans;
+  font-size: 1.25vw;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  @include flex-center;
+  color: $tag-c2;
+  background-color: $white;
+  border: 0.2085vw solid $tag-c2;
+  border-radius: $border-r-sm;
+  cursor: pointer;
+
+  &:focus {
+    color: $white;
+    background-color: $tag-c2;
+  }
+  
+  @include mobile {
+    width: 3.75vw;
+    font-size: 0.625vw;
+  }
+}
+
+.btn--tab3 {
+  width: 7.5vw;
+  aspect-ratio: 3/1;
+  font-family: $font-sans;
+  font-size: 1.25vw;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  @include flex-center;
+  color: $tag-c3;
+  background-color: $white;
+  border: 0.2085vw solid $tag-c3;
+  border-radius: $border-r-sm;
+  cursor: pointer;
+
+  &:focus {
+    color: $white;
+    background-color: $tag-c3;
+  }
+  
+  @include mobile {
+    width: 3.75vw;
+    font-size: 0.625vw;
   }
 }

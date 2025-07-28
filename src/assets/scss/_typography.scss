@@ -5,7 +5,7 @@
 // <h1 class="regular">細體標題</h1>
 @import "@/assets/scss/_variables.scss";
 h1 {
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 48px;
   letter-spacing: 0.2em;
 
@@ -16,14 +16,14 @@ h1 {
   &.bold {
     font-weight: 700;
   }
-  @media #{$mobile} {
+  @include mobile {
     font-size: 24px;
     letter-spacing: 0.1em;
   }
 }
 
 h2 {
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 40px;
   letter-spacing: 0.2em;
 
@@ -34,14 +34,14 @@ h2 {
   &.bold {
     font-weight: 700;
   }
-  @media #{$mobile} {
+  @include mobile {
     font-size: 20px;
     letter-spacing: 0.1em;
   }
 }
 
 h3 {
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 32px;
   letter-spacing: 0.2em;
 
@@ -52,14 +52,14 @@ h3 {
   &.bold {
     font-weight: 700;
   }
-  @media #{$mobile} {
+  @include mobile {
     font-size: 18px;
     letter-spacing: 0.1em;
   }
 }
 
 h4 {
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 28px;
   letter-spacing: 0.2em;
 
@@ -70,14 +70,14 @@ h4 {
   &.bold {
     font-weight: 700;
   }
-  @media #{$mobile} {
+  @include mobile {
     font-size: 18px;
     letter-spacing: 0.1em;
   }
 }
 
 h5 {
-  font-family: 'Noto Sans';
+  font-family: $font-sans;
   font-size: 24px;
   letter-spacing: 0.2em;
 
@@ -88,7 +88,7 @@ h5 {
   &.bold {
     font-weight: 700;
   }
-  @media #{$mobile} {
+  @include mobile {
     font-size: 18px;
     letter-spacing: 0.1em;
   }
@@ -102,7 +102,7 @@ h5 {
 p {
   // 24px
   &.body--b1 {
-    font-family: 'Noto Sans';
+    font-family: $font-sans;
     font-size: 24px;
     font-style: normal;
     font-weight: 400;
@@ -112,7 +112,7 @@ p {
 
   // 20px
   &.body--b2 {
-    font-family: 'Noto Sans';
+    font-family: $font-sans;
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
@@ -122,7 +122,7 @@ p {
 
   //16px
   &.body--b3 {
-    font-family: 'Noto Sans';
+    font-family: $font-sans;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -132,7 +132,7 @@ p {
 
   //14px
   &.body--b4 {
-    font-family: 'Noto Sans';
+    font-family: $font-sans;
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
@@ -141,7 +141,7 @@ p {
   }
   // 備註
   &.body--c1 {
-    font-family: 'Noto Sans';
+    font-family: $font-sans;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -150,7 +150,7 @@ p {
   }
 
   // 手機螢幕字體
-  @media #{$mobile} {
+  @include mobile {
     &.body--b1 {
       font-size: 18px;
       line-height: 28px;
