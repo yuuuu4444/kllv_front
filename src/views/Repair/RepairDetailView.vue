@@ -1,12 +1,18 @@
 <script setup>
   import { RouterLink } from 'vue-router';
+  import { useRoute } from 'vue-router';
+  import SubBanner from '@/components/SubBanner.vue';
+  import repairData from '@/assets/data/Repair/repair_reports_test.json';
+
+  const route = useRoute();
+  const reportNo = route.params.report_no;
+
+  const reportItem = repairData.find((item) => item.report_no === reportNo);
 </script>
 
 <template>
   <div class="repair-detail">
-    <section class="repair-detail__banner">
-      <h1 class="repair-detail__title bold">維修通報查閱</h1>
-    </section>
+    <SubBanner title="維修通報查閱" />
 
     <div class="repair-detail__container">
       <nav class="repair-detail__breadcrumb">
@@ -28,15 +34,18 @@
               <th>填表日期</th>
               <td>2025-07-07</td>
             </tr>
-            <tr class="detail-table__row">
+            <tr
+              class="detail-table__row"
+              v-if="reportItem"
+            >
               <th>案件編號</th>
-              <td class="detail-table__value">KL20250707001</td>
+              <td class="detail-table__value">{{ reportItem.report_no }}</td>
               <th>查報類別</th>
               <td class="detail-table__value">路燈損壞</td>
             </tr>
             <tr class="detail-table__row">
               <th>所在地點</th>
-              <td colspan="3">空瀧浪里 第三巷口的轉角路燈</td>
+              <td colspan="3">{{ reportItem.location }}</td>
             </tr>
             <tr class="detail-table__row">
               <th>情形描述</th>
@@ -44,8 +53,7 @@
                 class="detail-table__desc"
                 colspan="3"
               >
-                這盞路燈這幾天都沒亮，剛好在第三巷口轉角，晚上經過真的滿暗的，尤其有時候長輩或小孩走路比較危險。
-                這邊又是大家出入的常用路線，想麻煩幫忙看一下是不是燈泡壞掉或線路有問題，謝謝里辦辛苦了！
+                {{ reportItem.description }}
               </td>
             </tr>
             <tr class="detail-table__row">
@@ -98,8 +106,7 @@
     }
 
     &__container {
-      max-width: 1200px;
-      margin: 0 auto;
+      padding: 1.5625vw 18.75vw 6.25vw;
     }
 
     &__breadcrumb {

@@ -1,6 +1,7 @@
 <script setup>
-  import { RouterLink } from 'vue-router';
+  import { useRoute } from 'vue-router';
   import { ref, onMounted } from 'vue';
+  import MainBanner from '@/components/MainBanner.vue';
   import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
   // table內容
@@ -22,9 +23,10 @@
 
 <template>
   <div class="report-page">
-    <section class="report-page__banner">
-      <h1 class="report-page__title bold">維修通報</h1>
-    </section>
+    <MainBanner
+      image="/src/assets/banner/banner_repair.jpg"
+      title="維修通報"
+    />
 
     <div class="report-page__container">
       <nav class="report-page__breadcrumb">
@@ -177,8 +179,7 @@
     }
 
     &__container {
-      max-width: 1200px;
-      margin: 0 auto;
+      padding: 1.5625vw 18.75vw 6.25vw;
     }
 
     &__breadcrumb {
