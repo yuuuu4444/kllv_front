@@ -1,12 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import IndexView from '@/views/IndexView.vue';
-import AboutView from '@/views/About/AboutView.vue';
-import NewsView from '@/views/News/NewsView.vue';
-import EventsView from '@/views/Events/EventsView.vue';
-import RepairView from '@/views/Repair/RepairView.vue';
-import RepairDetailView from '@/views/Repair/RepairDetailView.vue';
-import CommunityView from '@/views/Community/CommunityView.vue';
-import MemberView from '@/views/Member/MemberView.vue';
+// import AboutView from '@/views/About/AboutView.vue'
+// import EventsView from '@/views/Events/EventsView.vue'
+// import RepairView from '@/views/Repair/RepairView.vue'
+// import CommunityView from '@/views/Community/CommunityView.vue'
+// import MemberView from '@/views/Member/MemberView.vue'
+
+import NewsRoutes from '@/router/news';
+import AboutRoutes from '@/router/about';
+import EventsRoutes from '@/router/events';
+import RepairRoutes from '@/router/repair';
+import CommunityRoutes from '@/router/community';
+import MemberRoutes from '@/router/member';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,41 +21,38 @@ const router = createRouter({
       name: 'index',
       component: IndexView,
     },
-    {
-      path: '/about',
-      name: 'about',
-      component: AboutView,
-    },
-    {
-      path: '/news',
-      name: 'news',
-      component: NewsView,
-    },
-    {
-      path: '/events',
-      name: 'events',
-      component: EventsView,
-    },
-    {
-      path: '/repair',
-      name: 'repair',
-      component: RepairView,
-    },
-    {
-      path: '/repair/repair_detail',
-      name: 'repair_detail',
-      component: RepairDetailView,
-    },
-    {
-      path: '/community',
-      name: 'community',
-      component: CommunityView,
-    },
-    {
-      path: '/member',
-      name: 'member',
-      component: MemberView,
-    },
+    // {
+    //   path: '/about',
+    //   name: 'about',
+    //   component: AboutView,
+    // },
+    // {
+    //   path: '/events',
+    //   name: 'events',
+    //   component: EventsView,
+    // },
+    // {
+    //   path: '/repair',
+    //   name: 'repair',
+    //   component: RepairView,
+    // },
+    // {
+    //   path: '/community',
+    //   name: 'community',
+    //   component: CommunityView,
+    // },
+    // {
+    //   path: '/member',
+    //   name: 'member',
+    //   component: MemberView,
+    // },
+
+    ...NewsRoutes,
+    ...AboutRoutes,
+    ...EventsRoutes,
+    ...RepairRoutes,
+    ...CommunityRoutes,
+    ...MemberRoutes,
   ],
 });
 
