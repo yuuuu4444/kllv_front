@@ -1,19 +1,38 @@
 <script setup>
-import banner from '@/assets/image/about_banner.jpg'
+
+import MainBanner from '@/components/MainBanner.vue';
+function scrollToTop() {
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+}
 </script>
 <template>
   
   <main>
-    <section class="banner-container">
+  <MainBanner
+    image="/src/assets/banner/banner_about.jpg"
+    title="關於社區"
+  />
+    <!-- <section class="banner-container">
      <img :src="banner" alt="" />
     <div class="overlay">
     </div>
     <div class="text-overlay">
       <h1 class="bold">空瀧浪里 就像這樣</h1>
     </div>
-  </section>
+  </section> -->
   <section class="about-section">
-    <div class="breadcrumb">首頁 - 關於社區</div>
+    <div class="breadcrumb">
+      <RouterLink to="/index">
+        <p class="body--b3">首頁</p>
+      </RouterLink>
+      <p class="body--b3">/</p>
+      <RouterLink to="/about">
+        <p class="body--b3">關於社區</p>
+      </RouterLink>
+    </div>
 
     <div class="map-container">
       <img src="../../assets/image/about_map.png" alt="社區地圖" class="map-image" />
@@ -85,10 +104,83 @@ import banner from '@/assets/image/about_banner.jpg'
   </div>
 
   <div class="back-to-top">
-    
-    
   <p class="body--b2">
-    <a href="#">TOP</a>
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
+  </p>
+  </div>
+</section>
+<section class="mayor-intro2">
+  <div class="leader-info">
+  <h2 class="bold">特色農產</h2>
+  </div>
+
+  <div class="intro-section">
+    <div class="images">
+      <div class="img-large">
+      <img src="../../assets/image/about_03.jpg" alt="梨"  />
+      </div>
+      <div class="img-small">
+      <img src="../../assets/image/about_04.jpg" alt="房梨"  />
+      </div>
+    </div>
+  </div>
+  <div class="text-content">
+    <div class="text-content-title" >
+      <h3 class="regular">傳承孔融精神的甜美果鄉</h3>
+    </div>
+    <div class="text-content-inner">
+    <p class="body--b2">「空瀧浪里」這個溫馨的名稱，源自東漢時期流傳千古的美德故事──孔融讓梨。年僅四歲的孔融，懂得將大梨讓給哥哥們，自己選擇較小的，展現出尊重長輩、禮讓他人的品德。這段故事深入人心，也成為本里推廣倫理教育、社區文化的重要象徵。
+如今的「空瀧浪里」不僅是品德教育的起點，更是天然美味的故鄉。這裡擁有一片片用心耕作的有機梨園，農民秉持對土地與健康的尊重，採用友善環境的方式種植每一顆梨子，讓自然風味回歸舌尖。
+無毒栽種、不施化肥，造就了果實甜潤多汁的特色。每一口梨子，都像是延續了孔融的心意──溫柔、純淨、值得分享。
+歡迎走進梨子里，不只是品嚐梨子，更是品味一段源遠流長的文化記憶。</p>
+
+   
+  </div>
+  </div>
+<button>活動體驗</button>
+
+  <div class="back-to-top">
+  <p class="body--b2">
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
+  </p>
+  </div>
+</section>
+<section class="mayor-intro3">
+  <div class="leader-info">
+  <h2 class="bold">活動中心</h2>
+  </div>
+
+  <div class="intro-section">
+    <div class="images">
+      <div class="img-large">
+      <img src="../../assets/image/about_05.jpg" alt=""  />
+      </div>
+      <div class="img-small">
+      <img src="../../assets/image/about_06.jpg" alt=""  />
+      </div>
+    </div>
+  </div>
+<div class="text-content">
+    <div class="text-content-title" >
+      <h3 class="regular">孔融的精神，在教育社區延續</h3>
+    </div>
+    <div class="text-content-inner">
+    <p class="body--b2">空瀧浪里，這個充滿故事與希望的社區名字，來自家喻戶曉的典故──孔融讓梨。小小年紀的孔融主動將較大的梨子讓給哥哥，展現了尊重與分享的美德。這不只是中華傳統文化的一段佳話，更成為梨子里推動品格教育的根基。
+本社區以「禮讓」、「尊重」、「分享」作為教育核心，推動多元社區學習活動：</p>
+
+    <ul>
+      <li><p class="body--b2">品格故事講堂：透過說故事與角色扮演，讓孩子從生活中實踐孔融的精神。</p></li>
+      <li><p class="body--b2">代間學習計畫：長者與孩童一同參與梨園志工服務，促進世代交流與理解。</p></li>
+    </ul>
+    <p class="body--b2">空瀧浪里相信，教育不只是學校的責任，更是整個社區共同的使命。我們用一顆顆親手種下的有機梨，傳遞禮讓與關愛；用一場場溫暖的活動，培養下一代的品格力量。</p>
+  </div>
+  </div>
+  <button>課程報名</button>
+  
+
+  <div class="back-to-top">
+  <p class="body--b2">
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
   </p>
   </div>
 </section>
@@ -96,8 +188,7 @@ import banner from '@/assets/image/about_banner.jpg'
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/scss/_typography.scss";
-@import "@/assets/scss/_variables.scss";
+@import "@/assets/scss/style.scss";
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 body {
   font-family: 'Noto Sans', sans-serif;
@@ -105,39 +196,21 @@ body {
   main{
     background-color: $primary-c25;
   }
-  .banner-container{
-    height:860px;
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-  }
-  .banner-container img{
-    transform: translate(0px,-140px );
-    width: 100%;
-  }
-  .overlay{
-    position: absolute;
-    inset: 0; /* top:0; right:0; bottom:0; left:0 */
-    background-color: rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-  }
-  .text-overlay {
-  position: absolute; 
-  top: 50%;           
-  left: 50%;          
-  transform: translate(-50%, -50%);
-  color:$white ;
 
-  pointer-events: none;
-}
 .about-section {
   background-color: #d6e9f5;
   padding: 40px 20px;
   text-align: center;
 
   .breadcrumb {
-    font-size: 14px;
-    margin-bottom: 24px;
+    display: flex;
+    gap: 0.5em;
+
+    p {
+      display: inline-block;
+      font-size: 1.042vw;
+      color: black;
+    }
   }
 
   .map-container {
@@ -209,7 +282,7 @@ body {
   background-color:$primary-c25;
   padding: 40px 20px;
   text-align: center;
-  margin: 0px 360px;
+  margin: 0px 20%;
   .leader-info {
     
     margin-bottom: 40px;
@@ -220,7 +293,7 @@ body {
       content: '';
       position: absolute;
       top: 50%;
-      width: 447px;
+      width: 35%;
       height: 60px;
       background-color: $primary-c100;
       transform: translateY(-50%);
@@ -234,42 +307,44 @@ body {
     }
   }
   .intro-section {
-  margin: 0 auto;
-  gap: 24px;
+
+  max-width: 1196px;
 
   .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
     position: relative;
-    
+    // outline: 1px solid red;
+    max-height: 400px;
 
     .img-large {
-      position: relative;
-      width: 990px;
-      height: 350px;
+      grid-column: 1 / 5;
+      grid-row: 1 / 4;
       border-radius: $border-r-lg;
       overflow: hidden;
     }
 
     .img-small {
-      position: absolute;
-      width: 480px;
-      height: 260px;
-      border-radius:$border-r-lg;
+      grid-column: 4   / 6;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
       overflow: hidden;
-      right: 30px;
-      top:300px;
-      transform: translateY(-50%);
       border: 3px solid white;
-      background: white;
+      z-index: 1;
+      
     }
-    img{
+
+    img {
       width: 100%;
     }
+    
   }
-
 }
+
   .text-content {
     position: relative;
-    margin-top: 100px;
+    margin-right: 40%;
     text-align: left;
     padding: 0 20px;
 
@@ -290,8 +365,9 @@ body {
   .contacts {
     display: flex;
     justify-content: center;
-    gap: 100px;
+    gap: 80px;
     margin: 40px 0;
+    
       >.contact-item:nth-child(2){
         padding-left: 80px;
       }
@@ -314,6 +390,205 @@ body {
     }
   }
 
+  .back-to-top {
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+  }
+}
+a{
+  color: $black;
+}
+.mayor-intro2 {
+  background-color:$primary-c25;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 0px 20%;
+  .leader-info {
+    
+    margin-bottom: 40px;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 60px;
+      background-color: $secondary-c;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+  .intro-section {
+
+  max-width: 1196px;
+
+  .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
+    position: relative;
+    // outline: 1px solid red;
+    max-height: 400px;
+
+    .img-large {
+      grid-column: 2 / 6;
+      grid-row: 1 / 4;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+    }
+
+    .img-small {
+      grid-column: 1   / 3;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+      border: 3px solid white;
+      z-index: 1;
+      
+    }
+
+    img {
+      width: 100%;
+      
+    }
+    
+  }
+}
+
+  .text-content {
+    position: relative;
+    margin-left: 45%;
+    text-align: left;
+    padding: 0 20px;
+
+    .text-content-title{
+      margin-bottom: 65px;
+    }
+    
+
+    .contact-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+    
+      
+      img {
+        width: 36px;
+        margin-bottom: 8px;
+      }
+      > div:nth-child(2) {
+        
+        margin-bottom: 4px;
+      }
+    }
+  }
+
+  
+  .back-to-top {
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+  }
+}
+a{
+  color: $black;
+}
+
+.mayor-intro3 {
+  background-color:$primary-c25;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 0px 20%;
+  .leader-info {
+    
+    margin-bottom: 40px;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 60px;
+      background-color: $highlight-c50;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+  .intro-section {
+
+  max-width: 1196px;
+
+  .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
+    position: relative;
+    // outline: 1px solid red;
+    max-height: 400px;
+
+    .img-large {
+      grid-column: 1 / 5;
+      grid-row: 1 / 4;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+    }
+
+    .img-small {
+      grid-column: 4 / 6;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+      border: 3px solid white;
+      z-index: 1;
+      
+    }
+
+    img {
+      width: 100%;
+      
+    }
+    
+  }
+}
+
+  .text-content {
+    position: relative;
+    margin-right: 40%;
+    text-align: left;
+    padding: 0 20px;
+    
+    .text-content-title{
+      margin-bottom: 65px;
+    }
+     ul {
+      margin-left: 16px;
+      list-style:disc;
+
+      li {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  
   .back-to-top {
     cursor: pointer;
     text-decoration: underline;
