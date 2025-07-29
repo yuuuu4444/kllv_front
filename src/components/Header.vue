@@ -45,10 +45,10 @@
             </RouterLink>
           </li>
           <li class="mainbar__item dropdown" @click="openDropdown">
-            <RouterLink>
+            <a>
               <img src="/src/assets/icon/icon_services.png" alt="services-icon">
               <h5 class="medium">里民服務</h5>
-            </RouterLink>
+            </a>
             <ul class="dropdown__list" :style="{ display: isOpen ? 'flex' : 'none' }">
               <li class="dropdown__item">
                 <RouterLink to="/events">
