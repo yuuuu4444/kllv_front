@@ -1,7 +1,7 @@
 <script setup>
-defineProps({
-  title: String
-})
+  defineProps({
+    title: String,
+  });
 </script>
 
 <template>
@@ -11,14 +11,14 @@ defineProps({
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/scss/style";
+  @import '@/assets/scss/style';
 
   .banner {
     width: 100%;
     height: 44vh;
     @include flex-center;
     background-color: $primary_c700;
-    
+
     &__title {
       color: $white;
       padding: 0.25em 0.05em 0.25em 0.25em;
@@ -38,5 +38,4 @@ defineProps({
       }
     }
   }
-
 </style>
