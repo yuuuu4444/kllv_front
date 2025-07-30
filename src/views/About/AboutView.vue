@@ -180,8 +180,12 @@ function scrollToTop() {
     <p class="body--b2">空瀧浪里相信，教育不只是學校的責任，更是整個社區共同的使命。我們用一顆顆親手種下的有機梨，傳遞禮讓與關愛；用一場場溫暖的活動，培養下一代的品格力量。</p>
   </div>
   </div>
-  <button class="about_btn">課程報名</button>
-  
+<RouterLink to="/Events" class="about-btn">
+  <div class="btn-img">
+    <img src="../../assets/image/about_pear_btn02.jpg" alt="">
+  </div>
+  <span>課程報名</span>
+</RouterLink>
 
   <div class="back-to-top">
   <p class="body--b2">
@@ -401,6 +405,7 @@ body {
     cursor: pointer;
     text-decoration: underline;
     text-align: right;
+    margin-bottom: 240px;
   }
 }
 a{
@@ -491,6 +496,7 @@ a{
     cursor: pointer;
     text-decoration: underline;
     text-align: right;
+    margin-bottom: 240px;
   }
 }
 a{
@@ -499,13 +505,12 @@ a{
 .about-btn {
   display: flex;
   align-items: center;
-  gap: 16px;
   background-color: $secondary-c;
   border-radius: $border-r-lg;
   text-decoration: none;
   color:$black;
   width: 794px;
-
+  margin: 60px auto 10px;
   &:hover {
     background-color: darken(#7ac57a, 10%);
   }
@@ -616,7 +621,12 @@ span {
       }
     }
   }
-
+  .about-btn {
+    background-color: $highlight-c50;
+      &:hover {
+    background-color:$highlight-c100 ;
+  }
+  }
   
   .back-to-top {
     cursor: pointer;
