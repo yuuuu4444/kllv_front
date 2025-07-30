@@ -3,6 +3,7 @@
 //說明
 // <h1 class="bold">粗體標題</h1>
 // <h1 class="regular">細體標題</h1>
+@import "@/assets/scss/_variables.scss";
 h1 {
   font-family: $font-sans;
   font-size: 48px;

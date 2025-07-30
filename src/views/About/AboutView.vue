@@ -1,30 +1,643 @@
 <script setup>
-  import { ImgComparisonSlider } from '@img-comparison-slider/vue';
-  import image1 from '@/assets/image/01.png';
-  import image2 from '@/assets/image/02.png';
+
+import MainBanner from '@/components/MainBanner.vue';
+function scrollToTop() {
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+}
 </script>
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  
+  <main>
+  <MainBanner
+    image="/src/assets/banner/banner_about.jpg"
+    title="關於社區"
+  />
+    <!-- <section class="banner-container">
+     <img :src="banner" alt="" />
+    <div class="overlay">
+    </div>
+    <div class="text-overlay">
+      <h1 class="bold">空瀧浪里 就像這樣</h1>
+    </div>
+  </section> -->
+  <section class="about-section">
+    <div class="breadcrumb">
+      <RouterLink to="/index">
+        <p class="body--b3">首頁</p>
+      </RouterLink>
+      <p class="body--b3">/</p>
+      <RouterLink to="/about">
+        <p class="body--b3">關於社區</p>
+      </RouterLink>
+    </div>
+
+    <div class="map-container">
+      <img src="../../assets/image/about_map.png" alt="社區地圖" class="map-image" />
+
+      <!-- 說明文字泡泡 -->
+      <div class="speech-bubble">
+        <p class="body--b2">您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
+      </div>
+    </div>
+
+    <!-- 下方描述文字 -->
+     <div class="about-text-container">
+    <div class="about-text">
+      <p class="body--b2">
+      空瀧浪里是深山老林中的一個小村莊，人口約800人。<br>
+      四周群山環繞，村民們充滿活力。<br>
+      這裡沒有紅綠燈，也沒有便利商店，卻充滿了笑容和豐富的自然風光。<br> 
+      何不在這個時間緩慢流逝的村莊體驗自然的生活方式呢？
+      </p>
+    </div>
+    </div>
+  </section>
+  <section class="mayor-intro">
+  <div class="leader-info">
+  <h2 class="bold">里長簡介</h2>
   </div>
-  <ImgComparisonSlider>
-    <!-- eslint-disable -->
-    <img
-      slot="first"
-      :src="image1"
-    />
-    <img
-      slot="second"
-      :src="image2"
-    />
-    <!-- eslint-enable -->
-  </ImgComparisonSlider>
+
+  <div class="intro-section">
+    <div class="images">
+      <div class="img-large">
+      <img src="../../assets/image/about_01.jpg" alt="梨樹"  />
+      </div>
+      <div class="img-small">
+      <img src="../../assets/image/about_02_leader.jpg" alt="里長"  />
+      </div>
+    </div>
+  </div>
+  <div class="text-content">
+    <div class="text-content-title" >
+      <h3 class="regular">孔融郎 里長</h3>
+    </div>
+    <div class="text-content-inner">
+    <p class="body--b2">孔融郎里長，自上任以來，里長致力於打造一個溫暖、有教育力的社區，讓「空瀧浪里」成為真正值得驕傲的美德家園。出身在地家庭的孔融郎里長，深知社區的每一分土地與人情，將「教育即生活」作為施政核心，推動多項以品格與環保為主軸的社區建設與活動，包括：</p>
+
+    <ul>
+      <li><p class="body--b2">推廣有機梨園教育體驗，讓孩子認識土地、尊重自然</p></li>
+      <li><p class="body--b2">設立「活動中心」，定期舉辦親子共學與長者共伴課程</p></li>
+      <li><p class="body--b2">提倡世代共融、鄰里互助，建立更具人情味的里民關係</p></li>
+    </ul>
+    <p class="body--b2">以謙遜為本、服務為志，致力於讓每一位居民都能在空瀧浪里找到歸屬與驕傲。</p>
+  </div>
+  </div>
+  <div class="contacts">
+    <div class="contact-item">
+      <img src="../../assets/image/tel.png" alt="電話" />
+      <div><h4 class="regular">里辦電話</h4></div>
+      <div><p class="body--b2">0987654321</p></div>
+    </div>
+    <div class="contact-item">
+      <img src="../../assets/image/mail.png" alt="信箱" />
+      <div><h4 class="regular">里辦信箱</h4></div>
+      <div><p class="body--b2">konlongzhood@gmail.com</p></div>
+    </div>
+    <div class="contact-item">
+      <img src="../../assets/image/map.png" alt="地址" />
+      <div><h4 class="regular">里辦地址</h4></div>
+      <div><p class="body--b2">桃園市中壢區空瀧浪里孔融路1號</p></div>
+    </div>
+  </div>
+
+  <div class="back-to-top">
+  <p class="body--b2">
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
+  </p>
+  </div>
+</section>
+<section class="mayor-intro2">
+  <div class="leader-info">
+  <h2 class="bold">特色農產</h2>
+  </div>
+
+  <div class="intro-section">
+    <div class="images">
+      <div class="img-large">
+      <img src="../../assets/image/about_03.jpg" alt="梨"  />
+      </div>
+      <div class="img-small">
+      <img src="../../assets/image/about_04.jpg" alt="房梨"  />
+      </div>
+    </div>
+  </div>
+  <div class="text-content">
+    <div class="text-content-title" >
+      <h3 class="regular">傳承孔融精神的甜美果鄉</h3>
+    </div>
+    <div class="text-content-inner">
+    <p class="body--b2">「空瀧浪里」這個溫馨的名稱，源自東漢時期流傳千古的美德故事──孔融讓梨。年僅四歲的孔融，懂得將大梨讓給哥哥們，自己選擇較小的，展現出尊重長輩、禮讓他人的品德。這段故事深入人心，也成為本里推廣倫理教育、社區文化的重要象徵。
+如今的「空瀧浪里」不僅是品德教育的起點，更是天然美味的故鄉。這裡擁有一片片用心耕作的有機梨園，農民秉持對土地與健康的尊重，採用友善環境的方式種植每一顆梨子，讓自然風味回歸舌尖。
+無毒栽種、不施化肥，造就了果實甜潤多汁的特色。每一口梨子，都像是延續了孔融的心意──溫柔、純淨、值得分享。
+歡迎走進梨子里，不只是品嚐梨子，更是品味一段源遠流長的文化記憶。</p>
+
+   
+  </div>
+  </div>
+<RouterLink to="/Events" class="about-btn">
+  <div class="btn-img">
+    <img src="../../assets/image/about_pear_btn01.jpg" alt="">
+  </div>
+  <span>活動體驗</span>
+</RouterLink>
+
+  <div class="back-to-top">
+  <p class="body--b2">
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
+  </p>
+  </div>
+</section>
+<section class="mayor-intro3">
+  <div class="leader-info">
+  <h2 class="bold">活動中心</h2>
+  </div>
+
+  <div class="intro-section">
+    <div class="images">
+      <div class="img-large">
+      <img src="../../assets/image/about_05.jpg" alt=""  />
+      </div>
+      <div class="img-small">
+      <img src="../../assets/image/about_06.jpg" alt=""  />
+      </div>
+    </div>
+  </div>
+<div class="text-content">
+    <div class="text-content-title" >
+      <h3 class="regular">孔融的精神，在教育社區延續</h3>
+    </div>
+    <div class="text-content-inner">
+    <p class="body--b2">空瀧浪里，這個充滿故事與希望的社區名字，來自家喻戶曉的典故──孔融讓梨。小小年紀的孔融主動將較大的梨子讓給哥哥，展現了尊重與分享的美德。這不只是中華傳統文化的一段佳話，更成為梨子里推動品格教育的根基。
+本社區以「禮讓」、「尊重」、「分享」作為教育核心，推動多元社區學習活動：</p>
+
+    <ul>
+      <li><p class="body--b2">品格故事講堂：透過說故事與角色扮演，讓孩子從生活中實踐孔融的精神。</p></li>
+      <li><p class="body--b2">代間學習計畫：長者與孩童一同參與梨園志工服務，促進世代交流與理解。</p></li>
+    </ul>
+    <p class="body--b2">空瀧浪里相信，教育不只是學校的責任，更是整個社區共同的使命。我們用一顆顆親手種下的有機梨，傳遞禮讓與關愛；用一場場溫暖的活動，培養下一代的品格力量。</p>
+  </div>
+  </div>
+<RouterLink to="/Events" class="about-btn">
+  <div class="btn-img">
+    <img src="../../assets/image/about_pear_btn02.jpg" alt="">
+  </div>
+  <span>課程報名</span>
+</RouterLink>
+
+  <div class="back-to-top">
+  <p class="body--b2">
+    <a href="#"@click.prevent="scrollToTop">TOP</a>
+  </p>
+  </div>
+</section>
+</main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/assets/scss/style.scss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+  main{
+    background-color: $primary-c25;
+  }
+
+.about-section {
+  background-color: #d6e9f5;
+  padding: 40px 20px;
+  text-align: center;
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5em;
+
+    p {
+      display: inline-block;
+      font-size: 1.042vw;
+      color: black;
+    }
+  }
+
+  .map-container {
+    position: relative;
+    max-width: 683px;
+    margin: 0 auto ;
+    
+
+    .map-image {
+      position: relative;
+      top:100px;
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .place {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: bold;
+      font-size: 14px;
+
+      img {
+        width: 60px;
+        margin-bottom: 6px;
+      }
+    }
+
+    .place-office {
+      top: 30%;
+      left: 25%;
+    }
+    .place-activity {
+      top: 15%;
+      left: 55%;
+    }
+    .place-pear {
+      top: 70%;
+      left: 60%;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      top: 26%;
+      left: 80%;
+      width: 256px;
+      background: white;
+      padding: 32px;
+      border-radius: $border-r-lg;
+      
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      
+      text-align: left;
+    }
+
+  }
+.about-text-container{
+  background-color: $primary-c100;
+  padding: 115px;
+  .about-text {
+    width: 788px;
+    margin: 0 auto;
+    color: $black;
+    
+  }
+  }
+}
+.mayor-intro {
+  background-color:$primary-c25;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 0px 20%;
+  .leader-info {
+    
+    margin-bottom: 40px;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 60px;
+      background-color: $primary-c100;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+  .intro-section {
+
+  max-width: 1196px;
+
+  .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
+    position: relative;
+    // outline: 1px solid red;
+    max-height: 400px;
+
+    .img-large {
+      grid-column: 1 / 5;
+      grid-row: 1 / 4;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+    }
+
+    .img-small {
+      grid-column: 4   / 6;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+      border: 3px solid white;
+      z-index: 1;
+      
+    }
+
+    img {
+      width: 100%;
+    }
+    
+  }
+}
+
+  .text-content {
+    position: relative;
+    margin-right: 40%;
+    text-align: left;
+    padding: 0 20px;
+
+    .text-content-title{
+      margin-bottom: 65px;
+    }
+
+    ul {
+      margin-left: 16px;
+      list-style:disc;
+
+      li {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  .contacts {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin: 40px 0;
+    
+      >.contact-item:nth-child(2){
+        padding-left: 80px;
+      }
+
+    .contact-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+    
+      
+      img {
+        width: 36px;
+        margin-bottom: 8px;
+      }
+      > div:nth-child(2) {
+        
+        margin-bottom: 4px;
+      }
+    }
+  }
+
+  .back-to-top {
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+    margin-bottom: 240px;
+  }
+}
+a{
+  color: $black;
+}
+.mayor-intro2 {
+  background-color:$primary-c25;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 0px 20%;
+  .leader-info {
+    
+    margin-bottom: 40px;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 60px;
+      background-color: $secondary-c;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+  .intro-section {
+
+  max-width: 1196px;
+
+  .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
+    position: relative;
+    // outline: 1px solid red;
+    max-height: 400px;
+
+    .img-large {
+      grid-column: 2 / 6;
+      grid-row: 1 / 4;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+    }
+
+    .img-small {
+      grid-column: 1   / 3;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+      border: 3px solid $white;
+      z-index: 1;
+      
+    }
+
+    img {
+      position: relative;
+      width: 100%;
+      bottom: 80%;
+    }
+    
+  }
+}
+
+  .text-content {
+    position: relative;
+    margin-left: 45%;
+    text-align: left;
+    padding: 0 20px;
+
+    .text-content-title{
+      margin-bottom: 65px;
+    }
+    
+
+    
+  }
+
+  
+  .back-to-top {
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+    margin-bottom: 240px;
+  }
+}
+a{
+  color: $black;
+}
+.about-btn {
+  display: flex;
+  align-items: center;
+  background-color: $secondary-c;
+  border-radius: $border-r-lg;
+  text-decoration: none;
+  color:$black;
+  width: 794px;
+  margin: 60px auto 10px;
+  &:hover {
+    background-color: darken(#7ac57a, 10%);
+  }
+}
+
+.btn-img {
+  width: 305px;
+  height: 150px;
+  border-radius: 30px 0 0 30px;
+  overflow: hidden;
+
   img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
   }
+}
+
+span {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+}
+
+.mayor-intro3 {
+  background-color:$primary-c25;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 0px 20%;
+  .leader-info {
+    
+    margin-bottom: 40px;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 60px;
+      background-color: $highlight-c50;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+  .intro-section {
+
+  max-width: 1196px;
+
+  .images {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr 1fr 0.5fr;
+    grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
+    position: relative;
+    // outline: 1px solid red;
+    max-height: 400px;
+
+    .img-large {
+      grid-column: 1 / 5;
+      grid-row: 1 / 4;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+    }
+
+    .img-small {
+      grid-column: 4 / 6;
+      grid-row: 2 / 5;
+      border-radius: $border-r-lg;
+      overflow: hidden;
+      border: 3px solid white;
+      z-index: 1;
+      
+    }
+
+    img {
+      width: 100%;
+      
+    }
+    
+  }
+}
+
+  .text-content {
+    position: relative;
+    margin-right: 40%;
+    text-align: left;
+    padding: 0 20px;
+    
+    .text-content-title{
+      margin-bottom: 65px;
+    }
+     ul {
+      margin-left: 16px;
+      list-style:disc;
+
+      li {
+        margin-bottom: 8px;
+      }
+    }
+  }
+  .about-btn {
+    background-color: $highlight-c50;
+      &:hover {
+    background-color:$highlight-c100 ;
+  }
+  }
+  
+  .back-to-top {
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: right;
+  }
+}
+a{
+  color: $black;
+}
+
   @media (min-width: 1024px) {
     .about {
       min-height: 100vh;
