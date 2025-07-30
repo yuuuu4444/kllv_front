@@ -137,7 +137,12 @@ function scrollToTop() {
    
   </div>
   </div>
-<button>活動體驗</button>
+<RouterLink to="/Events" class="about-btn">
+  <div class="btn-img">
+    <img src="../../assets/image/about_pear_btn01.jpg" alt="">
+  </div>
+  <span>活動體驗</span>
+</RouterLink>
 
   <div class="back-to-top">
   <p class="body--b2">
@@ -175,7 +180,7 @@ function scrollToTop() {
     <p class="body--b2">空瀧浪里相信，教育不只是學校的責任，更是整個社區共同的使命。我們用一顆顆親手種下的有機梨，傳遞禮讓與關愛；用一場場溫暖的活動，培養下一代的品格力量。</p>
   </div>
   </div>
-  <button>課程報名</button>
+  <button class="about_btn">課程報名</button>
   
 
   <div class="back-to-top">
@@ -216,10 +221,12 @@ body {
   .map-container {
     position: relative;
     max-width: 683px;
-    margin: 0 auto 40px;
-    padding: 20px;
+    margin: 0 auto ;
+    
 
     .map-image {
+      position: relative;
+      top:100px;
       width: 100%;
       display: block;
       border-radius: 12px;
@@ -272,7 +279,7 @@ body {
   padding: 115px;
   .about-text {
     width: 788px;
-    margin: 115px auto;
+    margin: 0 auto;
     color: $black;
     
   }
@@ -451,14 +458,15 @@ a{
       grid-row: 2 / 5;
       border-radius: $border-r-lg;
       overflow: hidden;
-      border: 3px solid white;
+      border: 3px solid $white;
       z-index: 1;
       
     }
 
     img {
+      position: relative;
       width: 100%;
-      
+      bottom: 80%;
     }
     
   }
@@ -475,22 +483,7 @@ a{
     }
     
 
-    .contact-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
     
-      
-      img {
-        width: 36px;
-        margin-bottom: 8px;
-      }
-      > div:nth-child(2) {
-        
-        margin-bottom: 4px;
-      }
-    }
   }
 
   
@@ -502,6 +495,42 @@ a{
 }
 a{
   color: $black;
+}
+.about-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: $secondary-c;
+  border-radius: $border-r-lg;
+  text-decoration: none;
+  color:$black;
+  width: 794px;
+
+  &:hover {
+    background-color: darken(#7ac57a, 10%);
+  }
+}
+
+.btn-img {
+  width: 305px;
+  height: 150px;
+  border-radius: 30px 0 0 30px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+  }
+}
+
+span {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  font-size: 28px;
 }
 
 .mayor-intro3 {
@@ -598,6 +627,7 @@ a{
 a{
   color: $black;
 }
+
   @media (min-width: 1024px) {
     .about {
       min-height: 100vh;
