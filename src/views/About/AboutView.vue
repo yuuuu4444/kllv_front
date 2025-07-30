@@ -13,7 +13,7 @@ function scrollToTop() {
   <main>
   <MainBanner
     image="/src/assets/banner/banner_about.jpg"
-    title="關於社區"
+    title="空瀧浪里 就像這樣"
   />
     <!-- <section class="banner-container">
      <img :src="banner" alt="" />
