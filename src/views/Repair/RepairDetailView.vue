@@ -30,12 +30,9 @@
         >
           首頁
         </RouterLink>
-        &#45;
-        <p class="body--b2">里民服務</p>
-        &#45;
-        <p class="body--b2">維修通報</p>
-        &#45;
-        <p class="body--b2">維修通報查閱</p>
+        <p class="body--b2">&#45;里民服務</p>
+        <p class="body--b2">&#45;維修通報</p>
+        <p class="body--b2">&#45;維修通報查閱</p>
       </nav>
 
       <section class="detail-table">
@@ -88,6 +85,15 @@
                 </div>
               </td>
             </tr>
+            <tr class="detail-table__row">
+              <th>回覆</th>
+              <td
+                class="detail-table__desc"
+                colspan="3"
+              >
+                您好，已完成修補，感謝您的通報與關心！
+              </td>
+            </tr>
           </tbody>
         </table>
       </section>
@@ -109,7 +115,6 @@
 
   .repair-detail {
     background-color: $primary-c000;
-    padding-bottom: 30px;
 
     &__container {
       padding: 1.5625vw 18.75vw 6.25vw;
@@ -118,6 +123,7 @@
     &__breadcrumb {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 5px;
       margin-bottom: 50px;
     }
@@ -181,7 +187,7 @@
         gap: 20px;
         margin: 20px auto;
         width: 80%;
-        flex-wrap: wrap; // 確保小螢幕不會超出
+        flex-wrap: wrap;
         overflow: hidden;
       }
 
@@ -189,15 +195,42 @@
         width: 30%;
         object-fit: cover;
         flex: 1 1 1;
-
-        @include mobile {
-          width: 100%;
-        }
       }
     }
 
     &__action {
       @include flex-center;
+    }
+
+    @include mobile {
+      &__container {
+        padding: 1.5625vw 2.5vw 6.25vw;
+      }
+
+      &__breadcrumb-link {
+        font-size: 16px;
+        line-height: 26px;
+        letter-spacing: 0.1em;
+      }
+
+      .detail-table {
+        &__row {
+          th {
+            font-size: 16px;
+            line-height: 26px;
+            letter-spacing: 0.1em;
+          }
+
+          td {
+            font-size: 14px;
+            line-height: 22px;
+            letter-spacing: 0.1em;
+          }
+        }
+        &__photo {
+          width: 100%;
+        }
+      }
     }
   }
 </style>

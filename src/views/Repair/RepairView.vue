@@ -58,15 +58,16 @@
         >
           首頁
         </RouterLink>
-        &#45;
-        <p class="report-page__breadcrumb-item body--b2">里民服務</p>
-        &#45;
-        <p class="report-page__breadcrumb-item body--b2">維修通報</p>
+        <p class="report-page__breadcrumb-item body--b2">&#45;里民服務</p>
+        <p class="report-page__breadcrumb-item body--b2">&#45;維修通報</p>
       </nav>
 
-      <div class="report-page__action">
+      <RouterLink
+        to="/repair/form"
+        class="report-page__action"
+      >
         <button class="report-button btn--process">我要報修</button>
-      </div>
+      </RouterLink>
 
       <form
         action="#"
@@ -145,9 +146,9 @@
             <tr>
               <th>案件編號</th>
               <th>查報類別</th>
-              <th>所在地點</th>
+              <th class="mobile-hidden">所在地點</th>
               <th>狀態</th>
-              <th>填表日期</th>
+              <th class="mobile-hidden">填表日期</th>
               <th>查閱</th>
             </tr>
           </thead>
@@ -157,12 +158,12 @@
               v-for="(repair, index) in pagedReports"
               :key="index"
             >
-              <td>{{ repair.report_no }}</td>
-              <td>{{ repair.category }}</td>
-              <td>{{ repair.location }}</td>
-              <td>已處理</td>
-              <td>{{ repair.created_at }}</td>
-              <td>
+              <td data-label="案件編號">{{ repair.report_no }}</td>
+              <td data-label="查報類別">{{ repair.category }}</td>
+              <td data-label="所在地點">{{ repair.location }}</td>
+              <td data-label="狀態">已處理</td>
+              <td data-label="填表日期">{{ repair.created_at }}</td>
+              <td data-label="查閱">
                 <RouterLink
                   :to="`/repair/${repair.report_no}`"
                   class="report-table__link"
@@ -199,7 +200,6 @@
 
   .report-page {
     background-color: $primary-c000;
-    padding-bottom: 30px;
 
     &__container {
       padding: 1.5625vw 18.75vw 6.25vw;
@@ -208,6 +208,7 @@
     &__breadcrumb {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 5px;
       margin-bottom: 50px;
     }
@@ -362,6 +363,61 @@
         border: 1px solid $black;
         border-radius: $border-r-xs;
         background-color: $white;
+      }
+    }
+
+    @include mobile {
+      &__container {
+        padding: 1.5625vw 2.5vw 6.25vw;
+      }
+
+      &__breadcrumb-link {
+        font-size: 16px;
+        line-height: 26px;
+        letter-spacing: 0.1em;
+      }
+
+      .report-filter {
+        &__label {
+          font-size: 14px;
+          line-height: 22px;
+          letter-spacing: 0.1em;
+        }
+
+        &__search,
+        &__select,
+        &__input {
+          font-size: 14px;
+        }
+      }
+
+      .report-table {
+        &__head {
+          th {
+            font-size: 16px;
+            line-height: 26px;
+            letter-spacing: 0.1em;
+          }
+        }
+
+        &__row {
+          td {
+            font-size: 14px;
+            line-height: 22px;
+            letter-spacing: 0.1em;
+          }
+        }
+
+        .mobile-hidden {
+          display: none;
+        }
+
+        &__head th:nth-child(3),
+        &__head th:nth-child(5),
+        &__row td:nth-child(3),
+        &__row td:nth-child(5) {
+          display: none;
+        }
       }
     }
   }
