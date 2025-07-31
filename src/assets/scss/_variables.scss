@@ -33,6 +33,8 @@ $highlight-c000: #fdded6;
 
 //input 描述顏色
 $neutral-c: #bfbfbf;
+$typing: 0px 0px 4px 4px rgba(76, 175, 213, 0.5); //編輯中樣式： box-shadow: $typing;
+$typing-error: 0px 0px 4px 4px rgba(217, 62, 57, 0.5); //輸入錯誤
 
 //tag 顏色
 $tag-c1: #7fa4bf;
