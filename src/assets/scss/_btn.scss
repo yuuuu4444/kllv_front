@@ -263,6 +263,7 @@
   background-color: $white;
   border: 0.2085vw solid $tag-c1;
   border-radius: $border-r-sm;
+  border-radius: 0.78125vw;
   cursor: pointer;
 
   &:focus {
@@ -270,10 +271,10 @@
     background-color: $tag-c1;
   }
 
-  @include mobile {
-    width: 3.75vw;
-    font-size: 0.625vw;
-  }
+  // @include mobile {
+  //   width: 3.75vw;
+  //   font-size: 0.625vw;
+  // }
 }
 
 .btn--tab2 {
@@ -288,6 +289,7 @@
   background-color: $white;
   border: 0.2085vw solid $tag-c2;
   border-radius: $border-r-sm;
+  border-radius: 0.78125vw;
   cursor: pointer;
 
   &:focus {
@@ -295,10 +297,10 @@
     background-color: $tag-c2;
   }
 
-  @include mobile {
-    width: 3.75vw;
-    font-size: 0.625vw;
-  }
+  // @include mobile {
+  //   width: 3.75vw;
+  //   font-size: 0.625vw;
+  // }
 }
 
 .btn--tab3 {
@@ -313,6 +315,7 @@
   background-color: $white;
   border: 0.2085vw solid $tag-c3;
   border-radius: $border-r-sm;
+  border-radius: 0.78125vw;
   cursor: pointer;
 
   &:focus {
@@ -320,8 +323,8 @@
     background-color: $tag-c3;
   }
 
-  @include mobile {
-    width: 3.75vw;
-    font-size: 0.625vw;
-  }
+  // @include mobile {
+  //   width: 3.75vw;
+  //   font-size: 0.625vw;
+  // }
 }

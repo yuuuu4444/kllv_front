@@ -7,16 +7,10 @@
     <div class="mainblock">
       <div class="mainblock__logo">
         <RouterLink to="/index">
-          <img
-            src="/src/assets/image/logo.png"
-            alt="logo"
-          />
+          <img src="/src/assets/image/logo.png" alt="logo">
         </RouterLink>
       </div>
-      <ul
-        class="mainblock__list"
-        role="navigation"
-      >
+      <ul class="mainblock__list" role="navigation">
         <li class="mainblock__item">
           <RouterLink to="/news">
             <h5 class="medium">最新消息</h5>
@@ -47,8 +41,7 @@
     </div>
     <div class="disclaimer">
       <p class="body--c1">
-        本網站為緯育 TibaMe 前端工程師專業技術養成班第 92
-        期學員專題成果作品，本平台僅供學習、展示之用。
+        本網站為緯育 TibaMe 前端工程師專業技術養成班第 92 期學員專題成果作品，本平台僅供學習、展示之用。
         若有抵觸有關著作權，或有第三人主張侵害智慧財產權等情事，均由學員負法律上責任，緯育公司概不負責。
         若有侵權疑慮，請私訊緯育 TibaMe，後續會由專人協助處理。
       </p>
@@ -57,7 +50,7 @@
 </template>
 
 <style scoped lang="scss">
-  @import '@/assets/scss/style';
+  @import "@/assets/scss/style";
 
   footer {
     // position: fixed;
@@ -67,6 +60,7 @@
     height: 28vw;
     z-index: 99;
 
+    background-color: $primary-c000;
     background-image: url(/src/assets/image/footer.png);
 
     .mainblock {
@@ -84,13 +78,12 @@
         }
       }
 
-      &__list,
-      &__info {
+      &__list, &__info {
         display: flex;
         flex-direction: column;
         gap: 1.5vw;
-
-        h5 {
+        
+        h5{
           font-size: 1.25vw;
         }
         h5.medium {
