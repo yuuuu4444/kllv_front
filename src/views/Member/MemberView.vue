@@ -1,97 +1,37 @@
-<!-- src/views/Member/MemberView.vue -->
 <template>
   <div class="memberPage">
-    <div class="memberPage__breadcrumb">
-      <p class="body--b2">首頁 - 帳戶管理</p>
-    </div>
-
-    <!-- mobileMenu -->
-    <div
-      v-if="isMobile && isMemberRoot"
-      class="mobileMenu"
-    >
-      <h3 class="mobileMenu__title">帳戶管理</h3>
-      <div class="mobileMenu__avatarContainer">
-        <img
-          :src="userData.avatar"
-          alt="使用者頭像"
-          class="mobileMenu__avatar"
-        />
-        <button class="mobileMenu__editButton">✏️</button>
+    <div class="memberPage__Container">
+      <div class="memberPage__breadcrumb">
+        <p class="body--b2">首頁 - 帳戶管理</p>
       </div>
-
-      <ul class="mobileMenu__list">
-        <li
-          v-for="item in memberMenuItems"
-          :key="item.name"
-          class="mobileMenu__listItem"
-        >
-          <router-link
-            :to="item.path"
-            class="mobileMenu__link btn--member"
-          >
-            {{ item.name }}
-          </router-link>
-        </li>
-      </ul>
-
-      <button
-        class="mobileMenu__logoutButton btn--membercancel"
-        @click="handleLogout"
-      >
-        登出
-      </button>
-    </div>
-
-    <!-- desktopLayout -->
-    <div
-      v-else
-      class="desktopLayout"
-    >
-      <MemberSidebar
-        class="desktopLayout__sidebar"
-        :avatar-url="userData.avatar"
-        :menu-items="memberMenuItems"
-        @logout="handleLogout"
-      />
-      <main class="desktopLayout__content">
-        <router-view v-slot="{ Component }">
-          <component
-            :is="Component"
-            :userData="userData"
-          />
-        </router-view>
-      </main>
+      <div class="memberContentLayout">
+        <MemberSidebar
+          class="memberContentLayout__sidebar"
+          :avatar-url="userData.avatar"
+          :menu-items="memberMenuItems"
+          @logout="handleLogout"
+        />
+        <main class="memberContentLayout__content">
+          <!-- 所有子路由 (MemberIndex, MemberProfile...) 都會被渲染到這裡 -->
+          <router-view v-slot="{ Component }">
+            <component
+              :is="Component"
+              :userData="userData"
+              @update:avatar="handleAvatarUpdate"
+            />
+          </router-view>
+        </main>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { ref, reactive, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import MemberSidebar from '@/components/MemberSidebar.vue';
 
-  const route = useRoute(); // 獲取當前路由的詳細資訊
-  const isMemberRoot = computed(() => route.path === '/member');
-
-  const screenWidth = ref(window.innerWidth);
-  const isMobile = computed(() => screenWidth.value < 768);
-  const handleResize = () => {
-    screenWidth.value = window.innerWidth;
-  };
-
-  // 在元件掛載時開始監聽，在卸載時移除監聽，避免記憶體洩漏
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  const userData = reactive({
-    name: 'Komod·Mayaw',
-    avatar: new URL('@/assets/image/01.png', import.meta.url).href,
-  });
+  const router = useRouter();
 
   const memberMenuItems = ref([
     { name: '個人資料', path: '/member/profile' },
@@ -105,104 +45,79 @@
   const handleLogout = () => {
     alert('帳號已登出');
   };
+
+  const userData = reactive({
+    name: 'Komod·Mayaw',
+    nickname: '谷木',
+    address: '桃園市中壢區空瀧浪里快樂街1479號8樓-3',
+    idNumber: 'H1212345678',
+    birthDate: '1980-02-28',
+    gender: 'male',
+    email: 'test123@gmail.com',
+    phone: '0988123456',
+    avatar: new URL('@/assets/image/02.png', import.meta.url).href,
+    // 預計從 API 獲取帳戶資料，這邊先串假的
+  });
+
+  const handleAvatarUpdate = (newAvatarUrl) => {
+    console.log('父層收到新的頭像 URL:', newAvatarUrl);
+    userData.avatar = newAvatarUrl;
+  };
+
+  // 在元件掛載時檢查設備類型
+  onMounted(() => {
+    // 如果是桌面版，且當前在根路徑 /member，就自動跳轉到 /member/profile
+    if (window.innerWidth >= 768 && router.currentRoute.value.path === '/member') {
+      router.replace('/member/profile');
+    }
+  });
 </script>
 
 <style lang="scss" scoped>
   .memberPage {
-    // background-color: $primary-c000;
     background-color: $primary-c50;
-    padding: 20px 8%;
-    min-height: 80vh;
-    margin-top: 200px;
+    padding-top: 100px;
 
-    &__breadcrumb {
-      margin-bottom: 20px;
+    .memberPage__Container {
+      padding: 1.5625vw 18.75vw 6.25vw;
+
+      .memberPage__breadcrumb {
+        padding: 100px 0 50px 0;
+        margin-bottom: 20px;
+      }
     }
   }
 
-  .desktopLayout {
+  .memberContentLayout {
     display: flex;
     gap: 20px;
 
     &__content {
       flex-grow: 1;
-      // background-color: $white;
-      // border-radius: $border-r-md;
-      padding: 30px 40px;
-      // box-shadow: 0 4px 12px rgba($black, 0.05);
+      padding: 30px;
     }
   }
 
-  .mobileMenu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    background-color: $white;
-    padding: 20px;
-    border-radius: $border-r-md;
-    box-shadow: 0 4px 12px rgba($black, 0.05);
-
-    &__avatarContainer {
-      position: relative;
-      margin: 20px 0;
-    }
-
-    &__avatar {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    &__editButton {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: $white;
-      border: 1px solid $neutral-c;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      font-size: 20px;
-      color: $primary-c700;
-      @include flex-center;
-    }
-
-    &__list {
-      width: 100%;
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    &__link {
-      width: 100%;
-      text-decoration: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      &.router-link-exact-active {
-        background-color: $primary-c700;
-        color: $white;
-        font-weight: 700;
+  @include mobile {
+    .memberPage {
+      padding-top: 0px;
+      .memberPage__Container {
+        padding: 0;
+        .memberPage__breadcrumb {
+          display: none;
+        }
       }
     }
 
-    &__logoutButton {
-      width: 100%;
-    }
-  }
-
-  // --- RWD 切換 ---
-  @include mobile {
-    .desktopLayout__sidebar {
+    // 在手機上，側邊欄直接隱藏
+    .memberContentLayout__sidebar {
       display: none;
+    }
+
+    .memberContentLayout {
+      &__content {
+        padding: 0;
+      }
     }
   }
 </style>
