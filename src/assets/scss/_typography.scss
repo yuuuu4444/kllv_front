@@ -106,7 +106,7 @@ p {
     font-size: 24px;
     font-style: normal;
     font-weight: 400;
-    line-height: 38px;
+    line-height: 168%;
     letter-spacing: 0.2em;
   }
 
@@ -116,7 +116,7 @@ p {
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
-    line-height: 32px;
+    line-height: 168%;
     letter-spacing: 0.2em;
   }
 
@@ -126,7 +126,7 @@ p {
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
-    line-height: 26px;
+    line-height: 168%;
     letter-spacing: 0.2em;
   }
 
@@ -136,7 +136,7 @@ p {
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
-    line-height: 22px;
+    line-height: 168%;
     letter-spacing: 0.1em;
   }
   // 備註
@@ -145,7 +145,7 @@ p {
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
-    line-height: 18px;
+    line-height: 168%;
     letter-spacing: 0.1em;
   }
 
@@ -153,27 +153,27 @@ p {
   @include mobile {
     &.body--b1 {
       font-size: 18px;
-      line-height: 28px;
+      line-height: 168%;
       letter-spacing: 0.1em;
     }
     &.body--b2 {
       font-size: 16px;
-      line-height: 26px;
+      line-height: 168%;
       letter-spacing: 0.1em;
     }
     &.body--b3 {
       font-size: 14px;
-      line-height: 22px;
+      line-height: 168%;
       letter-spacing: 0.1em;
     }
     &.body--b4 {
       font-size: 14px;
-      line-height: 22px;
+      line-height: 168%;
       letter-spacing: 0.1em;
     }
     &.body--c1 {
       font-size: 12px;
-      line-height: 18px;
+      line-height: 168%;
       letter-spacing: 0.1em;
     }
   }

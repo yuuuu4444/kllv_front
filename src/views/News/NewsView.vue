@@ -120,10 +120,10 @@
 
   .breadcrumb {
     display: flex;
+    align-items: center;
     gap: 0.5em;
 
     p {
-      display: inline-block;
       font-size: 1.042vw;
       color: black;
     }
@@ -142,7 +142,8 @@
       height: 4.168vw;
       gap: 1.042vw;
       background-color: $white;
-      border-radius: $border-r-md;
+      // border-radius: $border-r-md;
+      border-radius: 0.78125vw;;
     }
 
     &__tag {
@@ -163,12 +164,16 @@
       background-color: $white;
 
       &:first-child {
-        border-top-left-radius: $border-r-md;
-        border-top-right-radius: $border-r-md;
+        // border-top-left-radius: $border-r-md;
+        // border-top-right-radius: $border-r-md;
+        border-top-left-radius: 0.78125vw;
+        border-top-right-radius: 0.78125vw;
       }
       &:last-child {
-        border-bottom-left-radius: $border-r-md;
-        border-bottom-right-radius: $border-r-md;
+        // border-bottom-left-radius: $border-r-md;
+        // border-bottom-right-radius: $border-r-md;
+        border-bottom-left-radius: 0.78125vw;
+        border-bottom-right-radius: 0.78125vw;
       }
 
       &:nth-child(even) {

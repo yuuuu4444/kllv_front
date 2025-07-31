@@ -70,10 +70,10 @@
     
     .breadcrumb {
       display: flex;
+      align-items: center;
       gap: 0.5em;
   
       p {
-        display: inline-block;
         font-size: 1.042vw;
         color: black;
       }
@@ -92,7 +92,7 @@
       width: 100%;
       padding: 1.042vw 1.042vw;
       gap: 2.084vw;
-      border-radius: $border-r-md;
+      // border-radius: $border-r-md;
       border-radius: 0.78125vw;
       background-color: $white;
     }
@@ -103,7 +103,7 @@
       gap: 0.521vw;
     }
     &__title {
-      font-size: 2.084vw;
+      font-size: 2.084vw !important;
     }
     &__date {
       font-size: 1.042vw !important;
@@ -113,7 +113,7 @@
       @include flex-center;
       width: 100%;
       padding: 1.042vw 1.042vw 2.084vw;
-      border-radius: $border-r-md;
+      // border-radius: $border-r-md;
       border-radius: 0.78125vw;
       background-color: $white;
     }
