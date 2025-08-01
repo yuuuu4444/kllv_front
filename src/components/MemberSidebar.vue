@@ -50,8 +50,8 @@
 
 <style lang="scss" scoped>
   .memberSidebar {
-    flex-shrink: 0;
-    width: 285px;
+    max-width: 300px;
+    width: 40%;
     background-color: $white;
     border-radius: $border-r-md;
     padding: 20px;
@@ -62,15 +62,15 @@
 
     &__title {
       color: $primary-c700;
-      margin-bottom: 30px;
+      margin: 32px;
     }
 
     &__avatar {
-      width: 100px;
-      height: 100px;
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 30px;
+      margin-bottom: 32px;
       align-self: center;
     }
 
@@ -85,7 +85,7 @@
       width: 100%;
       text-decoration: none;
 
-      // Modifier: --active (透過 Vue Router class)
+      // --active (透過 Vue Router class)
       &.router-link-exact-active {
         background-color: $primary-c700;
         color: $white;
@@ -96,6 +96,7 @@
     &__logoutButton {
       width: 100%;
       margin-top: 24px;
+      margin-bottom: 12px;
     }
   }
 </style>
