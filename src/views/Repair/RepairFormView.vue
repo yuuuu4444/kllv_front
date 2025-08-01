@@ -1,6 +1,31 @@
 <script setup>
   import { useRouter } from 'vue-router';
+  import { ref, onMounted } from 'vue';
   import SubBanner from '@/components/SubBanner.vue';
+  import Categories from '@/assets/data/Repair/repair_categories_test.json';
+
+  const router = useRouter();
+
+  const selectedCategoryNo = ref('');
+  const location = ref('');
+  const desc = ref('');
+  const categoryOptions = ref([]);
+
+  onMounted(() => {
+    categoryOptions.value = Categories;
+  });
+
+  const handleSubmit = () => {
+    if (!selectedCategoryNo.value) {
+      alert('請選擇案件類型');
+    } else if (!location.value.trim()) {
+      alert('請填寫通報所在地點');
+    } else if (!desc.value.trim()) {
+      alert('請填寫情形描述');
+    } else {
+      router.push('/repair/complete');
+    }
+  };
 </script>
 
 <template>
@@ -15,9 +40,9 @@
         >
           首頁
         </RouterLink>
-        <p class="body--b2">&#45;里民服務</p>
-        <p class="body--b2">&#45;維修通報</p>
-        <p class="body--b2">&#45;維修通報填寫</p>
+        <p class="body--b2">&#47;里民服務</p>
+        <p class="body--b2">&#47;維修通報</p>
+        <p class="body--b2">&#47;維修通報填寫</p>
       </nav>
 
       <div class="repair-form__notice">
@@ -48,8 +73,24 @@
               案件類型
               <span class="required">*</span>
             </label>
-            <select id="type">
-              <option>請選擇</option>
+            <select
+              id="type"
+              v-model="selectedCategoryNo"
+            >
+              <option
+                value=""
+                disabled
+                hidden
+              >
+                請選擇
+              </option>
+              <option
+                v-for="item in categoryOptions"
+                :key="item.category_no"
+                :value="item.category_no"
+              >
+                {{ item.category_name }}
+              </option>
             </select>
           </div>
           <div class="repair-form__field">
@@ -69,10 +110,14 @@
             />
           </div>
           <div class="repair-form__field">
-            <label for="location">通報所在地點</label>
+            <label for="location">
+              通報所在地點
+              <span class="required">*</span>
+            </label>
             <input
               type="text"
               id="location"
+              v-model="location"
             />
           </div>
           <div class="repair-form__field">
@@ -112,7 +157,10 @@
               情形描述
               <span class="required">*</span>
             </label>
-            <textarea id="desc"></textarea>
+            <textarea
+              id="desc"
+              v-model="desc"
+            ></textarea>
           </div>
           <div class="repair-form__privacy">
             <div class="repair-form__privacy-title">
@@ -134,17 +182,15 @@
             </div>
           </div>
         </div>
-        <RouterLink
-          to="/repair/complete"
-          class="repair-form__submit"
-        >
+        <div class="repair-form__submit">
           <button
             type="submit"
             class="btn--process"
+            @click="handleSubmit"
           >
             確認送出
           </button>
-        </RouterLink>
+        </div>
       </form>
     </div>
   </div>
