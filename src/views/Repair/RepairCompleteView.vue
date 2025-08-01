@@ -14,19 +14,18 @@
         >
           首頁
         </RouterLink>
-        <p class="body--b2">&#45;里民服務</p>
-        <p class="body--b2">&#45;維修通報</p>
-        <p class="body--b2">&#45;維修通報完成</p>
+        <p class="body--b2">&#47;里民服務</p>
+        <p class="body--b2">&#47;維修通報</p>
+        <p class="body--b2">&#47;維修通報完成</p>
       </nav>
 
       <div class="repair-complete__message">
         <h3 class="repair-complete__subtitle regular">感謝您填寫通報單</h3>
         <div class="repair-complete__icon">
-          <!-- <img
-            src="#"
+          <img
+            src="/src/assets/icon/icon_divider-shared.svg"
             alt=""
-          /> -->
-          <p>-----</p>
+          />
         </div>
         <p class="repair-complete__text body--b2">
           您的案件已成功送出，我們將盡快處理，並於進度更新時通知您。以下是您此次的通報紀錄：
@@ -96,7 +95,9 @@
     }
 
     &__icon {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     &__subtitle {
