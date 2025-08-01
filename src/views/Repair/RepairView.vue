@@ -4,6 +4,10 @@
   import MainBanner from '@/components/MainBanner.vue';
   import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
+  const filterCategory = ref('');
+  const filterStatus = ref('');
+  const filterReportNo = ref('');
+
   // table內容
   const reports = ref([]);
 
@@ -13,10 +17,27 @@
 
     reports.value = rawData.map((r) => {
       const categoryItem = Categories.find((c) => c.category_no === r.category_no);
+      const statusText = r.process_status === 2 ? '已處理' : '待處理';
       return {
         ...r,
         category: categoryItem ? categoryItem.category_name : '未分類',
+        status_text: statusText,
       };
+    });
+  });
+
+  // 篩選
+  const filteredReports = computed(() => {
+    return reports.value.filter((r) => {
+      // 分類篩選
+      const matchCategory = !filterCategory.value || r.category_no == filterCategory.value;
+      // 狀態篩選
+      const matchStatus = !filterStatus.value || r.status_text == filterStatus.value;
+      // 編號篩選(忽略大小寫)
+      const matchReportNo =
+        !filterReportNo.value ||
+        r.report_no.toLowerCase().includes(filterReportNo.value.toLowerCase());
+      return matchCategory && matchStatus && matchReportNo;
     });
   });
 
@@ -26,10 +47,10 @@
 
   const pagedReports = computed(() => {
     const start = (currentPage.value - 1) * pageSize;
-    return reports.value.slice(start, start + pageSize);
+    return filteredReports.value.slice(start, start + pageSize);
   });
 
-  const totalPages = computed(() => Math.ceil(reports.value.length / pageSize));
+  const totalPages = computed(() => Math.ceil(filteredReports.value.length / pageSize));
 
   const isFirstPage = computed(() => currentPage.value === 1);
   const isLastPage = computed(() => currentPage.value === totalPages.value);
@@ -58,8 +79,8 @@
         >
           首頁
         </RouterLink>
-        <p class="report-page__breadcrumb-item body--b2">&#45;里民服務</p>
-        <p class="report-page__breadcrumb-item body--b2">&#45;維修通報</p>
+        <p class="report-page__breadcrumb-item body--b2">&#47;里民服務</p>
+        <p class="report-page__breadcrumb-item body--b2">&#47;維修通報</p>
       </nav>
 
       <RouterLink
@@ -84,6 +105,7 @@
             name="category_no"
             id=""
             class="report-filter__select"
+            v-model="filterCategory"
           >
             <option
               value=""
@@ -93,10 +115,13 @@
             >
               請選擇
             </option>
-            <option value="1">路燈損壞</option>
-            <option value="2">公共設施損壞</option>
-            <option value="3">道路坑洞</option>
-            <option value="4">其他</option>
+            <option
+              v-for="item in Categories"
+              :key="item.category_no"
+              :value="item.category_no"
+            >
+              {{ item.category_name }}
+            </option>
           </select>
         </div>
         <div class="report-filter__field">
@@ -110,6 +135,7 @@
             name="process_status"
             id=""
             class="report-filter__select"
+            v-model="filterStatus"
           >
             <option
               value=""
@@ -119,8 +145,8 @@
             >
               請選擇
             </option>
-            <option value="0">待處理</option>
-            <option value="2">已處理</option>
+            <option value="待處理">待處理</option>
+            <option value="已處理">已處理</option>
           </select>
         </div>
         <div class="report-filter__field">
@@ -134,8 +160,14 @@
             <input
               type="text"
               class="report-filter__input"
+              v-model="filterReportNo"
             />
-            <button class="report-filter__search">搜尋</button>
+            <button
+              type="submit"
+              class="report-filter__search"
+            >
+              搜尋
+            </button>
           </div>
         </div>
       </form>
@@ -161,7 +193,7 @@
               <td data-label="案件編號">{{ repair.report_no }}</td>
               <td data-label="查報類別">{{ repair.category }}</td>
               <td data-label="所在地點">{{ repair.location }}</td>
-              <td data-label="狀態">已處理</td>
+              <td data-label="狀態">{{ repair.status_text }}</td>
               <td data-label="填表日期">{{ repair.created_at }}</td>
               <td data-label="查閱">
                 <RouterLink

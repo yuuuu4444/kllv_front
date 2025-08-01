@@ -1,11 +1,10 @@
 <script setup>
   import MainBanner from '@/components/MainBanner.vue';
-  import Categories from '@/assets/data/Community/posts_categories_test.json';
-  import Posts from '@/assets/data/Community/posts_test.json';
   import { ref, onMounted, computed } from 'vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
 
   const posts = ref([]);
+  const selectedCategory = ref('所有主題');
 
   onMounted(async () => {
     const postRes = await fetch('/src/assets/data/Community/posts_test.json');
@@ -23,6 +22,13 @@
           category: categoryItem ? categoryItem.category_name : '未分類',
         };
       });
+  });
+
+  // 篩選
+  const filteredPosts = computed(() => {
+    if (selectedCategory.value === '所有主題') return posts.value;
+
+    return posts.value.filter((p) => p.category === selectedCategory.value);
   });
 
   // console.log(posts);
@@ -44,10 +50,10 @@
 
   const pagedReports = computed(() => {
     const start = (currentPage.value - 1) * pageSize;
-    return posts.value.slice(start, start + pageSize);
+    return filteredPosts.value.slice(start, start + pageSize);
   });
 
-  const totalPages = computed(() => Math.ceil(posts.value.length / pageSize));
+  const totalPages = computed(() => Math.ceil(filteredPosts.value.length / pageSize));
 
   const isFirstPage = computed(() => currentPage.value === 1);
   const isLastPage = computed(() => currentPage.value === totalPages.value);
@@ -73,10 +79,50 @@
     <div class="community__container">
       <div class="community__action-bar">
         <div class="community__category-group">
-          <button class="community__category__1 btn--tag">所有主題</button>
-          <button class="community__category__2 btn--tag">舊物交換</button>
-          <button class="community__category__3 btn--tag">生活抱怨</button>
-          <button class="community__category__4 btn--tag">揪團來買</button>
+          <button
+            class="community__category__1 btn--tag"
+            @click="
+              () => {
+                selectedCategory = '所有主題';
+                currentPage = 1;
+              }
+            "
+          >
+            所有主題
+          </button>
+          <button
+            class="community__category__2 btn--tag"
+            @click="
+              () => {
+                selectedCategory = '舊物交換';
+                currentPage = 1;
+              }
+            "
+          >
+            舊物交換
+          </button>
+          <button
+            class="community__category__3 btn--tag"
+            @click="
+              () => {
+                selectedCategory = '生活抱怨';
+                currentPage = 1;
+              }
+            "
+          >
+            生活抱怨
+          </button>
+          <button
+            class="community__category__4 btn--tag"
+            @click="
+              () => {
+                selectedCategory = '揪團來買';
+                currentPage = 1;
+              }
+            "
+          >
+            揪團來買
+          </button>
         </div>
         <div class="community__category-phone">
           <h2 class="community__category-title bold">文章總覽</h2>
@@ -84,11 +130,12 @@
             class="community__category-select"
             name="category_no"
             id=""
+            v-model="selectedCategory"
           >
-            <option value="0">所有主題</option>
-            <option value="1">舊物交換</option>
-            <option value="2">生活抱怨</option>
-            <option value="3">揪團來買</option>
+            <option value="所有主題">所有主題</option>
+            <option value="舊物交換">舊物交換</option>
+            <option value="生活抱怨">生活抱怨</option>
+            <option value="揪團來買">揪團來買</option>
           </select>
         </div>
         <button
