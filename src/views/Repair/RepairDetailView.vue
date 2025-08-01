@@ -11,6 +11,7 @@
   const reportItem = RepairData.find((item) => item.report_no === reportNo);
   const categoryItem = Categories.find((item) => item.category_no === reportItem?.category_no);
   const categoryName = categoryItem ? categoryItem.category_name : '未分類';
+  const statusText = reportItem.process_status === 2 ? '已處理' : '待處理';
 
   // 回到上一頁
   const Back = () => {
@@ -30,19 +31,22 @@
         >
           首頁
         </RouterLink>
-        <p class="body--b2">&#45;里民服務</p>
-        <p class="body--b2">&#45;維修通報</p>
-        <p class="body--b2">&#45;維修通報查閱</p>
+        <p class="body--b2">&#47;里民服務</p>
+        <p class="body--b2">&#47;維修通報</p>
+        <p class="body--b2">&#47;維修通報查閱</p>
       </nav>
 
       <section class="detail-table">
         <table class="detail-table__table">
           <tbody class="detail-table__body">
-            <tr class="detail-table__row">
+            <tr
+              class="detail-table__row"
+              v-if="reportItem"
+            >
               <th>狀態</th>
-              <td>待處理</td>
+              <td>{{ statusText }}</td>
               <th>填表日期</th>
-              <td>2025-07-07</td>
+              <td>{{ reportItem.created_at }}</td>
             </tr>
             <tr
               class="detail-table__row"
@@ -85,13 +89,16 @@
                 </div>
               </td>
             </tr>
-            <tr class="detail-table__row">
+            <tr
+              class="detail-table__row"
+              v-if="statusText === '已處理'"
+            >
               <th>回覆</th>
               <td
                 class="detail-table__desc"
                 colspan="3"
               >
-                您好，已完成修補，感謝您的通報與關心！
+                {{ reportItem.repair_content }}
               </td>
             </tr>
           </tbody>
