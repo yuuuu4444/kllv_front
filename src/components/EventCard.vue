@@ -1,29 +1,24 @@
-<!-- 檔案路徑: src/components/EventCard.vue -->
 <template>
-  <!-- 1. 最外層的白色圓角底板，作為邊框和定位基準 -->
   <div class="event-card__base">
-    <!-- 2. 照片層，帶有陰影 -->
     <img
       :src="event.image"
       :alt="event.title"
       class="event-card__photo"
     />
 
-    <!-- 資訊區塊 -->
     <div class="event-card__info-wrapper">
-      <!-- 3. 分類標籤 -->
       <div class="event-card__category-tag">
         <h5 :class="['bold', `category-text--${event.type}`]">{{ event.category }}</h5>
       </div>
 
       <div class="event-card__header">
         <h5 class="bold">{{ event.title }}</h5>
-        <a
-          href="#"
+        <RouterLink
+          :to="`/events/${event.id}`"
           class="event-card__details-btn"
         >
           活動詳情
-        </a>
+        </RouterLink>
       </div>
 
       <div class="event-card__footer">
@@ -53,6 +48,7 @@
 
 <script setup>
   import { defineProps } from 'vue';
+  import { RouterLink } from 'vue-router';
 
   defineProps({
     event: {
@@ -65,9 +61,9 @@
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';
 
-  // 1. 最外層的白色圓角底板
+  // 最底層白色圓角底板
   .event-card__base {
-    position: relative; // 作為所有子元件絕對定位的基準
+    position: relative;
     width: 415px;
     height: 539px;
     background-color: $white;
@@ -76,23 +72,22 @@
     box-sizing: border-box;
   }
 
-  // 2. 照片層
+  // 照片層
   .event-card__photo {
     position: absolute;
     top: 10px;
     left: 10px;
-    width: calc(100% - 20px); // 左右各留 10px 邊框
-    height: calc(100% - 20px); // 上下各留 10px 邊框
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
     object-fit: cover;
     border-radius: $border-r-md;
-    box-shadow: 0 4px 15px rgba($black, 0.25); // 加上陰影
+    box-shadow: 0 4px 15px rgba($black, 0.25);
     z-index: 1;
   }
 
   // 資訊區塊
   .event-card__info-wrapper {
     position: absolute;
-    // 關鍵修改：讓資訊塊的邊緣與照片的邊緣完美對齊
     bottom: 10px;
     left: 10px;
     right: 10px;
@@ -105,11 +100,10 @@
     flex-direction: column;
   }
 
-  // 3. 分類標籤
+  // 分類標籤
   .event-card__category-tag {
     position: absolute;
     top: 0;
-    // 關鍵修改：讓分類塊與資訊塊的內容對齊
     left: 20px;
     transform: translateY(-50%);
     background-color: $white;
@@ -148,7 +142,6 @@
     font-weight: 700;
     flex-shrink: 0;
     margin-left: 10px;
-    // 關鍵修改：加上陰影
     box-shadow: 0 2px 8px rgba($highlight-c, 0.5);
     transition: transform 0.2s ease;
 
@@ -166,7 +159,7 @@
   .event-card__dates p {
     line-height: 1.5;
     margin: 0;
-    color: $neutral-c;
+    color: $black;
   }
 
   .event-card__price-wrapper {
@@ -180,7 +173,7 @@
     }
   }
 
-  // 分類文字的顏色
+  // 分類文字顏色
   .category-text {
     &--health {
       color: #6782a4;

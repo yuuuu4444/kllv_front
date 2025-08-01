@@ -26,7 +26,6 @@
         class="event-detail-view__image"
       />
 
-      <!-- 寫死的文字替換為動態綁定的資料 -->
       <div
         class="event-detail-view__description"
         v-html="formattedDescription"
@@ -88,7 +87,7 @@
   import { ref, computed } from 'vue';
   import { useRoute, RouterLink } from 'vue-router';
 
-  // 假資料陣列
+  // 假資料陣列(圖片尚未更新)
   const allEvents = ref([
     {
       id: 6,
@@ -176,11 +175,10 @@
     return allEvents.value.find((e) => e.id === eventId);
   });
 
-  // 新增一個計算屬性來處理換行
+  // 處理換行
   const formattedDescription = computed(() => {
-    // 確保 vent已經載入，避免錯誤
     if (!event.value) return '';
-    return event.value.description.replace(/\n/g, '<br><br>'); // 使用兩個 <br> 讓段落感更強
+    return event.value.description.replace(/\n/g, '<br><br>');
   });
 </script>
 
@@ -245,7 +243,6 @@
 
     &__description {
       margin-bottom: 50px;
-      // 繼承body--b3的line-height和letter-spacing
       @extend .body--b3;
       line-height: 1.8;
     }

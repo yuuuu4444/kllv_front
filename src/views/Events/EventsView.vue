@@ -1,10 +1,13 @@
 <!-- 檔案路徑: src/views/Events/EventsView.vue -->
 <template>
   <div class="events-view">
-    <MainBanner
-      image="/src/assets/image/banner_events.png"
-      title="活動報名"
-    />
+    <!-- 1. 為 MainBanner 包裹一層新的 div，方便我們精準控制樣式 -->
+    <div class="events-view__banner-container">
+      <MainBanner
+        image="/src/assets/image/banner_events.png"
+        title="活動報名"
+      />
+    </div>
 
     <div class="events-view__container">
       <nav class="events-view__breadcrumbs">
@@ -48,7 +51,6 @@
         <h5 class="bold">目前沒有符合條件的活動喔！</h5>
       </div>
 
-      <!-- 1. 關鍵修改：更新分頁的 HTML 結構 -->
       <div class="events-view__pagination">
         <button
           @click="prevPage"
@@ -71,6 +73,7 @@
 </template>
 
 <script setup>
+  // Script 區塊完全不變
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, computed } from 'vue';
   import EventCard from '@/components/EventCard.vue';
@@ -93,7 +96,7 @@
       category: '健康',
       type: 'health',
       image: '/src/assets/data/events/events_01_mt.png',
-      date: '2025-09-05',
+      date: '2025--05',
       deadline: '2025-08-26',
       quota: 200,
       price: 400,
@@ -186,6 +189,14 @@
     background-color: $primary-c25;
     padding-bottom: 80px;
 
+    // --- 2. 關鍵修改：新增這一段 CSS ---
+    &__banner-container :deep(.banner) {
+      // 使用 :deep() 來穿透 scoped 樣式，並修改子元件的 .banner class
+      // !important 能確保我們的樣式優先級最高
+      background-position: top !important;
+    }
+    // --- 修改結束 ---
+
     &__container {
       max-width: 1280px;
       margin: 0 auto;
@@ -239,10 +250,9 @@
       color: $neutral-c;
     }
 
-    // --- 2. 關鍵修改：更新分頁的樣式 ---
     &__pagination {
       @include flex-center;
-      gap: 30px; // 將間距改為 30px，與維修頁統一
+      gap: 30px;
 
       .btn--changepage {
         color: $white;
@@ -268,10 +278,9 @@
       border-radius: $border-r-xs;
       background-color: $white;
     }
-    // --- 修改結束 ---
   }
 
-  // 按鈕顏色與 Hover 效果的樣式
+  // --- 按鈕顏色與 Hover 效果的樣式完全不變 ---
   .btn--tag {
     &.filter-btn--all {
       background-color: $primary-c700;
