@@ -1,7 +1,6 @@
-<!-- 檔案路徑: src/views/Events/EventsView.vue -->
 <template>
   <div class="events-view">
-    <!-- 1. 為 MainBanner 包裹一層新的 div，方便我們精準控制樣式 -->
+    <!-- 為了讓圖片置頂對齊上緣 -->
     <div class="events-view__banner-container">
       <MainBanner
         image="/src/assets/image/banner_events.png"
@@ -73,7 +72,6 @@
 </template>
 
 <script setup>
-  // Script 區塊完全不變
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, computed } from 'vue';
   import EventCard from '@/components/EventCard.vue';
@@ -189,13 +187,11 @@
     background-color: $primary-c25;
     padding-bottom: 80px;
 
-    // --- 2. 關鍵修改：新增這一段 CSS ---
+    // 為了讓圖片置頂對齊上緣
     &__banner-container :deep(.banner) {
-      // 使用 :deep() 來穿透 scoped 樣式，並修改子元件的 .banner class
-      // !important 能確保我們的樣式優先級最高
+      // 使用 :deep()來穿透scoped樣式
       background-position: top !important;
     }
-    // --- 修改結束 ---
 
     &__container {
       max-width: 1280px;
@@ -280,7 +276,6 @@
     }
   }
 
-  // --- 按鈕顏色與 Hover 效果的樣式完全不變 ---
   .btn--tag {
     &.filter-btn--all {
       background-color: $primary-c700;
