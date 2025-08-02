@@ -94,14 +94,15 @@
 
     &__content {
       flex-grow: 1;
-      padding: 20px;
+      //右邊區塊的右邊padding由memberPage__Container給
+      padding: 20px 0 20px 20px;
     }
   }
 
   @media screen and (max-width: 1199px) {
     .memberPage {
       .memberPage__Container {
-        padding: 0 0 6.25vw;
+        padding: 0 16px 6.25vw;
       }
     }
     .memberContentLayout {
