@@ -75,8 +75,8 @@
 
 <style lang="scss" scoped>
   .memberPage {
-    background-color: $primary-c50;
-    padding-top: 100px;
+    background-color: $primary-c000;
+    padding-top: 200px;
 
     .memberPage__Container {
       padding: 1.5625vw 18.75vw 6.25vw;
@@ -94,27 +94,37 @@
 
     &__content {
       flex-grow: 1;
-      padding: 30px;
+      padding: 20px;
+    }
+  }
+
+  @media screen and (max-width: 1199px) {
+    .memberPage {
+      .memberPage__Container {
+        padding: 0 0 6.25vw;
+      }
+    }
+    .memberContentLayout {
+      display: flex;
+      gap: 0;
     }
   }
 
   @include mobile {
     .memberPage {
-      padding-top: 0px;
+      padding-top: 300px; //之後改0
       .memberPage__Container {
-        padding: 0;
+        // padding: 0;
         .memberPage__breadcrumb {
           display: none;
         }
       }
     }
 
-    // 在手機上，側邊欄直接隱藏
-    .memberContentLayout__sidebar {
-      display: none;
-    }
-
     .memberContentLayout {
+      &__sidebar {
+        display: none;
+      }
       &__content {
         padding: 0;
       }
