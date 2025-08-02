@@ -135,7 +135,6 @@
       }
     }
 
-
     &__body {
       @include flex-center;
       width: 100%;
@@ -144,7 +143,7 @@
       background-color: $white;
       
       @include mobile {
-
+        padding: 8px 8px 16px;
       }
     }
 
@@ -153,13 +152,10 @@
         font-size: clamp(16px, 1.25vw, 24px);
       }
     }
-
-
   }
 
   .backbtn {
     @include flex-center;
     width: 100%;
   }
-
 </style>
