@@ -56,32 +56,32 @@
 
 
 <style scoped lang="scss">
-    @import "@/assets/scss/style";
+  @import "@/assets/scss/style";
 
-    .container {
-      padding: 1.5625vw 18.75vw 6.25vw;
-      background-color: $primary_c000;
+  .container {
+    padding: 1.5625vw 18.75vw 6.25vw;
+    background-color: $primary_c000;
 
-      @include desktop {
-        padding-left: 10%;
-        padding-right: 10%;
-      }
-      @include mobile {
-        padding-left: 2%;
-        padding-right: 2%;
-      }
+    @include desktop {
+      padding-left: 10%;
+      padding-right: 10%;
     }
-    
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
+    @include mobile {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+  }
   
-      p {
-        color: black;
-        @include mobile
-      }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    p {
+      color: black;
+      @include mobile
     }
+  }
 
   .newspost {
     display: flex;
@@ -100,7 +100,7 @@
       background-color: $white;
       
       @include mobile {
-        padding: 8px;
+        padding: 8px 8px 12px;
         gap: 32px;
       }
     }

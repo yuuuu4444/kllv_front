@@ -53,20 +53,30 @@
   @import "@/assets/scss/style";
 
   footer {
-    // position: fixed;
-    // bottom: 0;
-    // left: 0;
     width: 100%;
-    height: 28vw;
+    // height: 28vw;
     z-index: 99;
 
     background-color: $primary-c000;
-    background-image: url(/src/assets/image/footer.png);
+    background-image: url("/src/assets/image/footer2.png");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    background-position-x: 0%;
+
+    animation: wave 5s linear infinite;
+    
+    @keyframes wave {
+      0% {
+        background-position-x: 0%;
+      }
+      100% {
+        background-position-x: 100%;
+      }
+    }
 
     .mainblock {
       width: 100%;
-      height: 23vw;
-      padding: 0 2.5vw 0 10vw;
+      padding: 10vw 2.5vw 10vw 10vw;
       @include flex-space-between;
 
       &__logo {
@@ -82,25 +92,50 @@
         display: flex;
         flex-direction: column;
         gap: 1.5vw;
-        
-        h5{
+        h5 {
           font-size: 1.25vw;
+          // font-size: clamp(16px, 1.25vw, 24px);
+          color: $primary-c700;
         }
         h5.medium {
-          color: black;
           font-weight: 500;
           letter-spacing: 0.1em;
+          color: $primary-c700;
         }
       }
     }
 
     .disclaimer {
-      height: 5vw;
-      border-top: 1px solid black;
+      padding: 12px;
+      border-top: 1px solid $primary-c700;
       @include flex-center;
 
       p {
-        font-size: 0.625vw;
+        font-size: clamp(8px, 0.625vw, 12px);
+        color: $primary-c700;
+      }
+    }
+
+    @include mobile {
+      .mainblock {
+        @include flex-center;
+        flex-direction: column;
+        padding: 40px 2%;
+        gap: 40px;
+
+        &__logo {
+          width: 290px;
+        }
+
+        &__list {
+          display: none;
+        }
+        &__info {
+          h5 {
+            font-size: 12px;
+            line-height: 24px;
+          }
+        }
       }
     }
   }

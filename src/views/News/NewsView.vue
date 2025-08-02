@@ -129,15 +129,15 @@
     }
   }
 
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-  
-      p {
-        color: black;
-      }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    p {
+      color: black;
     }
+  }
 
   .newsboard {
     display: flex;
@@ -215,7 +215,7 @@
       @include mobile {
         flex-direction: column;
         align-items: flex-start;
-        padding: 8px;
+        padding: 8px 8px 12px;
         gap: 32px;
       } 
     }
