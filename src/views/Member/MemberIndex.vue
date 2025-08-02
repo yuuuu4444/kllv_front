@@ -35,6 +35,13 @@
 <script setup>
   import { ref, reactive } from 'vue';
 
+  defineProps({
+    userData: {
+      type: Object,
+      required: true,
+    },
+  });
+
   // 這些資料未來應從 Pinia store 獲取，以確保所有頁面同步
   const memberMenuItems = ref([
     { name: '個人資料', path: '/member/profile' },
@@ -45,10 +52,6 @@
     { name: '重設密碼', path: '/member/password' },
   ]);
 
-  const userData = reactive({
-    avatar: new URL('@/assets/image/02.png', import.meta.url).href,
-  });
-
   const handleLogout = () => {
     alert('帳號已登出');
   };
@@ -56,60 +59,60 @@
 
 <style lang="scss" scoped>
   .memeberMobileMenu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    background-color: $white;
-    padding: 48px 16px;
-    // border-radius: $border-r-md;
-    // box-shadow: 0 4px 12px rgba($black, 0.05);
-
-    &__avatarContainer {
-      position: relative;
-      margin: 20px 0;
-    }
-
-    &__avatar {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    &__list {
-      width: 100%;
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    &__link {
-      width: 100%;
-      text-decoration: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      &.router-link-exact-active {
-        background-color: $primary-c700;
-        color: $white;
-        font-weight: 700;
-      }
-    }
-
-    &__logoutButton {
-      width: 100%;
-    }
+    display: none;
   }
 
   // 只在手機上顯示
-  @include desktop {
+  @include mobile {
     .memeberMobileMenu {
-      display: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      background-color: $white;
+      padding: 48px 16px;
+      // border-radius: $border-r-md;
+      // box-shadow: 0 4px 12px rgba($black, 0.05);
+
+      &__avatarContainer {
+        position: relative;
+        margin: 20px 0;
+      }
+
+      &__avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      &__list {
+        width: 100%;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      &__link {
+        width: 100%;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &.router-link-exact-active {
+          background-color: $primary-c700;
+          color: $white;
+          font-weight: 700;
+        }
+      }
+
+      &__logoutButton {
+        width: 100%;
+      }
     }
   }
 </style>
