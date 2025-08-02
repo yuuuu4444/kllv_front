@@ -64,5 +64,6 @@ $border-r-xl: 50px;
 $box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
 
 // RWD 斷點（搭配 mixin 使用）
-$device-m: 767px; // 手機最大寬度
-$device-p: 768px; // 桌機起始寬度（包含平板）
+$device-m: 768px; // 手機最大寬度
+
+$device-d: 1200px; // 桌機中繼斷點

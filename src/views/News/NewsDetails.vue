@@ -33,14 +33,14 @@
     <div class="newspost">
       <div class="newspost__header">
         <div class="newspost__info">
-          <p :class="`newspost__tag btn--tab${post.type}`">{{ post.tag }}</p>
-          <p class="newspost__date body--b2">｜</p>
-          <p class="newspost__date body--b2">{{ post.date }}</p>
+          <div class="newspost__tag"><p :class="`btn--tab${post.type}`">{{ post.tag }}</p></div>
+          <div class="newspost__date"><p class="body--b3">｜</p></div>
+          <div class="newspost__date"><p class="body--b3">{{ post.date }}</p></div>
         </div>
-        <h2 class="newspost__title bold">{{ post.title }}</h2>
+        <div class="newspost__title"><h2 class="bold">{{ post.title }}</h2></div>
       </div>
       <div class="newspost__body">
-        <p class="newspost__content body--b1" style="white-space: pre-line;">{{ post.content }}</p>
+        <div class="newspost__content"><p class="body--b1" style="white-space: pre-line;">{{ post.content }}</p></div>
       </div>
     </div>
     <div class="backbtn">
@@ -62,9 +62,13 @@
       padding: 1.5625vw 18.75vw 6.25vw;
       background-color: $primary_c000;
 
+      @include desktop {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
       @include mobile {
-        padding-left: 5%;
-        padding-right: 5%;
+        padding-left: 2%;
+        padding-right: 2%;
       }
     }
     
@@ -74,8 +78,8 @@
       gap: 0.5em;
   
       p {
-        font-size: 1.042vw;
         color: black;
+        @include mobile
       }
     }
 
@@ -90,36 +94,64 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      padding: 1.042vw 1.042vw;
-      gap: 2.084vw;
-      // border-radius: $border-r-md;
+      padding: clamp(12px, 0.9375vw, 18px);
+      gap: clamp(40px, 3.125vw, 60px);
       border-radius: 0.78125vw;
       background-color: $white;
+      
+      @include mobile {
+        padding: 8px;
+        gap: 32px;
+      }
     }
+
     &__info {
       display: flex;
       align-items: center;
-      padding-left: 0.1042vw;
-      gap: 0.521vw;
+      padding-left: 4px;
+      gap: 8px;
+      
+      @include mobile {
+        padding-left: 2px;
+        gap: 4px;
+      }
     }
+
+    &__tag {
+      p {
+        font-size: clamp(16px, 1.25vw, 24px);
+      }
+    }
+
     &__title {
-      font-size: 2.084vw !important;
+      h2 {
+        font-size: clamp(20px, 2.084vw, 40px);
+      }
     }
+
     &__date {
-      font-size: 1.042vw !important;
+      p {
+        font-size: clamp(12px, 0.833vw, 16px);
+      }
     }
+
 
     &__body {
       @include flex-center;
       width: 100%;
-      padding: 1.042vw 1.042vw 2.084vw;
-      // border-radius: $border-r-md;
+      padding: clamp(12px, 0.9375vw, 18px) clamp(12px, 0.9375vw, 18px) clamp(24px, 1.875vw, 36px);
       border-radius: 0.78125vw;
       background-color: $white;
+      
+      @include mobile {
+
+      }
     }
 
     &__content {
-      font-size: 1.25vw !important;
+      p {
+        font-size: clamp(16px, 1.25vw, 24px);
+      }
     }
 
 
