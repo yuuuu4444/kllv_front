@@ -199,8 +199,12 @@
 <style scoped lang="scss">
   @import '/src/assets/scss/style.scss';
   .repair-form {
-    background-color: $primary-c000;
+    background-color: white;
     padding-bottom: 30px;
+    background-image:
+      url(/src/assets/image/background_image.png), url(/src/assets/image/background_color.svg);
+    background-repeat: repeat, no-repeat;
+    background-position: bottom;
 
     &__container {
       padding: 1.5625vw 18.75vw 6.25vw;
