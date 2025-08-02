@@ -3,6 +3,7 @@
   import { ref, onMounted, computed } from 'vue';
   import MainBanner from '@/components/MainBanner.vue';
   import Categories from '@/assets/data/Repair/repair_categories_test.json';
+  import Repair from '@/assets/data/Repair/repair_reports_test.json';
 
   const filterCategory = ref('');
   const filterStatus = ref('');
@@ -11,6 +12,15 @@
   // table內容
   const reports = ref([]);
 
+  // 先用import方式
+  const categoryMap = new Map(Categories.map((c) => [c.category_no, c.category_name]));
+  reports.value = Repair.map((r) => ({
+    ...r,
+    category: categoryMap.get(r.category_no) || '未分類',
+    status_text: r.process_status === 2 ? '已處理' : '待處理',
+  }));
+
+  /*
   onMounted(async () => {
     const res = await fetch('/src/assets/data/Repair/repair_reports_test.json');
     const rawData = await res.json();
@@ -25,6 +35,7 @@
       };
     });
   });
+  */
 
   // 篩選
   const filteredReports = computed(() => {
