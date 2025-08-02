@@ -15,16 +15,16 @@
 }
 
 // === RWD 斷點 ===
-// 手機（max-width: 767px）
+// 手機（max-width: 768px）
 @mixin mobile {
   @media screen and (max-width: $device-m) {
     @content;
   }
 }
 
-// 桌機（min-width: 768px）
+// 桌機（max-width: 1200px）
 @mixin desktop {
-  @media screen and (min-width: $device-p) {
+  @media screen and (max-width: $device-d) {
     @content;
   }
 }
