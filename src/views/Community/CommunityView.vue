@@ -2,20 +2,10 @@
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, onMounted, computed } from 'vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
-  import Categories from '@/assets/data/Community/posts_categories_test.json';
-  import Posts from '@/assets/data/Community/posts_test.json';
 
   const posts = ref([]);
   const selectedCategory = ref('所有主題');
 
-  // 先用import方式
-  const categoryMap = new Map(Categories.map((c) => [c.category_no, c.category_name]));
-
-  posts.value = Posts.filter((p) => !p.is_deleted).map((p) => ({
-    ...p,
-    category: categoryMap.get(p.category_no) || '未分類',
-  }));
-  /*
   onMounted(async () => {
     const postRes = await fetch('/src/assets/data/Community/posts_test.json');
     const categoryRes = await fetch('/src/assets/data/Community/posts_categories_test.json');
@@ -33,7 +23,6 @@
         };
       });
   });
-  */
 
   // 篩選
   const filteredPosts = computed(() => {
@@ -302,6 +291,14 @@
       color: #959595;
     }
 
+    &__category-phone {
+      display: none;
+    }
+
+    &__phone-btn {
+      display: none;
+    }
+
     .community-wrapper {
       margin-bottom: 60px;
 
@@ -375,16 +372,6 @@
         border: 1px solid $black;
         border-radius: $border-r-xs;
         background-color: $white;
-      }
-    }
-
-    @include desktop {
-      &__category-phone {
-        display: none;
-      }
-
-      &__phone-btn {
-        display: none;
       }
     }
 
