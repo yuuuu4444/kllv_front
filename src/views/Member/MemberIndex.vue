@@ -61,7 +61,7 @@
     align-items: center;
     gap: 15px;
     background-color: $white;
-    padding: 20px;
+    padding: 48px 16px;
     // border-radius: $border-r-md;
     // box-shadow: 0 4px 12px rgba($black, 0.05);
 
