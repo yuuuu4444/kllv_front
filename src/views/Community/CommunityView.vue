@@ -416,6 +416,7 @@
         }
 
         &__phone-btn {
+          display: block;
           width: 50px;
           aspect-ratio: 1;
           border-radius: 50%;
