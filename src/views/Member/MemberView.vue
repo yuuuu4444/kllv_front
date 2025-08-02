@@ -115,7 +115,7 @@
     .memberPage {
       padding-top: 300px; //之後改0
       .memberPage__Container {
-        // padding: 0;
+        padding: 0;
         .memberPage__breadcrumb {
           display: none;
         }
