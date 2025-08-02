@@ -3,7 +3,7 @@
     <!-- 為了讓圖片置頂對齊上緣 -->
     <div class="events-view__banner-container">
       <MainBanner
-        image="/src/assets/image/banner_events.png"
+        image="/src/assets/banner/banner_events.png"
         title="活動報名"
       />
     </div>
@@ -16,8 +16,8 @@
         >
           首頁
         </RouterLink>
-        <p class="body--b2">- 里民服務</p>
-        <p class="body--b2">- 活動報名</p>
+        <p class="body--b2">&#47;里民服務</p>
+        <p class="body--b2">&#47;活動報名</p>
       </nav>
 
       <div class="events-view__filter-wrapper">
@@ -93,7 +93,7 @@
       title: '梨山林輕健行',
       category: '健康',
       type: 'health',
-      image: '/src/assets/data/events/events_01_mt.png',
+      image: '/src/assets/image/events/events_01_mt.png',
       date: '2025--05',
       deadline: '2025-08-26',
       quota: 200,
@@ -104,7 +104,7 @@
       title: '梨花秘境之旅',
       category: '旅遊',
       type: 'travel',
-      image: '/src/assets/data/events/events_02_flower.png',
+      image: '/src/assets/image/events/events_02_flower.png',
       date: '2025-09-05',
       deadline: '2025-08-26',
       quota: 200,
@@ -204,17 +204,25 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 5px;
-      margin-bottom: 20px;
-      padding-top: 20px;
+      margin-bottom: 50px;
+      padding-top: 30px;
     }
 
+    // &__breadcrumb-link {
+    //   @extend .body--b2;
+    //   color: $primary-c700;
+    //   text-decoration: none;
+    //   &:hover {
+    //     text-decoration: underline;
+    //   }
+    // }
     &__breadcrumb-link {
-      @extend .body--b2;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
       color: $primary-c700;
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
     }
 
     &__filter-wrapper {
