@@ -9,7 +9,7 @@
     </div>
     <div class="mainblock">
       <div class="mainblock__logo">
-        <RouterLink to="/index">
+        <RouterLink to="/">
           <img src="/src/assets/logo/logo.png" alt="logo">
         </RouterLink>
       </div>
