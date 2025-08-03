@@ -78,9 +78,9 @@
     }
 
     .mainblock {
+      @include flex-space-between;
       width: 100%;
       padding: 10vw 2.5vw 10vw 10vw;
-      @include flex-space-between;
 
       &__logo {
         width: 21vw;
