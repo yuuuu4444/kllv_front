@@ -96,7 +96,7 @@
       width: 100%;
       padding: clamp(12px, 0.9375vw, 18px);
       gap: clamp(40px, 3.125vw, 60px);
-      border-radius: 0.78125vw;
+      border-radius: $border-r-md;
       background-color: $white;
       
       @include mobile {
@@ -139,7 +139,7 @@
       @include flex-center;
       width: 100%;
       padding: clamp(12px, 0.9375vw, 18px) clamp(12px, 0.9375vw, 18px) clamp(24px, 1.875vw, 36px);
-      border-radius: 0.78125vw;
+      border-radius: $border-r-md;
       background-color: $white;
       
       @include mobile {

@@ -4,10 +4,13 @@
 
 <template>
   <footer>
+    <div class="wave">
+
+    </div>
     <div class="mainblock">
       <div class="mainblock__logo">
         <RouterLink to="/index">
-          <img src="/src/assets/image/logo.png" alt="logo">
+          <img src="/src/assets/logo/logo.png" alt="logo">
         </RouterLink>
       </div>
       <ul class="mainblock__list" role="navigation">
@@ -54,16 +57,16 @@
 
   footer {
     width: 100%;
-    // height: 28vw;
     z-index: 99;
-
+    
+    // position: relative;
     background-color: $primary-c000;
-    background-image: url("/src/assets/image/footer2.png");
+    background-image: url("/src/assets/image/footer4.png");
     background-repeat: repeat-x;
     background-size: auto 100%;
     background-position-x: 0%;
 
-    animation: wave 5s linear infinite;
+    animation: wave 30s linear infinite;
     
     @keyframes wave {
       0% {
@@ -107,7 +110,7 @@
 
     .disclaimer {
       padding: 12px;
-      border-top: 1px solid $primary-c700;
+      border-top: 1px solid $primary-c000;
       @include flex-center;
 
       p {
@@ -115,8 +118,9 @@
         color: $primary-c700;
       }
     }
-
-    @include mobile {
+  }
+  @include mobile {
+    footer{
       .mainblock {
         @include flex-center;
         flex-direction: column;
@@ -133,10 +137,14 @@
         &__info {
           h5 {
             font-size: 12px;
+            font-weight: 500;
             line-height: 24px;
           }
+          h5.medium {
+            display: none;
+          }
         }
-      }
+      }        
     }
   }
 </style>

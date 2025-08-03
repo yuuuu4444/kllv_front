@@ -29,15 +29,12 @@
       <div class="mainbar__logo">
         <RouterLink to="/index">
           <img
-            src="/src/assets/image/logo.png"
+            src="/src/assets/logo/logo.png"
             alt="logo"
           />
         </RouterLink>
       </div>
-      <ul
-        class="mainbar__list"
-        role="navigation"
-      >
+      <ul class="mainbar__list" role="navigation">
         <li class="mainbar__item">
           <RouterLink to="/news">
             <img
@@ -113,26 +110,33 @@
       </ul>
     </div>
     <div class="infobar">
-      <a
-        class="infobar__mobile"
-        href="tel:+886987654321"
-      >
-        <img
-          src="/src/assets/icon/icon_mobile.svg"
-          alt="mobile-icon"
-        />
+      <a class="infobar__mobile" href="tel:+886987654321">
+        <img src="/src/assets/icon/icon_mobile.png" alt="mobile-icon"/>
         <h5 class="medium">電話：0987654321</h5>
       </a>
-      <a
-        class="infobar__mail"
-        href="mailto:konlongzhood@gmail.com?subject=空瀧浪里"
-      >
-        <img
-          src="/src/assets/icon/icon_mail.svg"
-          alt="mail-icon"
-        />
+      <a class="infobar__mail" href="mailto:konlongzhood@gmail.com?subject=空瀧浪里">
+        <img src="/src/assets/icon/icon_mail.png" alt="mail-icon"/>
         <h5 class="medium">電子信箱</h5>
       </a>
+    </div>
+  </header>
+  <header class="m">
+    <div class="mobilebar">
+      <div class="mobilebar__logo">
+        <RouterLink to="/index">
+          <img
+            src="/src/assets/logo/logo2.svg"
+            alt="logo"
+          />
+        </RouterLink>
+      </div>
+      <div class="mobilebar__menu">
+      </div>
+      <div class="mobilebar__burger">
+        <span class="l1"></span>
+        <span class="l2"></span>
+        <span class="l3"></span>
+      </div>
     </div>
   </header>
 </template>
@@ -178,7 +182,7 @@
 
         h5.medium {
           color: black;
-          font-size: 1.25vw;
+          font-size: clamp(15px, 1.25vw, 25px);
           font-weight: 500;
           letter-spacing: 0.1em;
         }
@@ -197,7 +201,6 @@
           padding: 1.042vw 0.521vw;
           border-radius: 0 0 15px 15px;
           background-color: $white;
-          // background-color: $primary-c000;
         }
       }
     }
@@ -208,7 +211,6 @@
       padding: 0.521vw 2.084vw;
       border-radius: 0 0 15px 15px;
       background-color: $white;
-      // background-color: $primary-c000;
 
       &__mobile,
       &__mail {
@@ -230,5 +232,65 @@
   }
   header.hidden {
     transform: translateY(-91%);
+  }
+  header.m {
+    display: none;
+  }
+  @include desktop {
+    header {
+      .mainbar {
+        &__list{
+          gap: 3.126vw;
+        }
+      }
+
+    }
+  }
+  @include mobile {
+    header {
+      display: none;
+    }
+    header.m {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 99;
+      .mobilebar {
+        padding: 10px 8%;
+        @include flex-space-between;
+        background-color: $white;
+        border-radius: 0 0 15px 15px;
+        &__logo {
+          width: 100px;
+          img {
+            width: 100%;
+            height: auto;
+          }
+        }
+        &__burger {
+          display: flex;
+          flex-direction: column;
+          gap: 4.8px;
+          cursor: pointer;
+          span {
+            width: 32px;
+            height: 4px;
+            border-radius: 2px;
+            background-color: $primary-c700;
+          }
+          .l2 {
+            background-color: $primary-c500;
+            &:hover {
+              box-shadow: 0 0 1.25em $primary-c500;
+            }
+          }
+          .l1 {
+            background-color: $primary-c100;
+          }
+        }
+      }
+    }
   }
 </style>
