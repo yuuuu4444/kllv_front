@@ -3,7 +3,7 @@
     <h3 class="memeberMobileMenu__title">帳戶管理</h3>
     <div class="memeberMobileMenu__avatarContainer">
       <img
-        :src="userData.avatar"
+        :src="userData.profile_image"
         alt="使用者頭像"
         class="memeberMobileMenu__avatar"
       />
@@ -69,7 +69,7 @@
       flex-direction: column;
       align-items: center;
       gap: 15px;
-      background-color: $white;
+      // background-color: $white;
       padding: 48px 16px;
       // border-radius: $border-r-md;
       // box-shadow: 0 4px 12px rgba($black, 0.05);
@@ -102,6 +102,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        background-color: rgba(0, 75, 128, 0.1);
 
         &.router-link-exact-active {
           background-color: $primary-c700;
