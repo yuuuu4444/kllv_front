@@ -209,7 +209,7 @@ main {
 
 // 共用樣式
 a {
-  color: $black;
+  color: $black
 }
 .section-title {
   margin-bottom: 40px;
@@ -240,7 +240,6 @@ a {
   gap: 0.5em;
   p {
     display: inline-block;
-    
     color: $black;
   }
 }
@@ -395,15 +394,7 @@ a {
     color: $black;
     width: 41.35vw;
     margin: 60px auto 10px;
-    &:hover {
-      background-color: darken(#7ac57a, 10%);
-    }
-    &.mayor-intro3 & {
-      background-color: $highlight-c50;
-      &:hover {
-        background-color: $highlight-c100;
-      }
-    }
+
     .btn-img {
       width: 15.89vw;
       height: 13.89vh;
@@ -444,11 +435,37 @@ a {
         }
       }
     }
+      .about-btn {
+    background-color: $secondary-c;
+    &:hover {
+      background-color: darken($secondary-c, 10%);
+    }
+  }
     .text-content{
       margin-right: 0;
       margin-left: 45%;
       
     }
+        .leader-info {
+      &::before,
+      &::after {
+        background-color: $secondary-c;
+      }
+}
+  }
+  .mayor-intro3 {
+  .about-btn {
+    background-color: $highlight-c50;
+    &:hover {
+      background-color: $highlight-c100;
+    }
+  }
+    .leader-info {
+      &::before,
+      &::after {
+        background-color: $highlight-c50;
+      }
+}
   }
 // RWD
 @include mobile {
