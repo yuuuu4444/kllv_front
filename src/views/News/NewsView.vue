@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed } from 'vue';
   import MainBanner from '@/components/MainBanner.vue';
-  import newsPosts from '@/assets/data/News/News';
+  import News from '@/assets/data/News/News';
 
 // 篩選分類
   const newsTags = [
@@ -16,9 +16,9 @@
   const selectedTag = ref("全部");
   const filteredPosts = computed(() => {
     if (selectedTag.value == "全部") {
-      return newsPosts
+      return News
     } else {
-      return newsPosts.filter(post => post.tag == selectedTag.value)
+      return News.filter(post => post.tag == selectedTag.value)
     }
   });
 

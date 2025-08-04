@@ -1,5 +1,5 @@
-import NewsView from '@/views/News/NewsView.vue'
-import NewsDetails from '@/views/News/NewsDetails.vue'
+import NewsView from '@/views/News/NewsView.vue';
+import NewsDetails from '@/views/News/NewsDetails.vue';
 
 export default [
     {
@@ -13,4 +13,4 @@ export default [
       component: NewsDetails,
       props: true,
     },
-  ]
+  ];
