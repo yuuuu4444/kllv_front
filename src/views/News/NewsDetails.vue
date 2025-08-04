@@ -56,32 +56,32 @@
 
 
 <style scoped lang="scss">
-    @import "@/assets/scss/style";
+  @import "@/assets/scss/style";
 
-    .container {
-      padding: 1.5625vw 18.75vw 6.25vw;
-      background-color: $primary_c000;
+  .container {
+    padding: 1.5625vw 18.75vw 6.25vw;
+    background-color: $primary_c000;
 
-      @include desktop {
-        padding-left: 10%;
-        padding-right: 10%;
-      }
-      @include mobile {
-        padding-left: 2%;
-        padding-right: 2%;
-      }
+    @include desktop {
+      padding-left: 10%;
+      padding-right: 10%;
     }
-    
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
+    @include mobile {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+  }
   
-      p {
-        color: black;
-        @include mobile
-      }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    p {
+      color: black;
+      @include mobile
     }
+  }
 
   .newspost {
     display: flex;
@@ -96,11 +96,11 @@
       width: 100%;
       padding: clamp(12px, 0.9375vw, 18px);
       gap: clamp(40px, 3.125vw, 60px);
-      border-radius: 0.78125vw;
+      border-radius: $border-r-md;
       background-color: $white;
       
       @include mobile {
-        padding: 8px;
+        padding: 8px 8px 12px;
         gap: 32px;
       }
     }
@@ -139,7 +139,7 @@
       @include flex-center;
       width: 100%;
       padding: clamp(12px, 0.9375vw, 18px) clamp(12px, 0.9375vw, 18px) clamp(24px, 1.875vw, 36px);
-      border-radius: 0.78125vw;
+      border-radius: $border-r-md;
       background-color: $white;
       
       @include mobile {

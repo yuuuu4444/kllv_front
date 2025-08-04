@@ -49,7 +49,7 @@
 </script>
 
 <template>
-  <MainBanner image="/src/assets/banner/banner_news.jpg" title="最新消息" />
+  <MainBanner image="/src/assets/banner/banner_news2.jpg" title="最新消息" />
   <div class="container">
     <div class="breadcrumb">
       <RouterLink to="/index">
@@ -129,15 +129,15 @@
     }
   }
 
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-  
-      p {
-        color: black;
-      }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    p {
+      color: black;
     }
+  }
 
   .newsboard {
     display: flex;
@@ -153,7 +153,7 @@
       aspect-ratio: 15 / 1;
       gap: 1.042vw;
       background-color: $white;
-      border-radius: 0.78125vw;;
+      border-radius: $border-r-md;;
       @include mobile {
         display: none;
       }
@@ -175,7 +175,7 @@
           font-size: clamp(16px, 1.25vw, 24px);
           letter-spacing: 0.1em;
           background-color: $white;
-          border-radius: 0.78125vw;;
+          border-radius: $border-r-md;;
           border: none;
         }
         option {
@@ -201,12 +201,12 @@
       background-color: $white;
       
       &:first-child {
-        border-top-left-radius: 0.78125vw;
-        border-top-right-radius: 0.78125vw;
+        border-top-left-radius: $border-r-md;
+        border-top-right-radius: $border-r-md;
       }
       &:last-child {
-        border-bottom-left-radius: 0.78125vw;
-        border-bottom-right-radius: 0.78125vw;
+        border-bottom-left-radius: $border-r-md;
+        border-bottom-right-radius: $border-r-md;
       }
       &:nth-child(even) {
         background-color: rgba(255, 255, 255, 0.75)
@@ -215,7 +215,7 @@
       @include mobile {
         flex-direction: column;
         align-items: flex-start;
-        padding: 8px;
+        padding: 8px 8px 12px;
         gap: 32px;
       } 
     }
