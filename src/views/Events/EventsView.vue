@@ -1,12 +1,10 @@
+<!-- 檔案路徑: src/views/Events/EventsView.vue -->
 <template>
   <div class="events-view">
-    <!-- 為了讓圖片置頂對齊上緣 -->
-    <div class="events-view__banner-container">
-      <MainBanner
-        image="/src/assets/banner/banner_events.png"
-        title="活動報名"
-      />
-    </div>
+    <MainBanner
+      image="/src/assets/banner/banner_events.png"
+      title="活動報名"
+    />
 
     <div class="events-view__container">
       <nav class="events-view__breadcrumbs">
@@ -16,10 +14,28 @@
         >
           首頁
         </RouterLink>
-        <p class="body--b2">&#47;里民服務</p>
-        <p class="body--b2">&#47;活動報名</p>
+        <p class="body--b2">/里民服務</p>
+        <p class="body--b2">/活動報名</p>
       </nav>
 
+      <!-- 手機版專用的下拉選單 -->
+      <div class="events-view__filter-mobile">
+        <h2 class="bold">活動總覽</h2>
+        <select
+          v-model="activeCategory"
+          class="events-view__filter-select"
+        >
+          <option
+            v-for="category in filterCategories"
+            :key="category.value"
+            :value="category.value"
+          >
+            {{ category.text }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 桌機版的篩選器 -->
       <div class="events-view__filter-wrapper">
         <div class="events-view__filters">
           <button
@@ -155,6 +171,11 @@
       price: 600,
     },
   ]);
+
+  const selectCategory = (category) => {
+    activeCategory.value = category;
+    currentPage.value = 1;
+  };
   const filteredEvents = computed(() => {
     if (activeCategory.value === 'all') return allEvents.value;
     return allEvents.value.filter((event) => event.type === activeCategory.value);
@@ -168,10 +189,6 @@
     const endIndex = startIndex + itemsPerPage.value;
     return filteredEvents.value.slice(startIndex, endIndex);
   });
-  const selectCategory = (category) => {
-    activeCategory.value = category;
-    currentPage.value = 1;
-  };
   const nextPage = () => {
     if (currentPage.value < totalPages.value) currentPage.value++;
   };
@@ -187,9 +204,7 @@
     background-color: $primary-c25;
     padding-bottom: 80px;
 
-    // 為了讓圖片置頂對齊上緣
     &__banner-container :deep(.banner) {
-      // 使用 :deep()來穿透scoped樣式
       background-position: top !important;
     }
 
@@ -208,14 +223,6 @@
       padding-top: 30px;
     }
 
-    // &__breadcrumb-link {
-    //   @extend .body--b2;
-    //   color: $primary-c700;
-    //   text-decoration: none;
-    //   &:hover {
-    //     text-decoration: underline;
-    //   }
-    // }
     &__breadcrumb-link {
       font-size: 20px;
       font-style: normal;
@@ -223,6 +230,26 @@
       line-height: 32px;
       letter-spacing: 0.2em;
       color: $primary-c700;
+    }
+
+    &__filter-mobile {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin: 50px 0;
+    }
+
+    &__filter-select {
+      width: 100%;
+      max-width: 300px;
+      height: 40px;
+      border-radius: $border-r-xs;
+      padding: 0 10px;
+      border: 1px solid $neutral-c;
+      background-color: $white;
+      font-size: 16px;
+      letter-spacing: $spacing-l;
     }
 
     &__filter-wrapper {
@@ -238,13 +265,26 @@
       flex-wrap: wrap;
     }
 
+    @include mobile {
+      &__filter-wrapper {
+        display: none;
+      }
+      &__filter-mobile {
+        display: flex;
+      }
+    }
+
     &__grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 40px;
       margin-bottom: 50px;
+
       @include mobile {
         grid-template-columns: 1fr;
+        // --- 關鍵修改：新增這兩行 ---
+        justify-items: center; // 讓網格內的項目（卡片）水平置中
+        // --- 修改結束 ---
       }
     }
 
