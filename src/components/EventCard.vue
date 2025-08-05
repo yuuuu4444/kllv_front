@@ -8,13 +8,15 @@
 
     <div class="event-card__info-wrapper">
       <div class="event-card__category-tag">
-        <h5 :class="['bold', `category-text--${event.type}`]">{{ event.category }}</h5>
+        <h5 :class="['bold', `category-text--category-${event.category_no}`]">
+          {{ event.category_name }}
+        </h5>
       </div>
 
       <div class="event-card__header">
         <h5 class="bold">{{ event.title }}</h5>
         <RouterLink
-          :to="`/events/${event.id}`"
+          :to="`/events/${event.event_no}`"
           class="event-card__details-btn"
         >
           活動詳情
@@ -23,16 +25,16 @@
 
       <div class="event-card__footer">
         <div class="event-card__dates">
-          <p class="body--b4">活動日期：{{ event.date }}</p>
-          <p class="body--b4">報名截止：{{ event.deadline }}</p>
-          <p class="body--b4">名額：{{ event.quota }}人</p>
+          <p class="body--b4">活動日期：{{ formattedStartDate }}</p>
+          <p class="body--b4">報名截止：{{ event.registration_end }}</p>
+          <p class="body--b4">名額：{{ event.capacity_limit }}人</p>
         </div>
         <div class="event-card__price-wrapper">
           <h5
-            v-if="event.price > 0"
+            v-if="event.fee_per_person > 0"
             class="bold event-card__price"
           >
-            NT. {{ event.price }}
+            NT. {{ event.fee_per_person }}
           </h5>
           <h5
             v-else
@@ -47,14 +49,21 @@
 </template>
 
 <script setup>
-  import { defineProps } from 'vue';
+  import { defineProps, computed } from 'vue';
   import { RouterLink } from 'vue-router';
 
-  defineProps({
+  const props = defineProps({
     event: {
       type: Object,
       required: true,
     },
+  });
+
+  const formattedStartDate = computed(() => {
+    if (props.event && props.event.start_date) {
+      return props.event.start_date.split(' ')[0];
+    }
+    return '';
   });
 </script>
 
@@ -175,17 +184,17 @@
 
   // 分類文字顏色
   .category-text {
-    &--health {
+    &--category-2 {
       color: #6782a4;
-    }
-    &--travel {
+    } // 健康
+    &--category-1 {
       color: #ca877b;
-    }
-    &--art {
+    } // 旅遊
+    &--category-3 {
       color: #719469;
-    }
-    &--other {
+    } // 藝文
+    &--category-4 {
       color: #959595;
-    }
+    } // 其他
   }
 </style>

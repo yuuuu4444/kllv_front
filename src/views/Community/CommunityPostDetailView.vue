@@ -3,6 +3,7 @@
   import { defineProps, ref } from 'vue';
   import PostData from '@/assets/data/Community/posts_test.json';
   import Categories from '@/assets/data/Community/posts_categories_test.json';
+  import ReportModal from '@/components/ReportModal.vue';
 
   const props = defineProps(['post_no']);
   const postNo = props.post_no;
@@ -19,6 +20,13 @@
 
   const toggleCommentMenu = () => {
     menuCommentVisible.value = !menuCommentVisible.value;
+  };
+
+  const showModal = ref(false);
+  const openReportModal = () => {
+    showModal.value = true;
+    menuPostVisible.value = false;
+    menuCommentVisible.value = false;
   };
 </script>
 
@@ -64,11 +72,80 @@
                 class="post-detail__menu-list"
                 v-if="menuPostVisible"
               >
-                <li class="post-detail__menu-item">編輯貼文</li>
-                <li class="post-detail__menu-item">刪除貼文</li>
+                <li class="post-detail__menu-item">
+                  <button class="post-detail__menu-btn">
+                    <svg
+                      class="post-detail__menu-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 17.4595V20.4995C3 20.7795 3.22 20.9995 3.5 20.9995H6.54C6.67 20.9995 6.8 20.9495 6.89 20.8495L17.81 9.93951L14.06 6.18951L3.15 17.0995C3.05 17.1995 3 17.3195 3 17.4595ZM20.71 7.03951C20.8027 6.947 20.8762 6.83711 20.9264 6.71614C20.9766 6.59517 21.0024 6.46548 21.0024 6.33451C21.0024 6.20355 20.9766 6.07386 20.9264 5.95289C20.8762 5.83192 20.8027 5.72203 20.71 5.62951L18.37 3.28951C18.2775 3.19681 18.1676 3.12326 18.0466 3.07308C17.9257 3.0229 17.796 2.99707 17.665 2.99707C17.534 2.99707 17.4043 3.0229 17.2834 3.07308C17.1624 3.12326 17.0525 3.19681 16.96 3.28951L15.13 5.11951L18.88 8.86951L20.71 7.03951Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span class="post-detail__menu-text">編輯貼文</span>
+                  </button>
+                </li>
+                <li class="post-detail__menu-item">
+                  <button class="post-detail__menu-btn">
+                    <svg
+                      class="post-detail__menu-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M18 5V19C18 19.5 17.5 20 17 20H12H7C6.5 20 6 19.5 6 19V5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M4 5H20"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 4H14M10 9V16M14 9V16"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="post-detail__menu-text">刪除貼文</span>
+                  </button>
+                </li>
+                <li class="post-detail__menu-item">
+                  <button class="post-detail__menu-btn">
+                    <div>
+                      <img
+                        src="/src/assets/icon/icon_report.svg"
+                        alt=""
+                      />
+                    </div>
+                    <span
+                      class="post-detail__menu-text"
+                      @click="openReportModal"
+                    >
+                      檢舉貼文
+                    </span>
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
+
+          <ReportModal v-model:visible="showModal" />
 
           <div class="post-detail__content">
             <p class="post-detail__desc body--b2">{{ postItem.content }}</p>
@@ -122,7 +199,21 @@
                   class="post-detail__comment-menu-list"
                   v-if="menuCommentVisible"
                 >
-                  <li class="post-detail__comment-menu-item">檢舉留言</li>
+                  <li class="post-detail__comment-menu-item">
+                    <button
+                      class="post-detail__menu-btn"
+                      @click="openReportModal"
+                    >
+                      <div>
+                        <img
+                          src="/src/assets/icon/icon_report.svg"
+                          alt=""
+                          class="post-detail__menu-icon"
+                        />
+                      </div>
+                      <span class="post-detail__menu-text">檢舉留言</span>
+                    </button>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -157,7 +248,12 @@
   @import '/src/assets/scss/style.scss';
 
   .post-detail {
-    background-color: $white;
+    background-color: white;
+    padding-bottom: 30px;
+    background-image:
+      url(/src/assets/image/background_image.png), url(/src/assets/image/background_color.svg);
+    background-repeat: repeat, no-repeat;
+    background-position: bottom;
 
     &__container {
       padding: 6.25vw 18.75vw;
@@ -191,6 +287,7 @@
       flex-direction: column;
       gap: 30px;
       box-shadow: 0 8px $primary-c700;
+      background-color: white;
     }
 
     &__meta {
@@ -232,10 +329,33 @@
       }
 
       &-item {
-        font-size: 20px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 5px;
+      }
+
+      &-btn {
+        background-color: transparent;
+        border: none;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        cursor: pointer;
+      }
+
+      &-text,
+      &-icon {
+        display: block;
+      }
+
+      &-text {
+        font-family: $font-sans;
+        font-size: 16px;
         font-style: normal;
         font-weight: 400;
-        line-height: 32px;
+        line-height: 150%;
         letter-spacing: 0.2em;
       }
     }
@@ -268,6 +388,7 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
+        background-color: white;
       }
 
       &-wrapper {
@@ -322,13 +443,19 @@
           padding: 8px 5px;
           border-radius: $border-r-md;
         }
+
+        &-item {
+          display: flex;
+          justify-content: space-evenly;
+          align-items: center;
+          padding: 5px;
+        }
       }
     }
 
     &__reply {
       width: 90%;
       margin: auto;
-      // position: fixed;
 
       &-wrapper {
         width: 90%;
@@ -337,7 +464,6 @@
         border-radius: $border-r-md;
         padding: 10px;
         position: relative;
-        // position: fixed;
       }
 
       &-textarea {

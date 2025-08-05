@@ -34,7 +34,7 @@
     <!-- 手機版大頭貼 -->
     <div class="profilePage__avatarContainer">
       <img
-        :src="localUserData.avatar"
+        :src="localUserData.profile_image"
         alt="使用者頭像"
         class="profilePage__avatar"
         :class="{ 'is-editable': isEditing }"
@@ -51,7 +51,7 @@
       accept="image/*"
     />
 
-    <h5 class="profilePage__title bold">個人資料</h5>
+    <h5 class="profilePage__title">個人資料</h5>
 
     <form
       class="profilePage__form"
@@ -64,7 +64,7 @@
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">姓名</label>
-          <p class="detailItem__content body--b3">{{ localUserData.name }}</p>
+          <p class="detailItem__content body--b3">{{ localUserData.full_name }}</p>
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">暱稱</label>
@@ -83,11 +83,11 @@
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">身分證字號</label>
-          <p class="detailItem__content body--b3">{{ localUserData.idNumber }}</p>
+          <p class="detailItem__content body--b3">{{ localUserData.id_number }}</p>
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">生日</label>
-          <p class="detailItem__content body--b3">{{ localUserData.birthDate }}</p>
+          <p class="detailItem__content body--b3">{{ localUserData.birth_date }}</p>
         </div>
         <div class="detailItem detailItem--fullWidth">
           <label class="detailItem__label body--b4">性別</label>
@@ -104,7 +104,7 @@
             <label>
               <input
                 type="radio"
-                value="male"
+                value="M"
                 v-model="localUserData.gender"
               />
               男
@@ -112,7 +112,7 @@
             <label>
               <input
                 type="radio"
-                value="female"
+                value="F"
                 v-model="localUserData.gender"
               />
               女
@@ -120,7 +120,7 @@
             <label>
               <input
                 type="radio"
-                value="other"
+                value="N"
                 v-model="localUserData.gender"
               />
               不願透漏
@@ -178,7 +178,7 @@
               上傳圖片
             </button>
             <img
-              :src="localUserData.avatar"
+              :src="localUserData.profile_image"
               alt="頭像預覽"
               class="avatarUpload__preview"
             />
@@ -224,17 +224,7 @@
   const props = defineProps({
     userData: {
       type: Object,
-      default: () => ({
-        name: 'Komod·Mayaw',
-        nickname: '谷木',
-        address: '桃園市中壢區空瀧浪里快樂街1479號8樓-3',
-        idNumber: 'H1212345678',
-        birthDate: '1980/02/28',
-        gender: 'male',
-        email: 'a1234567@gmail.com',
-        phone: '0988123456',
-        avatar: new URL('@/assets/image/02.png', import.meta.url).href,
-      }),
+      required: true,
     },
   });
 
@@ -249,9 +239,10 @@
   });
 
   const genderText = computed(() => {
-    const map = { male: '男', female: '女', other: '不願透漏' };
+    const map = { M: '男', F: '女', N: '不願透漏' };
     return map[localUserData.gender] || '未設定';
   });
+
   const isPhoneInvalid = computed(() => {
     // 在「編輯中」且「使用者碰過輸入框」且「電話是空的」時無效
     return isEditing.value && phoneFieldTouched.value && !localUserData.phone;
@@ -312,7 +303,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatarUrl = e.target.result;
-        localUserData.avatar = newAvatarUrl;
+        localUserData.profile_image = newAvatarUrl;
         stagedAvatarUrl.value = newAvatarUrl;
       };
       reader.readAsDataURL(file);
@@ -360,7 +351,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-bottom: 15px;
+    padding-bottom: 16px;
+
     &__label {
       color: $black;
     }
@@ -457,7 +449,7 @@
     .profilePage {
       display: block;
       margin-top: 0;
-      margin-top: 120px; //測試用之後刪除
+      // margin-top: 120px; //測試用之後刪除
 
       &__avatarContainer {
         display: flex;
@@ -476,6 +468,14 @@
               opacity: 0.8;
             }
           }
+        }
+      }
+      .detailItem {
+        // padding-bottom: 16px;
+        // margin-bottom: 16px;
+        border-bottom: 1px solid $primary-c100;
+        &:last-child {
+          border-bottom: none;
         }
       }
 
@@ -502,14 +502,13 @@
     .mobileHeader__actionButton {
       background: none;
       border: none;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       cursor: pointer;
       &.is-save {
         color: $primary-c500;
       }
       &.is-edit {
-        padding: 4px;
         .editIcon {
           width: 24px;
           height: 24px;

@@ -2,13 +2,13 @@
   import { useRoute } from 'vue-router';
   import router from '@/router';
   import SubBanner from '@/components/SubBanner.vue';
-  import newsPosts from '@/assets/data/News/News';
+  import News from '@/assets/data/News/News';
 
   // 顯示內文
   const route = useRoute();
   const postId = Number(route.params.id);
 
-  const post = newsPosts.find(p => p.id == postId);
+  const post = News.find(p => p.id == postId);
 
   // 返回上頁
   const Back = () => {

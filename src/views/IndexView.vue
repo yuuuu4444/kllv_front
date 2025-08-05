@@ -1,4 +1,5 @@
 <script setup>
+<<<<<<< HEAD
 import { ref, computed } from 'vue'
 import newsPosts from '@/assets/data/News/News'
 import { Splide, SplideSlide } from '@splidejs/vue-splide'
@@ -17,6 +18,11 @@ const cards = [
   { id:2, title:'活動二', img:'...'},
   /* … */
 ]
+=======
+  import MainBanner from '@/components/MainBanner.vue';
+  import News from '@/assets/data/News/News';
+  import NewsBoard from '@/components/NewsBoard.vue'
+>>>>>>> dev
 </script>
 
 <template>
@@ -38,6 +44,7 @@ const cards = [
       </div>
     </div>
   </section>
+<<<<<<< HEAD
 
   <div class="container">
     <div class="newsboard">
@@ -74,6 +81,12 @@ const cards = [
       </div>
     </SplideSlide>
   </Splide>
+=======
+  <div class="newsboard-container">
+    <NewsBoard class="newsboard" :posts="News" :limit="3" :showHeader="true" :showFooter="true"></NewsBoard>
+  </div>
+
+>>>>>>> dev
 </template>
 
 <style lang="scss" scoped>
@@ -92,13 +105,19 @@ const cards = [
 
     .overlay {
       position: absolute;
+<<<<<<< HEAD
       inset: 0;
       background-color: rgba(0, 0, 0, 0.4);
+=======
+      inset: 0; /* top:0; right:0; bottom:0; left:0 */
+      // background-color: rgba(0, 0, 0, 0.4);
+>>>>>>> dev
       z-index: 1;
       @include flex-center;
       width: 100%;
       height: 80vh;
     }
+<<<<<<< HEAD
 
     .text-overlay {
       position: relative;
@@ -137,14 +156,40 @@ const cards = [
   @include mobile {
     padding-left: 5%;
     padding-right: 5%;
+=======
+>>>>>>> dev
   }
 }
 
+<<<<<<< HEAD
 .newsboard {
   position: relative;
   top: -6vh;
   @include mobile{
     top: -3.1vh;
+=======
+  .text-overlay {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    color: $white;
+
+    span {
+      font-size: 64px;
+    }
+    .line-1 {
+    grid-column: 1 / 3; 
+    font-size: 36px;
+    font-weight: bold;
+    }
+    .line-2{
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    font-size: 32px;
+    font-weight: 900;
+    }
+>>>>>>> dev
   }
   h2{
     background-color: $primary-c700;
@@ -154,6 +199,7 @@ const cards = [
     text-align: center;
     padding: 1.3vw;
   }
+<<<<<<< HEAD
   &__posts {
     display: flex;
     flex-direction: column;
@@ -183,6 +229,26 @@ const cards = [
   &__title {
     font-size: 1.25vw !important;
     color: $black;
+=======
+
+
+  .newsboard-container {
+    padding: 1.5625vw 18.75vw 6.25vw;
+    background-color: $primary_c000;
+
+    @include desktop {
+      padding-left: 10%;
+      padding-right: 10%;
+    }
+    @include mobile {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+  }
+  .newsboard {
+    margin: -3.125vw 0 3.125vw;
+    z-index: 9;
+>>>>>>> dev
   }
   &__date {
     font-size: 1.042vw !important;
