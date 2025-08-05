@@ -125,6 +125,10 @@
 
     &__container {
       padding: 1.5625vw 18.75vw 6.25vw;
+      @include desktop {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
     }
 
     &__breadcrumb {
@@ -211,7 +215,8 @@
 
     @include mobile {
       &__container {
-        padding: 1.5625vw 2.5vw 6.25vw;
+        padding-left: 2%;
+        padding-right: 2%;
       }
 
       &__breadcrumb-link {

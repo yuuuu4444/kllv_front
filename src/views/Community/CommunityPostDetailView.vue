@@ -274,6 +274,11 @@
       display: flex;
       flex-direction: column;
       gap: 10vh;
+
+      @include desktop {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
     }
 
     &__body {
@@ -507,7 +512,8 @@
 
     @include mobile {
       &__container {
-        padding: 6.25vw 2.5vw;
+        padding-left: 2%;
+        padding-right: 2%;
       }
 
       &__images {
