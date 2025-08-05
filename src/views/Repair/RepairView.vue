@@ -76,12 +76,11 @@
 </script>
 
 <template>
+  <MainBanner
+    image="assets/banner/banner_repair.jpg"
+    title="維修通報"
+  />
   <div class="report-page">
-    <MainBanner
-      image="/src/assets/banner/banner_repair.jpg"
-      title="維修通報"
-    />
-
     <div class="report-page__container">
       <nav class="report-page__breadcrumb">
         <RouterLink
@@ -174,10 +173,11 @@
               v-model="filterReportNo"
             />
             <button
-              type="submit"
+              type="button"
               class="report-filter__search"
+              @click="filterReportNo = ''"
             >
-              搜尋
+              清除
             </button>
           </div>
         </div>
