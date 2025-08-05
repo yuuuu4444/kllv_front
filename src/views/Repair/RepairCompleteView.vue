@@ -15,7 +15,12 @@
           首頁
         </RouterLink>
         <p class="body--b2">&#47;里民服務</p>
-        <p class="body--b2">&#47;維修通報</p>
+        <RouterLink
+          to="/repair"
+          class="repair-complete__breadcrumb-link"
+        >
+          &#47;維修通報
+        </RouterLink>
         <p class="body--b2">&#47;維修通報完成</p>
       </nav>
 
