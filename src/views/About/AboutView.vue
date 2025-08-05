@@ -12,7 +12,7 @@ function scrollToTop() {
   
   <main>
   <MainBanner
-    image="/src/assets/banner/banner_about.jpg"
+    image="src/assets/banner/banner_about.jpg"
     title="空瀧浪里 就像這樣"
   />
     <!-- <section class="banner-container">
