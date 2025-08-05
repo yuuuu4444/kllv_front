@@ -1,4 +1,3 @@
-<!-- 檔案路徑: src/views/Events/EventRegistrationView.vue -->
 <template>
   <div class="reg-view">
     <SubBanner title="活動報名" />
@@ -400,6 +399,10 @@
     margin-bottom: 50px;
     & > * {
       @extend .body--b2;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
     }
     p {
       color: $black;
@@ -409,7 +412,7 @@
     color: $primary-c700;
     text-decoration: none;
     &:hover {
-      text-decoration: underline;
+      // text-decoration: underline;
     }
   }
 

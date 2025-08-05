@@ -130,7 +130,7 @@
       color: $primary-c700;
       text-decoration: none;
       &:hover {
-        text-decoration: underline;
+        // text-decoration: underline;
       }
     }
 

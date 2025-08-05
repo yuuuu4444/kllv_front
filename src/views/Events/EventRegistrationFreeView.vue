@@ -359,6 +359,10 @@
     margin-bottom: 50px;
     & > * {
       @extend .body--b2;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
     }
     p {
       color: $black;
