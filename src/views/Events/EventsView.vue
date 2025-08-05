@@ -149,12 +149,18 @@
     &__banner-container :deep(.banner) {
       background-position: top !important;
     }
-
     &__container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 20px;
+      padding: 1.5625vw 18.75vw 6.25vw;
+      @include desktop {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
     }
+    // &__container {
+    //   max-width: 1200px;
+    //   margin: 0 auto;
+    //   padding: 0px;
+    // }
 
     &__breadcrumbs {
       display: flex;
@@ -162,7 +168,6 @@
       flex-wrap: wrap;
       gap: 5px;
       margin-bottom: 50px;
-      padding-top: 30px;
     }
 
     &__breadcrumb-link,
