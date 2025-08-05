@@ -18,6 +18,12 @@ export default [
     component: () => import('@/views/Events/EventRegistrationView.vue'),
   },
   {
+    // 免費活動報名頁
+    path: '/events/:id/register-free',
+    name: 'event-registration-free',
+    component: () => import('@/views/Events/EventRegistrationFreeView.vue'),
+  },
+  {
     // 未繳費完成頁
     path: '/events/complete/unpaid',
     name: 'event-complete-unpaid',
