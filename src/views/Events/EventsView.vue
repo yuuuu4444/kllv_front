@@ -2,7 +2,7 @@
 <template>
   <div class="events-view">
     <MainBanner
-      image="/src/assets/banner/banner_events.png"
+      image="assets/banner/banner_events.png"
       title="活動報名"
     />
 
