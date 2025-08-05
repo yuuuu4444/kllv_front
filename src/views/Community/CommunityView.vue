@@ -80,12 +80,11 @@
 </script>
 
 <template>
+  <MainBanner
+    image="assets/banner/banner_community.jpg"
+    title="里民開講"
+  />
   <div class="community">
-    <MainBanner
-      image="/src/assets/banner/banner_community.jpg"
-      title="里民開講"
-    />
-
     <div class="community__container">
       <div class="community__action-bar">
         <div class="community__category-group">

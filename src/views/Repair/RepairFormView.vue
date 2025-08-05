@@ -10,28 +10,55 @@
   const location = ref('');
   const desc = ref('');
   const categoryOptions = ref([]);
+  const previewImages = ref(['', '', '']);
 
   onMounted(() => {
     categoryOptions.value = Categories;
   });
 
   const handleSubmit = () => {
-    if (!selectedCategoryNo.value) {
-      alert('請選擇案件類型');
-    } else if (!location.value.trim()) {
-      alert('請填寫通報所在地點');
-    } else if (!desc.value.trim()) {
-      alert('請填寫情形描述');
-    } else {
-      router.push('/repair/complete');
-    }
+    if (!selectedCategoryNo.value) return;
+
+    if (!location.value.trim()) return;
+
+    if (!desc.value.trim()) return;
+
+    const validImages = previewImages.value
+      .map((img, index) => (img ? { index: index, data: img } : null))
+      .filter((item) => item !== null);
+
+    const formData = {
+      category_no: selectedCategoryNo.value,
+      location: location.value,
+      description: desc.value,
+      image: validImages,
+    };
+
+    console.log('模擬送出的資料:', formData);
+
+    router.push('/repair/complete');
+  };
+
+  const handleImageUpload = (event, index) => {
+    // console.log(event);
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      previewImages.value[index] = reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = (index) => {
+    previewImages.value[index] = '';
   };
 </script>
 
 <template>
+  <SubBanner title="維修通報填寫" />
   <div class="repair-form">
-    <SubBanner title="維修通報填寫" />
-
     <div class="repair-form__container">
       <nav class="repair-form__breadcrumb">
         <RouterLink
@@ -41,7 +68,12 @@
           首頁
         </RouterLink>
         <p class="body--b2">&#47;里民服務</p>
-        <p class="body--b2">&#47;維修通報</p>
+        <RouterLink
+          to="/repair"
+          class="repair-form__breadcrumb-link"
+        >
+          &#47;維修通報
+        </RouterLink>
         <p class="body--b2">&#47;維修通報填寫</p>
       </nav>
 
@@ -55,6 +87,7 @@
         class="repair-form__form"
         action="#"
         method="#"
+        @submit.prevent="handleSubmit"
       >
         <div class="repair-form__card">
           <p class="repair-form__description body--b3">
@@ -76,6 +109,7 @@
             <select
               id="type"
               v-model="selectedCategoryNo"
+              required
             >
               <option
                 value=""
@@ -118,38 +152,58 @@
               type="text"
               id="location"
               v-model="location"
+              required
             />
           </div>
           <div class="repair-form__field">
             <label>上傳圖片（最多三張）</label>
             <div class="repair-form__upload-group">
-              <label class="repair-form__upload-slot">
-                +
-                <input
-                  type="file"
-                  class="repair-form__file-input"
-                  accept="image/*"
-                  hidden
-                />
-              </label>
-              <label class="repair-form__upload-slot">
-                +
-                <input
-                  type="file"
-                  class="repair-form__file-input"
-                  accept="image/*"
-                  hidden
-                />
-              </label>
-              <label class="repair-form__upload-slot">
-                +
-                <input
-                  type="file"
-                  class="repair-form__file-input"
-                  accept="image/*"
-                  hidden
-                />
-              </label>
+              <div
+                class="repair-form__upload-slot"
+                v-for="(img, index) in previewImages"
+                :key="index"
+              >
+                <template v-if="img">
+                  <div class="repair-form__preview-container">
+                    <img
+                      :src="img"
+                      alt="預覽圖"
+                      class="repair-form__preview-img"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="repair-form__preview-delete"
+                    @click.stop="removeImage(index)"
+                  >
+                    <svg
+                      width="30"
+                      height="30"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 4C7.581 4 4 7.582 4 12C4 16.418 7.581 20 12 20C16.419 20 20 16.418 20 12C20 7.582 16.419 4 12 4ZM15.707 14.293C15.8945 14.4805 15.9998 14.7348 15.9998 15C15.9998 15.2652 15.8945 15.5195 15.707 15.707C15.5195 15.8945 15.2652 15.9998 15 15.9998C14.7348 15.9998 14.4805 15.8945 14.293 15.707L12 13.414L9.707 15.707C9.61435 15.8002 9.50419 15.8741 9.38285 15.9246C9.26152 15.9751 9.13141 16.001 9 16.001C8.86859 16.001 8.73848 15.9751 8.61715 15.9246C8.49581 15.8741 8.38565 15.8002 8.293 15.707C8.10553 15.5195 8.00021 15.2652 8.00021 15C8.00021 14.7348 8.10553 14.4805 8.293 14.293L10.586 12L8.293 9.707C8.10549 9.51949 8.00015 9.26518 8.00015 9C8.00015 8.73482 8.10549 8.48051 8.293 8.293C8.48051 8.10549 8.73482 8.00015 9 8.00015C9.26518 8.00015 9.51949 8.10549 9.707 8.293L12 10.586L14.293 8.293C14.4805 8.10549 14.7348 8.00015 15 8.00015C15.2652 8.00015 15.5195 8.10549 15.707 8.293C15.8945 8.48051 15.9998 8.73482 15.9998 9C15.9998 9.26518 15.8945 9.51949 15.707 9.707L13.414 12L15.707 14.293Z"
+                        fill="#F55B34"
+                      />
+                    </svg>
+                  </button>
+                </template>
+
+                <template v-else>
+                  <label class="repair-form__upload-label">
+                    +
+                    <input
+                      type="file"
+                      class="repair-form__file-input"
+                      accept="image/*"
+                      hidden
+                      @change="(e) => handleImageUpload(e, index)"
+                    />
+                  </label>
+                </template>
+              </div>
             </div>
           </div>
           <div class="repair-form__field">
@@ -160,6 +214,7 @@
             <textarea
               id="desc"
               v-model="desc"
+              required
             ></textarea>
           </div>
           <div class="repair-form__privacy">
@@ -186,7 +241,6 @@
           <button
             type="submit"
             class="btn--process"
-            @click="handleSubmit"
           >
             確認送出
           </button>
@@ -292,6 +346,13 @@
         background-color: $white;
       }
 
+      #location:focus,
+      textarea:focus {
+        border-color: $primary-c300;
+        box-shadow: 0 0px 5px 0 $primary-c300;
+        outline: none;
+      }
+
       .required {
         color: $semantic-r;
       }
@@ -308,8 +369,9 @@
       gap: 10px;
     }
 
-    &__upload-slot {
+    &__upload-label {
       flex-grow: 1;
+      flex-basis: 0;
       height: 200px;
       display: flex;
       justify-content: center;
@@ -318,9 +380,51 @@
       border-radius: $border-r-xs;
       cursor: pointer;
       background-color: $white;
+      overflow: hidden;
+      position: relative;
     }
 
-    &__upload-slot:hover {
+    &__upload-slot {
+      flex-grow: 1;
+      flex-basis: 0;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background-color: $white;
+      position: relative;
+
+      input {
+        display: none;
+      }
+    }
+
+    &__preview {
+      &-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: $border-r-xs;
+        overflow: hidden;
+      }
+
+      &-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      &-delete {
+        background-color: transparent;
+        border: none;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+      }
+    }
+
+    &__upload-label:hover {
       border-color: $primary-c300;
       color: $primary-c300;
     }

@@ -22,6 +22,15 @@
     menuCommentVisible.value = !menuCommentVisible.value;
   };
 
+  const handleDeletePost = () => {
+    const confirm = window.confirm('您確定要刪除此則貼文嗎?');
+    if (confirm) {
+      console.log('確定');
+    } else {
+      console.log('取消');
+    }
+  };
+
   const showModal = ref(false);
   const openReportModal = () => {
     showModal.value = true;
@@ -31,8 +40,8 @@
 </script>
 
 <template>
+  <SubBanner title="里民開講" />
   <div class="post-detail">
-    <SubBanner title="里民開講" />
     <div class="post-detail__container">
       <section
         class="post-detail__body"
@@ -122,7 +131,12 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="post-detail__menu-text">刪除貼文</span>
+                    <span
+                      class="post-detail__menu-text"
+                      @click="handleDeletePost"
+                    >
+                      刪除貼文
+                    </span>
                   </button>
                 </li>
                 <li class="post-detail__menu-item">
