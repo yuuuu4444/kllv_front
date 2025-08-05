@@ -1,6 +1,7 @@
 <!-- src/views/Member/MemberProfile.vue -->
 <template>
   <div class="profilePage">
+    <!-- 手機版 header -->
     <MemberMobileHeader
       title="帳戶管理"
       @back="handleBack"
@@ -31,7 +32,7 @@
       </template>
     </MemberMobileHeader>
 
-    <!-- 手機版大頭貼 -->
+    <!-- 手機版：大頭貼 -->
     <div class="profilePage__avatarContainer">
       <img
         :src="localUserData.profile_image"
@@ -42,7 +43,7 @@
       />
     </div>
 
-    <!-- 手機版隱藏上傳區 -->
+    <!-- 手機版：隱藏上傳區 -->
     <input
       type="file"
       ref="fileInput"
@@ -50,9 +51,8 @@
       style="display: none"
       accept="image/*"
     />
-
+    <!-- 桌面版：個人資料 -->
     <h5 class="profilePage__title">個人資料</h5>
-
     <form
       class="profilePage__form"
       @submit.prevent="saveChanges"
@@ -164,7 +164,7 @@
           <div class="avatarUpload__controls">
             <button
               type="button"
-              class="uploadButton"
+              class="iconButton"
               @click="triggerFileUpload"
             >
               <svg
@@ -421,7 +421,7 @@
   }
 
   // 上傳按鈕
-  .uploadButton {
+  .iconButton {
     display: flex;
     align-items: center;
     gap: 10px;
