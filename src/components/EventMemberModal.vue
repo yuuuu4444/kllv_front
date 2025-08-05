@@ -1,4 +1,3 @@
-<!-- 檔案路徑: src/components/EventMemberModal.vue -->
 <template>
   <div
     class="member-modal__overlay"
@@ -173,22 +172,21 @@
 
     // --- RWD 切換 (Desktop First) ---
     &__desktop-view {
-      display: block; // 桌機預設顯示
+      display: block;
     }
 
     &__mobile-view {
-      display: none; // 手機預設隱藏
+      display: none;
     }
 
     @include mobile {
       &__desktop-view {
-        display: none; // 手機時隱藏
+        display: none;
       }
       &__mobile-view {
-        display: block; // 手機時顯示
+        display: block;
       }
     }
-    // --- 修改結束 ---
 
     &__table {
       width: 100%;

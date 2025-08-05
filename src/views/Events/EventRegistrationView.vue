@@ -1,4 +1,3 @@
-<!-- 檔案路徑: src/views/Events/EventRegistrationView.vue -->
 <template>
   <div class="reg-view">
     <SubBanner title="活動報名" />
@@ -204,6 +203,7 @@
                 type="radio"
                 name="payment"
                 value="creditCard"
+                v-model="paymentMethod"
               />
               信用卡
             </label>
@@ -212,6 +212,7 @@
                 type="radio"
                 name="payment"
                 value="transfer"
+                v-model="paymentMethod"
               />
               銀行轉帳
             </label>
@@ -220,6 +221,7 @@
                 type="radio"
                 name="payment"
                 value="cash"
+                v-model="paymentMethod"
               />
               里長辦公室現金繳費
             </label>
@@ -260,7 +262,8 @@
         <div class="reg-view__final-submit">
           <button
             class="btn--process"
-            :disabled="!agreedToTerms || registeredList.length === 0"
+            :disabled="!isReadyToProceed"
+            @click="goToCompletionPage"
           >
             下一步
           </button>
@@ -280,10 +283,12 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
   import { ref, reactive, computed } from 'vue';
-  import { useRoute, RouterLink } from 'vue-router';
+  import { useRoute, RouterLink, useRouter } from 'vue-router';
   import EventMemberModal from '@/components/EventMemberModal.vue';
 
+  const router = useRouter();
   const route = useRoute();
+
   const allEvents = ref([
     { id: 6, title: '第41屆空瀧馬拉松', price: 600 },
     { id: 1, title: '梨山林輕健行', price: 400 },
@@ -341,7 +346,21 @@
     form.phone = selectedMember.phone;
     isModalOpen.value = false;
   };
+
+  const paymentMethod = ref('');
   const agreedToTerms = ref(false);
+
+  const isReadyToProceed = computed(() => {
+    return agreedToTerms.value && registeredList.value.length > 0 && paymentMethod.value !== '';
+  });
+
+  const goToCompletionPage = () => {
+    if (paymentMethod.value === 'creditCard') {
+      router.push('/events/complete/paid');
+    } else {
+      router.push('/events/complete/unpaid');
+    }
+  };
 </script>
 
 <style lang="scss" scoped>
@@ -556,7 +575,7 @@
     ol {
       list-style-type: decimal;
       list-style-position: inside;
-      // padding-left: 0;
+      padding-left: 0;
     }
     li:not(:last-child) {
       margin-bottom: 1em;

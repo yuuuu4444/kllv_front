@@ -1,4 +1,3 @@
-<!-- 檔案路徑: src/views/Events/EventDetailView.vue -->
 <template>
   <div class="event-detail-view">
     <SubBanner title="活動報名" />
@@ -170,7 +169,6 @@
       gap: 5px;
       margin: 20px 0;
 
-      // 關鍵修改：讓 breadcrumbs 下方所有的直接子元素都套用 body--b2
       & > * {
         @extend .body--b2;
       }

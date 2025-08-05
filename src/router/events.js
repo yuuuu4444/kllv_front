@@ -17,4 +17,16 @@ export default [
     name: 'event-registration',
     component: () => import('@/views/Events/EventRegistrationView.vue'),
   },
+  {
+    // 未繳費完成頁
+    path: '/events/complete/unpaid',
+    name: 'event-complete-unpaid',
+    component: () => import('@/views/Events/EventCompleteUnpaid.vue'),
+  },
+  {
+    // 已繳費完成頁
+    path: '/events/complete/paid',
+    name: 'event-complete-paid',
+    component: () => import('@/views/Events/EventComplete.vue'),
+  },
 ];
