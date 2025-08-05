@@ -1,4 +1,5 @@
 <script setup>
+import { defineProps } from 'vue';
   import { computed } from 'vue';
 
   const props = defineProps({
@@ -8,7 +9,7 @@
     },
     limit: {
       type: Number,
-      default: 3
+      default: 10
     },
     showHeader: Boolean,
     showFooter: Boolean,
