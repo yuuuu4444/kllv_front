@@ -2,12 +2,14 @@
   <div class="familyPage">
     <!-- 手機版表格、桌面版列表 顯示狀態 -->
     <div v-if="!isMobileFormVisible && !isViewingDetails">
+      <!-- 手機版 header -->
       <MemberMobileHeader
         title="帳戶管理"
         @back="goBackToMenu"
         class="mobile-only-header"
       />
       <h5 class="familyPage__title bold">家庭成員</h5>
+
       <!-- 桌面版：表格 -->
       <div class="desktopTable">
         <table>
@@ -30,7 +32,7 @@
               <td>
                 <button
                   @click="deleteMember(member.id)"
-                  class="deleteButton"
+                  class="iconButton"
                 >
                   <svg viewBox="0 0 24 24">
                     <path
@@ -72,7 +74,7 @@
           </span>
           <button
             @click="deleteMember(member.id)"
-            class="deleteButton"
+            class="iconButton"
           >
             <svg viewBox="0 0 24 24">
               <path
@@ -98,7 +100,7 @@
       </div>
     </div>
 
-    <!-- 手機版「新增成員」全頁表單 -->
+    <!-- 手機版第二層：新增成員全頁表單 -->
     <div
       v-else-if="isMobileFormVisible"
       class="mobileFormContainer"
@@ -173,7 +175,7 @@
       </form>
     </div>
 
-    <!-- 手機版「成員詳細資料」第三層頁面 -->
+    <!-- 手機版第三層：成員詳細資料頁面 -->
     <div
       v-else-if="isViewingDetails"
       class="mobileDetailContainer"
@@ -204,7 +206,7 @@
       </div>
     </div>
 
-    <!-- 桌面版「新增成員」彈窗 -->
+    <!-- 桌面版：新增成員彈窗 -->
     <MemberModal
       :show="isModalOpen"
       @close="hideForm"
@@ -434,7 +436,7 @@
       th {
         color: $white;
         border-right: 1px solid $neutral-c;
-        font-size: 20px;
+        font-size: 16px;
         font-style: normal;
         font-weight: 400;
         line-height: 32px;
@@ -480,7 +482,7 @@
       }
     }
 
-    .deleteButton {
+    .iconButton {
       background: none;
       border: none;
       cursor: pointer;
@@ -517,6 +519,7 @@
       align-items: center;
       padding: 16px;
       border-bottom: 1px solid $primary-c100;
+      cursor: pointer;
 
       &.is-add-button {
         color: $primary-c500;
@@ -525,7 +528,7 @@
         border-bottom: none;
       }
     }
-    .deleteButton {
+    .iconButton {
       background: none;
       border: none;
       cursor: pointer;
@@ -600,6 +603,7 @@
     border: none;
     font-size: 18px;
     font-weight: 700;
+    cursor: pointer;
     &.is-save {
       color: $primary-c500;
     }
