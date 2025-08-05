@@ -49,7 +49,7 @@
 </script>
 
 <template>
-  <MainBanner image="/src/assets/banner/banner_news2.jpg" title="最新消息" />
+  <MainBanner image="/assets/banner/banner_news2.jpg" title="最新消息" />
   <div class="container">
     <div class="breadcrumb">
       <RouterLink to="/index">
