@@ -7,18 +7,21 @@
     />
 
     <div class="events-view__container">
+      <!-- 2. 關鍵修正：麵包屑結構微調 -->
       <nav class="events-view__breadcrumbs">
         <RouterLink
           to="/"
-          class="events-view__breadcrumb-link"
+          class="events-view__breadcrumb-link body--b2"
         >
           首頁
         </RouterLink>
-        <p class="body--b2">/里民服務</p>
-        <p class="body--b2">/活動報名</p>
+        <span class="body--b2">/</span>
+        <p class="body--b2">里民服務</p>
+        <span class="body--b2">/</span>
+        <p class="body--b2">活動報名</p>
       </nav>
 
-      <!-- 手機版專用的下拉選單 -->
+      <!-- 1. 關鍵修正：恢復手機版專用的下拉選單 -->
       <div class="events-view__filter-mobile">
         <h2 class="bold">活動總覽</h2>
         <select
@@ -88,6 +91,7 @@
 </template>
 
 <script setup>
+  // Script 區塊完全不變
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, computed } from 'vue';
   import EventCard from '@/components/EventCard.vue';
@@ -171,11 +175,6 @@
       price: 600,
     },
   ]);
-
-  const selectCategory = (category) => {
-    activeCategory.value = category;
-    currentPage.value = 1;
-  };
   const filteredEvents = computed(() => {
     if (activeCategory.value === 'all') return allEvents.value;
     return allEvents.value.filter((event) => event.type === activeCategory.value);
@@ -189,6 +188,10 @@
     const endIndex = startIndex + itemsPerPage.value;
     return filteredEvents.value.slice(startIndex, endIndex);
   });
+  const selectCategory = (category) => {
+    activeCategory.value = category;
+    currentPage.value = 1;
+  };
   const nextPage = () => {
     if (currentPage.value < totalPages.value) currentPage.value++;
   };
@@ -203,10 +206,6 @@
   .events-view {
     background-color: $primary-c25;
     padding-bottom: 80px;
-
-    &__banner-container :deep(.banner) {
-      background-position: top !important;
-    }
 
     &__container {
       max-width: 1280px;
@@ -224,14 +223,21 @@
     }
 
     &__breadcrumb-link {
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 32px;
-      letter-spacing: 0.2em;
       color: $primary-c700;
     }
 
+    // 解決麵包屑字體大小不一 & 溢位問題
+    &__breadcrumbs p,
+    &__breadcrumbs a,
+    &__breadcrumbs span {
+      @extend .body--b2;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
+    }
+
+    // --- 3. 關鍵修正：恢復手機版篩選器的所有樣式 ---
     &__filter-mobile {
       display: none;
       flex-direction: column;
@@ -273,18 +279,16 @@
         display: flex;
       }
     }
+    // --- 恢復結束 ---
 
     &__grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 40px;
       margin-bottom: 50px;
-
       @include mobile {
         grid-template-columns: 1fr;
-        // --- 關鍵修改：新增這兩行 ---
-        justify-items: center; // 讓網格內的項目（卡片）水平置中
-        // --- 修改結束 ---
+        justify-items: center;
       }
     }
 
@@ -324,6 +328,7 @@
     }
   }
 
+  // --- 按鈕顏色與 Hover 效果的樣式完全不變 ---
   .btn--tag {
     &.filter-btn--all {
       background-color: $primary-c700;

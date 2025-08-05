@@ -10,19 +10,18 @@
       <nav class="event-detail-view__breadcrumbs">
         <RouterLink
           to="/"
-          class="event-detail-view__breadcrumb-link"
+          class="event-detail-view__breadcrumb-link body--b2"
         >
           首頁
         </RouterLink>
-        <p>&#47;里民服務</p>
-        <p>&#47;</p>
+        <p class="body--b2">/ 里民服務</p>
         <RouterLink
           to="/events"
-          class="event-detail-view__breadcrumb-link"
+          class="event-detail-view__breadcrumb-link body--b2"
         >
-          活動報名
+          / 活動報名
         </RouterLink>
-        <p>&#47;{{ event.title }}</p>
+        <p class="body--b2">/ {{ event.title }}</p>
       </nav>
 
       <div class="event-detail-view__title-bar">

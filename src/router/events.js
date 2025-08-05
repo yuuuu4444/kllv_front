@@ -12,4 +12,9 @@ export default [
     name: 'event-detail',
     component: () => import('@/views/Events/EventDetailView.vue'),
   },
+  {
+    path: '/events/:id/register',
+    name: 'event-registration',
+    component: () => import('@/views/Events/EventRegistrationView.vue'),
+  },
 ];
