@@ -1,8 +1,52 @@
 <script setup>
-  import { defineProps, defineEmits } from 'vue';
+  import { defineProps, defineEmits, ref } from 'vue';
 
   const props = defineProps({ visible: Boolean });
   const emit = defineEmits(['update:visible']);
+
+  const title = ref('');
+  const category = ref('');
+  const desc = ref('');
+  const previewImages = ref([]);
+
+  const handleSubmit = () => {
+    if (!title.value.trim()) return;
+    if (!category.value) return;
+    if (!desc.value.trim()) return;
+
+    console.log('送出的資料：', {
+      title: title.value,
+      category: category.value,
+      desc: desc.value,
+      image: previewImages.value,
+    });
+
+    // 成功後清空欄位
+    title.value = '';
+    category.value = '';
+    desc.value = '';
+    previewImages.value = '';
+
+    emit('update:visible', false);
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+      if (previewImages.value.length >= 10) break;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        previewImages.value.push(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  const removeImage = (index) => {
+    previewImages.value.splice(index, 1);
+  };
 </script>
 
 <template>
@@ -18,32 +62,37 @@
       <form
         action="#"
         class="post-modal__form"
+        @submit.prevent="handleSubmit"
       >
         <div class="post-modal__field">
           <label
-            for="post-title"
+            for="title"
             class="post-modal__label"
           >
             文章標題
           </label>
           <input
-            id="post-title"
+            id="title"
             type="text"
             class="post-modal__input"
+            v-model="title"
+            required
           />
         </div>
 
         <div class="post-modal__field">
           <label
-            for="post-category"
+            for="category"
             class="post-modal__label"
           >
             選擇分類
           </label>
           <select
             name="category_no"
-            id="post-category"
+            id="category"
             class="post-modal__select"
+            v-model="category"
+            required
           >
             <option
               disabled
@@ -62,19 +111,62 @@
           <textarea
             class="post-modal__textarea"
             placeholder="在此輸入文章內容..."
+            id="desc"
+            v-model="desc"
+            required
           ></textarea>
         </div>
 
         <div class="post-modal__field">
-          <label class="post-modal__upload-slot">
-            點此插入圖片
-            <input
-              type="file"
-              class="post-modal__file-input"
-              accept="image/*"
-              hidden
-            />
-          </label>
+          <div class="post-modal__image-group">
+            <div
+              class="post-modal__upload-slot"
+              v-for="(img, index) in previewImages"
+              :key="index"
+            >
+              <div class="post-modal__image-wrapper">
+                <div class="post-modal__image-preview">
+                  <img
+                    :src="img"
+                    alt="預覽圖"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="post-modal__image-delete"
+                  @click="removeImage(index)"
+                >
+                  <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 4C7.581 4 4 7.582 4 12C4 16.418 7.581 20 12 20C16.419 20 20 16.418 20 12C20 7.582 16.419 4 12 4ZM15.707 14.293C15.8945 14.4805 15.9998 14.7348 15.9998 15C15.9998 15.2652 15.8945 15.5195 15.707 15.707C15.5195 15.8945 15.2652 15.9998 15 15.9998C14.7348 15.9998 14.4805 15.8945 14.293 15.707L12 13.414L9.707 15.707C9.61435 15.8002 9.50419 15.8741 9.38285 15.9246C9.26152 15.9751 9.13141 16.001 9 16.001C8.86859 16.001 8.73848 15.9751 8.61715 15.9246C8.49581 15.8741 8.38565 15.8002 8.293 15.707C8.10553 15.5195 8.00021 15.2652 8.00021 15C8.00021 14.7348 8.10553 14.4805 8.293 14.293L10.586 12L8.293 9.707C8.10549 9.51949 8.00015 9.26518 8.00015 9C8.00015 8.73482 8.10549 8.48051 8.293 8.293C8.48051 8.10549 8.73482 8.00015 9 8.00015C9.26518 8.00015 9.51949 8.10549 9.707 8.293L12 10.586L14.293 8.293C14.4805 8.10549 14.7348 8.00015 15 8.00015C15.2652 8.00015 15.5195 8.10549 15.707 8.293C15.8945 8.48051 15.9998 8.73482 15.9998 9C15.9998 9.26518 15.8945 9.51949 15.707 9.707L13.414 12L15.707 14.293Z"
+                      fill="#F55B34"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <label
+              class="post-modal__upload-slot"
+              v-if="previewImages.length < 10"
+            >
+              點此插入圖片
+              <input
+                type="file"
+                class="post-modal__file-input"
+                accept="image/*"
+                hidden
+                multiple
+                @change="handleImageUpload"
+              />
+            </label>
+          </div>
         </div>
 
         <div class="post-modal__submit">
@@ -193,21 +285,65 @@
       letter-spacing: 0.2em;
     }
 
+    &__input:focus,
+    &__textarea:focus {
+      border-color: $primary-c300;
+      box-shadow: 0 0px 5px 0 $primary-c300;
+      outline: none;
+    }
+
+    &__image-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     &__upload-slot {
-      height: 150px;
-      width: 150px;
+      width: calc(20% - 8px);
+      aspect-ratio: 1;
       display: flex;
       justify-content: center;
       align-items: center;
       background-color: $white;
       border-radius: $border-r-xs;
       cursor: pointer;
+      // overflow: hidden;
 
       font-size: 16px;
       font-style: normal;
       font-weight: 400;
       line-height: 26px;
       letter-spacing: 0.2em;
+    }
+
+    &__image-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    &__image-preview {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    &__image-delete {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
     }
 
     &__submit {
@@ -220,6 +356,10 @@
 
     @include mobile {
       .post-modal {
+        &__container {
+          width: 80vw;
+        }
+
         &__label,
         &__textarea,
         &__input,
@@ -232,6 +372,9 @@
 
         &__upload-slot {
           width: 100%;
+          aspect-ratio: 0;
+          height: 100px;
+          flex-direction: column;
         }
       }
     }
