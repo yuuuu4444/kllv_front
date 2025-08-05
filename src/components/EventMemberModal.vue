@@ -28,13 +28,15 @@
           <tbody>
             <tr
               v-for="member in members"
-              :key="member.id"
+              :key="member.user_account"
               @click="selectMember(member)"
-              :class="{ 'member-modal__row--selected': selectedMember?.id === member.id }"
+              :class="{
+                'member-modal__row--selected': selectedMember?.user_account === member.user_account,
+              }"
             >
-              <td>{{ member.name }}</td>
-              <td>{{ member.idNumber }}</td>
-              <td>{{ member.birthDate }}</td>
+              <td>{{ member.full_name }}</td>
+              <td>{{ member.id_number }}</td>
+              <td>{{ member.birth_date }}</td>
               <td>{{ member.phone }}</td>
             </tr>
           </tbody>
@@ -46,21 +48,23 @@
         <div
           class="member-modal__card"
           v-for="member in members"
-          :key="member.id"
+          :key="member.user_account"
           @click="selectMember(member)"
-          :class="{ 'member-modal__row--selected': selectedMember?.id === member.id }"
+          :class="{
+            'member-modal__row--selected': selectedMember?.user_account === member.user_account,
+          }"
         >
           <div class="member-modal__card-row">
             <div class="member-modal__card-label">姓名</div>
-            <div class="member-modal__card-value">{{ member.name }}</div>
+            <div class="member-modal__card-value">{{ member.full_name }}</div>
           </div>
           <div class="member-modal__card-row">
             <div class="member-modal__card-label">身分證字號</div>
-            <div class="member-modal__card-value">{{ member.idNumber }}</div>
+            <div class="member-modal__card-value">{{ member.id_number }}</div>
           </div>
           <div class="member-modal__card-row">
             <div class="member-modal__card-label">生日</div>
-            <div class="member-modal__card-value">{{ member.birthDate }}</div>
+            <div class="member-modal__card-value">{{ member.birth_date }}</div>
           </div>
           <div class="member-modal__card-row">
             <div class="member-modal__card-label">聯絡電話</div>
@@ -170,7 +174,6 @@
       @include flex-center;
     }
 
-    // --- RWD 切換 (Desktop First) ---
     &__desktop-view {
       display: block;
     }

@@ -1,3 +1,4 @@
+<!-- 檔案路徑: src/views/Events/EventRegistrationView.vue -->
 <template>
   <div class="reg-view">
     <SubBanner title="活動報名" />
@@ -55,9 +56,9 @@
                   v-for="(person, index) in registeredList"
                   :key="index"
                 >
-                  <td>{{ person.name }}</td>
-                  <td>{{ person.idNumber }}</td>
-                  <td>{{ person.birthDate }}</td>
+                  <td>{{ person.full_name }}</td>
+                  <td>{{ person.id_number }}</td>
+                  <td>{{ person.birth_date }}</td>
                   <td>{{ person.phone }}</td>
                   <td>
                     <button
@@ -76,7 +77,7 @@
             </table>
           </div>
           <div class="reg-view__summary">
-            <p>報名單價：{{ event?.price || 500 }}元</p>
+            <p>報名單價：{{ event?.fee_per_person || 0 }}元</p>
             <p>報名人數：{{ registeredList.length }}人</p>
             <p>報名總費用：{{ totalCost }}元</p>
           </div>
@@ -104,7 +105,7 @@
               <input
                 type="text"
                 id="name"
-                v-model="form.name"
+                v-model="form.full_name"
                 required
               />
             </div>
@@ -113,7 +114,7 @@
               <input
                 type="text"
                 id="idNumber"
-                v-model="form.idNumber"
+                v-model="form.id_number"
                 required
               />
             </div>
@@ -122,7 +123,7 @@
               <input
                 type="text"
                 id="birthDate"
-                v-model="form.birthDate"
+                v-model="form.birth_date"
                 placeholder="例：80/07/29"
                 required
               />
@@ -159,7 +160,7 @@
               <input
                 type="text"
                 id="emergencyContactName"
-                v-model="form.emergencyContactName"
+                v-model="form.emergency_name"
                 required
               />
             </div>
@@ -168,7 +169,7 @@
               <input
                 type="tel"
                 id="emergencyContactPhone"
-                v-model="form.emergencyContactPhone"
+                v-model="form.emergency_phone"
                 required
               />
             </div>
@@ -177,7 +178,7 @@
               <input
                 type="text"
                 id="emergencyContactRelation"
-                v-model="form.emergencyContactRelation"
+                v-model="form.emergency_relation"
                 required
               />
             </div>
@@ -285,36 +286,39 @@
   import { ref, reactive, computed } from 'vue';
   import { useRoute, RouterLink, useRouter } from 'vue-router';
   import EventMemberModal from '@/components/EventMemberModal.vue';
+  import eventsData from '@/assets/data/Events/events.json';
 
   const router = useRouter();
   const route = useRoute();
 
-  const allEvents = ref([
-    { id: 6, title: '第41屆空瀧馬拉松', price: 600 },
-    { id: 1, title: '梨山林輕健行', price: 400 },
-  ]);
+  const allEvents = eventsData;
   const event = computed(() => {
     const eventId = parseInt(route.params.id, 10);
-    return allEvents.value.find((e) => e.id === eventId);
+    return allEvents.find((e) => e.event_no === eventId);
   });
+
   const isModalOpen = ref(false);
+
   const initialFormState = {
-    name: '',
-    idNumber: '',
-    birthDate: '',
+    full_name: '',
+    id_number: '',
+    birth_date: '',
     phone: '',
     address: '',
     email: '',
-    emergencyContactName: '',
-    emergencyContactPhone: '',
-    emergencyContactRelation: '',
+    emergency_name: '',
+    emergency_phone: '',
+    emergency_relation: '',
   };
   const form = reactive({ ...initialFormState });
   const resetForm = () => {
     Object.assign(form, initialFormState);
   };
+
   const registeredList = ref([]);
-  const totalCost = computed(() => (event.value?.price || 0) * registeredList.value.length);
+  const totalCost = computed(
+    () => (event.value?.fee_per_person || 0) * registeredList.value.length,
+  );
   const addRegistered = () => {
     registeredList.value.push({ ...form });
     resetForm();
@@ -322,38 +326,44 @@
   const removeRegistered = (index) => {
     registeredList.value.splice(index, 1);
   };
+
   const memberList = ref([
     {
-      id: 1,
-      name: 'Komod-Mayaw',
-      idNumber: 'F123498765',
-      birthDate: '80/7/29',
+      user_account: 'KomodMayaw',
+      full_name: 'Komod-Mayaw',
+      id_number: 'F123498765',
+      birth_date: '80/7/29',
       phone: '0988123456',
     },
     {
-      id: 2,
-      name: 'Foday-Afo',
-      idNumber: 'A011115678',
-      birthDate: '54/10/03',
+      user_account: 'FodayAfo',
+      full_name: 'Foday-Afo',
+      id_number: 'A011115678',
+      birth_date: '54/10/03',
       phone: '0988123459',
     },
-    { id: 3, name: '馬俊華', idNumber: 'F987651234', birthDate: '84/01/06', phone: '0988456789' },
+    {
+      user_account: 'MaJunHua',
+      full_name: '馬俊華',
+      id_number: 'F987651234',
+      birth_date: '84/01/06',
+      phone: '0988456789',
+    },
   ]);
+
   const handleMemberConfirm = (selectedMember) => {
-    form.name = selectedMember.name;
-    form.idNumber = selectedMember.idNumber;
-    form.birthDate = selectedMember.birthDate;
+    form.full_name = selectedMember.full_name;
+    form.id_number = selectedMember.id_number;
+    form.birth_date = selectedMember.birth_date;
     form.phone = selectedMember.phone;
     isModalOpen.value = false;
   };
 
   const paymentMethod = ref('');
   const agreedToTerms = ref(false);
-
   const isReadyToProceed = computed(() => {
     return agreedToTerms.value && registeredList.value.length > 0 && paymentMethod.value !== '';
   });
-
   const goToCompletionPage = () => {
     if (paymentMethod.value === 'creditCard') {
       router.push('/events/complete/paid');
@@ -390,10 +400,6 @@
     margin-bottom: 50px;
     & > * {
       @extend .body--b2;
-      font-size: 20px;
-      font-weight: 400;
-      line-height: 32px;
-      letter-spacing: 0.2em;
     }
     p {
       color: $black;

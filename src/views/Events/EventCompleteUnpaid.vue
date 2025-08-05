@@ -17,7 +17,7 @@
         >
           /活動報名
         </RouterLink>
-        <p class="body--b2">/{{ eventData.eventName }}</p>
+        <p class="body--b2">/{{ eventData.title }}</p>
         <p class="body--b2">/報名完成</p>
       </nav>
 
@@ -36,15 +36,15 @@
         <ul class="completion-page__list">
           <li>
             <p class="completion-page__label body--b2">訂單編號：</p>
-            <p class="completion-page__value body--b2">{{ eventData.orderNumber }}</p>
+            <p class="completion-page__value body--b2">AAA00001</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">活動名稱：</p>
-            <p class="completion-page__value body--b2">{{ eventData.eventName }}</p>
+            <p class="completion-page__value body--b2">{{ eventData.title }}</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">活動時間：</p>
-            <p class="completion-page__value body--b2">{{ eventData.eventTime }}</p>
+            <p class="completion-page__value body--b2">{{ formattedTimeRange }}</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">活動地點：</p>
@@ -52,11 +52,11 @@
           </li>
           <li>
             <p class="completion-page__label body--b2">報名金額：</p>
-            <p class="completion-page__value body--b2">{{ eventData.totalCost }}元</p>
+            <p class="completion-page__value body--b2">{{ eventData.fee_per_person * 2 }}元</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">參加人數：</p>
-            <p class="completion-page__value body--b2">{{ eventData.participants }}人</p>
+            <p class="completion-page__value body--b2">2人</p>
           </li>
         </ul>
       </div>
@@ -72,16 +72,26 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
   import { RouterLink } from 'vue-router';
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
+  import eventsData from '@/assets/data/Events/events.json';
 
-  // 模擬從上個頁面或 API 取得的報名成功資料
-  const eventData = ref({
-    orderNumber: 'AAA00001',
-    eventName: '第41屆空瀧馬拉松',
-    eventTime: '2025-09-05 06:00-11:00',
-    location: '桃園市中壢區復興路46號9樓',
-    totalCost: 1000,
-    participants: 2,
+  const eventData = ref(eventsData.find((e) => e.event_no === 6));
+
+  const formattedTimeRange = computed(() => {
+    if (!eventData.value || !eventData.value.start_date || !eventData.value.end_date) return '';
+    const startDate = new Date(eventData.value.start_date);
+    const endDate = new Date(eventData.value.end_date);
+    const startTime = startDate.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const endTime = endDate.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${eventData.value.start_date.split(' ')[0]} ${startTime} - ${endTime}`;
   });
 </script>
 

@@ -13,12 +13,11 @@
         >
           首頁
         </RouterLink>
-        <span class="body--b2">/</span>
-        <p class="body--b2">里民服務</p>
-        <span class="body--b2">/</span>
-        <p class="body--b2">活動報名</p>
+        <p class="body--b2">/ 里民服務</p>
+        <p class="body--b2">/ 活動報名</p>
       </nav>
 
+      <!-- 手機版專用的下拉選單 -->
       <div class="events-view__filter-mobile">
         <h2 class="bold">活動總覽</h2>
         <select
@@ -27,10 +26,10 @@
         >
           <option
             v-for="category in filterCategories"
-            :key="category.value"
-            :value="category.value"
+            :key="category.category_no"
+            :value="category.category_no"
           >
-            {{ category.text }}
+            {{ category.category_name }}
           </option>
         </select>
       </div>
@@ -40,11 +39,15 @@
         <div class="events-view__filters">
           <button
             v-for="category in filterCategories"
-            :key="category.value"
-            @click="selectCategory(category.value)"
-            :class="['btn--tag', `filter-btn--${category.value}`]"
+            :key="category.category_no"
+            @click="selectCategory(category.category_no)"
+            :class="[
+              'btn--tag',
+              `filter-btn--category-${category.category_no}`,
+              { 'is-active': activeCategory === category.category_no },
+            ]"
           >
-            {{ category.text }}
+            {{ category.category_name }}
           </button>
         </div>
       </div>
@@ -55,7 +58,7 @@
       >
         <EventCard
           v-for="event in paginatedEvents"
-          :key="event.id"
+          :key="event.event_no"
           :event="event"
         />
       </div>
@@ -89,105 +92,55 @@
 
 <script setup>
   import MainBanner from '@/components/MainBanner.vue';
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import EventCard from '@/components/EventCard.vue';
   import { RouterLink } from 'vue-router';
 
-  const filterCategories = ref([
-    { text: '全部活動', value: 'all' },
-    { text: '旅遊', value: 'travel' },
-    { text: '健康', value: 'health' },
-    { text: '藝文', value: 'art' },
-    { text: '其他', value: 'other' },
-  ]);
-  const activeCategory = ref('all');
+  import eventsData from '@/assets/data/Events/events.json';
+  import categoriesData from '@/assets/data/Events/event_categories.json';
+
+  const filterCategories = ref([]);
+  const activeCategory = ref(0); // 預設 0 代表 "全部活動"
   const currentPage = ref(1);
   const itemsPerPage = ref(6);
-  const allEvents = ref([
-    {
-      id: 1,
-      title: '梨山林輕健行',
-      category: '健康',
-      type: 'health',
-      image: '/src/assets/image/events/events_01_mt.png',
-      date: '2025--05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 400,
-    },
-    {
-      id: 2,
-      title: '梨花秘境之旅',
-      category: '旅遊',
-      type: 'travel',
-      image: '/src/assets/image/events/events_02_flower.png',
-      date: '2025-09-05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 800,
-    },
-    {
-      id: 3,
-      title: '瑜珈派對',
-      category: '健康',
-      type: 'health',
-      image: 'https://picsum.photos/seed/3/396/280',
-      date: '2025-09-05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 150,
-    },
-    {
-      id: 4,
-      title: '端午包粽樂',
-      category: '藝文',
-      type: 'art',
-      image: 'https://picsum.photos/seed/4/396/280',
-      date: '2025-09-05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 200,
-    },
-    {
-      id: 5,
-      title: 'Emerald畫展',
-      category: '藝文',
-      type: 'art',
-      image: 'https://picsum.photos/seed/5/396/280',
-      date: '2025-09-05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 0,
-    },
-    {
-      id: 6,
-      title: '空瀧馬拉松',
-      category: '健康',
-      type: 'health',
-      image: 'https://picsum.photos/seed/6/396/280',
-      date: '2025-09-05',
-      deadline: '2025-08-26',
-      quota: 200,
-      price: 600,
-    },
-  ]);
-  const filteredEvents = computed(() => {
-    if (activeCategory.value === 'all') return allEvents.value;
-    return allEvents.value.filter((event) => event.type === activeCategory.value);
+  const allEvents = ref([]);
+
+  onMounted(() => {
+    const categoryMap = new Map(categoriesData.map((cat) => [cat.category_no, cat.category_name]));
+
+    const processedEvents = eventsData.map((event) => ({
+      ...event,
+      category_name: categoryMap.get(event.category_no) || '未分類',
+    }));
+
+    allEvents.value = processedEvents;
+
+    filterCategories.value = [{ category_no: 0, category_name: '全部活動' }, ...categoriesData];
   });
+
+  const selectCategory = (categoryNo) => {
+    activeCategory.value = categoryNo;
+    currentPage.value = 1;
+  };
+
+  const filteredEvents = computed(() => {
+    if (activeCategory.value === 0) {
+      return allEvents.value;
+    }
+    return allEvents.value.filter((event) => event.category_no === activeCategory.value);
+  });
+
   const totalPages = computed(() => {
     if (filteredEvents.value.length === 0) return 1;
     return Math.ceil(filteredEvents.value.length / itemsPerPage.value);
   });
+
   const paginatedEvents = computed(() => {
     const startIndex = (currentPage.value - 1) * itemsPerPage.value;
     const endIndex = startIndex + itemsPerPage.value;
     return filteredEvents.value.slice(startIndex, endIndex);
   });
-  const selectCategory = (category) => {
-    activeCategory.value = category;
-    currentPage.value = 1;
-  };
+
   const nextPage = () => {
     if (currentPage.value < totalPages.value) currentPage.value++;
   };
@@ -202,6 +155,10 @@
   .events-view {
     background-color: $primary-c25;
     padding-bottom: 80px;
+
+    &__banner-container :deep(.banner) {
+      background-position: top !important;
+    }
 
     &__container {
       max-width: 1280px;
@@ -218,18 +175,17 @@
       padding-top: 30px;
     }
 
-    &__breadcrumb-link {
-      color: $primary-c700;
-    }
-
-    &__breadcrumbs p,
-    &__breadcrumbs a,
-    &__breadcrumbs span {
-      @extend .body--b2;
+    &__breadcrumb-link,
+    &__breadcrumbs p {
       font-size: 20px;
+      font-style: normal;
       font-weight: 400;
       line-height: 32px;
       letter-spacing: 0.2em;
+    }
+
+    &__breadcrumb-link {
+      color: $primary-c700;
     }
 
     &__filter-mobile {
@@ -322,44 +278,44 @@
   }
 
   .btn--tag {
-    &.filter-btn--all {
+    &.filter-btn--category-0 {
       background-color: $primary-c700;
       border-color: $primary-c700;
-    }
-    &.filter-btn--travel {
+    } // 全部活動
+    &.filter-btn--category-1 {
       background-color: #ca877b;
       border-color: #ca877b;
-    }
-    &.filter-btn--health {
+    } // 旅遊
+    &.filter-btn--category-2 {
       background-color: #6782a4;
       border-color: #6782a4;
-    }
-    &.filter-btn--art {
+    } // 健康
+    &.filter-btn--category-3 {
       background-color: #719469;
       border-color: #719469;
-    }
-    &.filter-btn--other {
+    } // 藝文
+    &.filter-btn--category-4 {
       background-color: #959595;
       border-color: #959595;
-    }
+    } // 其他
 
-    &.filter-btn--all:hover {
+    &.filter-btn--category-0:hover {
       background-color: $white;
       color: $primary-c700;
     }
-    &.filter-btn--travel:hover {
+    &.filter-btn--category-1:hover {
       background-color: $white;
       color: #ca877b;
     }
-    &.filter-btn--health:hover {
+    &.filter-btn--category-2:hover {
       background-color: $white;
       color: #6782a4;
     }
-    &.filter-btn--art:hover {
+    &.filter-btn--category-3:hover {
       background-color: $white;
       color: #719469;
     }
-    &.filter-btn--other:hover {
+    &.filter-btn--category-4:hover {
       background-color: $white;
       color: #959595;
     }
