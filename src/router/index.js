@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import IndexView from '@/views/IndexView.vue';
+// import AboutView from '@/views/About/AboutView.vue'
+// import EventsView from '@/views/Events/EventsView.vue'
+// import RepairView from '@/views/Repair/RepairView.vue'
+// import CommunityView from '@/views/Community/CommunityView.vue'
+// import MemberView from '@/views/Member/MemberView.vue'
 
 import NewsRoutes from '@/router/news';
 import AboutRoutes from '@/router/about';

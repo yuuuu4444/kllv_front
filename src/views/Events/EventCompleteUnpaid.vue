@@ -130,9 +130,9 @@
     &__breadcrumb-link {
       color: $primary-c700;
       text-decoration: none;
-      &:hover {
-        // text-decoration: underline;
-      }
+      // &:hover {
+      //   // text-decoration: underline;
+      // }
     }
 
     &__message {
