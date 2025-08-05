@@ -1,22 +1,14 @@
 <script setup>
-import { defineProps } from 'vue';
-defineProps({
-  image: String,
-  title: String,
-  ishome: {
-    type: Boolean,
-    default: false
-  }
-})
+  import { defineProps } from 'vue';
+  const { image, title } = defineProps({
+    image: String,
+    title: String,
+  });
 </script>
 
 <template>
-  <div class="banner" :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(${image})` }">
-    <div class="banner__title--home" v-if="isHome">
-      <p class="body--b3"><span>雨</span>過天青 瀧瀧山林 天色清 空氣凈</p>
-      <p class="body--b3">方是<span>空瀧浪</span>好里</p>
-    </div>
-    <h1 class="banner__title bold" v-else>{{ title }}</h1>
+  <div class="banner" :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),   url(${image})` }">
+    <h1 class="banner__title bold">{{ title }}</h1>
   </div>
 </template>
 
