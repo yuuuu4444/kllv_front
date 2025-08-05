@@ -29,8 +29,14 @@
       <div class="check-title"><h3>開通成功</h3></div>
       <div class="check-desc">
         若頁面無跳轉請
-        <router-link
+        <!-- <router-link
           to="/login"
+          class="success-link"
+        >
+          點此登入
+        </router-link> -->
+        <router-link
+          to="/member"
           class="success-link"
         >
           點此登入
