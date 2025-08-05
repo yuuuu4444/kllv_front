@@ -1,3 +1,4 @@
+<!-- 檔案路徑: src/views/Events/EventsView.vue -->
 <template>
   <div class="events-view">
     <MainBanner
@@ -9,12 +10,12 @@
       <nav class="events-view__breadcrumbs">
         <RouterLink
           to="/"
-          class="events-view__breadcrumb-link body--b2"
+          class="events-view__breadcrumb-link"
         >
           首頁
         </RouterLink>
-        <p class="body--b2">/ 里民服務</p>
-        <p class="body--b2">/ 活動報名</p>
+        <p class="body--b2">/里民服務</p>
+        <p class="body--b2">/活動報名</p>
       </nav>
 
       <!-- 手機版專用的下拉選單 -->
@@ -41,11 +42,7 @@
             v-for="category in filterCategories"
             :key="category.category_no"
             @click="selectCategory(category.category_no)"
-            :class="[
-              'btn--tag',
-              `filter-btn--category-${category.category_no}`,
-              { 'is-active': activeCategory === category.category_no },
-            ]"
+            :class="['btn--tag', `filter-btn--category-${category.category_no}`]"
           >
             {{ category.category_name }}
           </button>
@@ -100,21 +97,18 @@
   import categoriesData from '@/assets/data/Events/event_categories.json';
 
   const filterCategories = ref([]);
-  const activeCategory = ref(0); // 預設 0 代表 "全部活動"
+  const activeCategory = ref(0);
   const currentPage = ref(1);
   const itemsPerPage = ref(6);
   const allEvents = ref([]);
 
   onMounted(() => {
     const categoryMap = new Map(categoriesData.map((cat) => [cat.category_no, cat.category_name]));
-
     const processedEvents = eventsData.map((event) => ({
       ...event,
       category_name: categoryMap.get(event.category_no) || '未分類',
     }));
-
     allEvents.value = processedEvents;
-
     filterCategories.value = [{ category_no: 0, category_name: '全部活動' }, ...categoriesData];
   });
 
@@ -122,25 +116,21 @@
     activeCategory.value = categoryNo;
     currentPage.value = 1;
   };
-
   const filteredEvents = computed(() => {
     if (activeCategory.value === 0) {
       return allEvents.value;
     }
     return allEvents.value.filter((event) => event.category_no === activeCategory.value);
   });
-
   const totalPages = computed(() => {
     if (filteredEvents.value.length === 0) return 1;
     return Math.ceil(filteredEvents.value.length / itemsPerPage.value);
   });
-
   const paginatedEvents = computed(() => {
     const startIndex = (currentPage.value - 1) * itemsPerPage.value;
     const endIndex = startIndex + itemsPerPage.value;
     return filteredEvents.value.slice(startIndex, endIndex);
   });
-
   const nextPage = () => {
     if (currentPage.value < totalPages.value) currentPage.value++;
   };
@@ -161,7 +151,7 @@
     }
 
     &__container {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 20px;
     }
@@ -221,20 +211,21 @@
       flex-wrap: wrap;
     }
 
-    @include mobile {
-      &__filter-wrapper {
-        display: none;
-      }
-      &__filter-mobile {
-        display: flex;
-      }
-    }
-
     &__grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
       gap: 40px;
       margin-bottom: 50px;
+      justify-content: center;
+
+      // 大螢幕：3 欄
+      grid-template-columns: repeat(3, 415px);
+
+      // 中螢幕：2 欄
+      @media (max-width: 1400px) {
+        grid-template-columns: repeat(2, 415px);
+      }
+
+      // 手機
       @include mobile {
         grid-template-columns: 1fr;
         justify-items: center;
@@ -275,29 +266,38 @@
       border-radius: $border-r-xs;
       background-color: $white;
     }
+
+    @include mobile {
+      &__filter-wrapper {
+        display: none;
+      }
+      &__filter-mobile {
+        display: flex;
+      }
+    }
   }
 
   .btn--tag {
     &.filter-btn--category-0 {
       background-color: $primary-c700;
       border-color: $primary-c700;
-    } // 全部活動
+    }
     &.filter-btn--category-1 {
       background-color: #ca877b;
       border-color: #ca877b;
-    } // 旅遊
+    }
     &.filter-btn--category-2 {
       background-color: #6782a4;
       border-color: #6782a4;
-    } // 健康
+    }
     &.filter-btn--category-3 {
       background-color: #719469;
       border-color: #719469;
-    } // 藝文
+    }
     &.filter-btn--category-4 {
       background-color: #959595;
       border-color: #959595;
-    } // 其他
+    }
 
     &.filter-btn--category-0:hover {
       background-color: $white;
