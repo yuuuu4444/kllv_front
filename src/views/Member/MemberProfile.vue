@@ -1,4 +1,3 @@
-<!-- src/views/Member/MemberProfile.vue -->
 <template>
   <div class="profilePage">
     <!-- 手機版 header -->
@@ -64,7 +63,7 @@
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">姓名</label>
-          <p class="detailItem__content body--b3">{{ localUserData.full_name }}</p>
+          <p class="detailItem__content body--b3">{{ localUserData.fullname }}</p>
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">暱稱</label>
@@ -145,11 +144,11 @@
             v-if="!isEditing"
             class="detailItem__content body--b3"
           >
-            {{ localUserData.phone }}
+            {{ localUserData.phone_number }}
           </p>
           <input
             v-else
-            v-model="localUserData.phone"
+            v-model="localUserData.phone_number"
             class="detailItem__input"
             :class="{ 'is-invalid': isPhoneInvalid }"
             type="tel"
@@ -245,7 +244,7 @@
 
   const isPhoneInvalid = computed(() => {
     // 在「編輯中」且「使用者碰過輸入框」且「電話是空的」時無效
-    return isEditing.value && phoneFieldTouched.value && !localUserData.phone;
+    return isEditing.value && phoneFieldTouched.value && !localUserData.phone_number;
   });
 
   const toggleEdit = () => {
@@ -266,7 +265,7 @@
 
   const saveChanges = () => {
     // 儲存前的防禦性檢查
-    if (!localUserData.phone) {
+    if (!localUserData.phone_number) {
       // 如果電話是空的，顯示 alert 並終止函式
       alert('「聯絡電話」欄位不得為空');
       // 同時，手動觸發 touched 狀態，確保錯誤樣式會顯示
@@ -359,6 +358,7 @@
     &__content {
       color: $primary-c500;
       letter-spacing: 1.2px;
+      letter-spacing: 0.15em;
     }
     &__input {
       border: 1px solid $black;
