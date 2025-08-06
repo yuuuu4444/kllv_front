@@ -272,11 +272,12 @@
           display: none;
           flex-direction: column;
           position: absolute;
-          top: 132%;
-          left: -0.521vw;
-          width: calc(100% + 1.042vw);
+          // top: 132%;
+          left: -1.042vw;
+          width: calc(100% + 2.084vw);
+          margin-top: 1.042vw;
+          padding: 1.042vw 1.042vw;
           gap: 1.042vw;
-          padding: 1.042vw 0.521vw;
           border-radius: 0 0 15px 15px;
           background-color: $white;
         }
