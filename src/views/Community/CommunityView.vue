@@ -84,14 +84,10 @@
   <MainBanner
     image="assets/banner/banner_community.jpg"
     title="里民開講"
-    titleAos="fade"
   />
   <div class="community">
     <div class="community__container">
-      <div
-        class="community__action-bar"
-        data-aos="fade"
-      >
+      <div class="community__action-bar">
         <div class="community__category-group">
           <button
             class="community__category__1 btn--tag"
@@ -233,6 +229,7 @@
       </div>
     </div>
   </div>
+  <div></div>
 </template>
 
 <style scoped lang="scss">
@@ -439,7 +436,6 @@
             letter-spacing: 0.1em;
           }
         }
-
         &__phone-btn {
           display: block;
           width: 50px;
@@ -450,11 +446,13 @@
           color: $white;
           font-size: 30px;
           cursor: pointer;
-          position: fixed;
-          bottom: 15vh;
-          right: 5vh;
+          position: fixed !important;
+          bottom: 15vh !important;
+          right: 5vw !important;
+          z-index: 9999 !important;
         }
       }
+
       .community-wrapper {
         display: flex;
         flex-direction: column;
