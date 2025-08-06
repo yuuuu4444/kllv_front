@@ -30,7 +30,7 @@
 <template>
   <main>
     <MainBanner
-      image="src/assets/banner/banner_about.jpg"
+      image="assets/banner/banner_about.jpg"
       title="空瀧浪里 就像這樣"
       titleAos="fade"
     />
@@ -43,15 +43,18 @@
     </div>
   </section> -->
     <section class="about-section">
-      <div class="breadcrumb">
-        <RouterLink to="/index">
-          <p class="body--b3">首頁</p>
-        </RouterLink>
-        <p class="body--b3">/</p>
-        <RouterLink to="/about">
-          <p class="body--b3">關於社區</p>
-        </RouterLink>
-      </div>
+       <div class="container">
+    <div class="breadcrumb">
+      <RouterLink to="/">
+        <p class="body--b3">首頁</p>
+      </RouterLink>
+      <p class="body--b3">/</p>
+      <RouterLink to="/about">
+        <p class="body--b3">關於社區</p>
+      </RouterLink>
+    </div>
+    </div>
+
 
       <div class="map-container">
         <img
@@ -358,16 +361,30 @@
     }
   }
 
-  // 麵包屑
-  .breadcrumb {
-    padding: 10px 50px;
-    display: flex;
-    gap: 0.5em;
-    p {
-      display: inline-block;
-      color: $black;
-    }
+// 麵包屑
+.container{
+      padding: 1.5625vw 18.75vw 0 ;
+      @include desktop {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
+.breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      
+  p {
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 32px;
+      letter-spacing: 0.2em;
   }
+}
+}
+
+
 
   // 地圖區塊
   // .about-section {
@@ -417,7 +434,9 @@
     padding: 40px 20px;
     text-align: center;
     margin: 0 20%;
-
+    @include mobile{
+      margin: 0 5%;
+    }
     .leader-info {
       @extend .section-title;
       // 可根據不同 section 用不同底色
@@ -444,6 +463,7 @@
         grid-template-rows: repeat(6, 0.5fr);
         position: relative;
         height: 400px;
+        
         .img-large,
         .img-small {
           border-radius: $border-r-lg;
@@ -639,11 +659,12 @@
       .intro-section {
         .images {
           max-height: 300px;
+          width: 330px;
           .img-large {
             grid-row: 1 / 5;
           }
           .img-small {
-            grid-column: 4 / 7;
+            grid-column: 3 / 7;
             grid-row: 4 / 7;
           }
         }
