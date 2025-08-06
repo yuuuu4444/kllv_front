@@ -217,7 +217,6 @@
           class="addMemberForm"
           @submit.prevent="addMember"
         >
-          <!-- [!code ++] 恢复桌面弹窗的表单内容 -->
           <div class="addMemberForm__fields">
             <div class="detailItem">
               <label class="detailItem__label body--b4">姓名 *</label>
@@ -412,8 +411,8 @@
   .familyPage {
     &__title {
       color: $primary-c700;
-      margin-top: 30px;
       text-align: center;
+      margin-top: 30px;
       margin-bottom: 32px;
     }
   }
@@ -463,7 +462,7 @@
           font-weight: 400;
           line-height: 26px;
           letter-spacing: 0.2em;
-          padding: 14px 0px;
+          padding: 14px 16px;
           color: $black;
 
           text-align: center;
@@ -635,8 +634,7 @@
     display: none;
   }
 
-  @media screen and (max-width: 768px) {
-    // 隱藏桌面版，顯示手機版
+  @include mobile {
     .desktopTable {
       display: none;
     }
@@ -671,7 +669,7 @@
       z-index: 900;
       overflow-y: auto;
       .addMemberForm {
-        padding: 20px 16px;
+        padding: 0px 16px 20px 16px;
       }
     }
     // 手機版成員詳細資料
