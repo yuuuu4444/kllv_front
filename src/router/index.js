@@ -13,6 +13,7 @@ import RepairRoutes from '@/router/repair';
 import CommunityRoutes from '@/router/community';
 import MemberRoutes from '@/router/member';
 import LoginRoutes from '@/router/login';
+import NotFound from '@/router/404';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,7 @@ const router = createRouter({
     ...CommunityRoutes,
     ...MemberRoutes,
     ...LoginRoutes,
+    ...NotFound,
   ],
 });
 
