@@ -7,6 +7,7 @@
 
   const posts = ref([]);
   const selectedCategory = ref('所有主題');
+  const baseURL = import.meta.env.BASE_URL;
 
   const categoryMap = new Map(Categories.map((c) => [c.category_no, c.category_name]));
   posts.value = Posts.filter((p) => !p.is_deleted).map((p) => ({
@@ -183,7 +184,7 @@
             >
               <div class="community-wrapper__image">
                 <img
-                  src="https://picsum.photos/500/300"
+                  :src="`${baseURL}${post.banner_image}`"
                   alt=""
                 />
               </div>
@@ -354,7 +355,7 @@
         img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
         }
       }
 
