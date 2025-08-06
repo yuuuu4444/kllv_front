@@ -3,6 +3,7 @@
   import News from '@/assets/data/News/News';
   import NewsBoard from '@/components/NewsBoard.vue';
   import Typed from 'typed.js';
+  
 
   import { ref, onMounted, onBeforeUnmount } from 'vue';
   const typed1 = ref(null);
@@ -197,7 +198,7 @@
     background-size: cover;
     background-position: center;
     @include mobile{
-      height: 30vh;
+      height: 30vh;   
     }
     .overlay {
       position: relative;
@@ -324,7 +325,7 @@
 .EventsContainer{
     padding-bottom: 30px;
     background-image:
-      url(src/assets/image/background_image.png), url(src/assets/image/index_bg.png);
+      url(/src/assets/image/background_image.png), url(/src/assets/image/index_bg.png);
     background-repeat: repeat, no-repeat;
     background-position: bottom;
 
@@ -349,11 +350,11 @@
     border-radius: $border-r-md;
     border: solid 0.5px $primary-c000;
     z-index: 0;
-
+     box-shadow:  0 4px 4px 0 rgba(0, 0, 0, 0.25);
     @include mobile{
     width: 290px;
     height: 123px;  
-    
+    box-shadow:  0 4px 4px 0 rgba(0, 0, 0, 0.25);
   }
 
   &__container{
@@ -371,13 +372,13 @@
   }
   }
     &:nth-child(1) .linkCards__container {
-      background-image: url(src/assets/image/index_card01_bg.png);
+      background-image: url(/src/assets/image/index_card01_bg.png);
     }
     &:nth-child(2) .linkCards__container {
-      background-image: url(src/assets/image/index_card02_bg.png);
+      background-image: url(/src/assets/image/index_card02_bg.png);
     }    
     &:nth-child(3) .linkCards__container {
-      background-image: url(src/assets/image/index_card03_bg.png);
+      background-image: url(/src/assets/image/index_card03_bg.png);
     }
   &__info{
     position: relative;
@@ -450,14 +451,14 @@
 }
 
 .about{
-  background-image: url(src/assets/image/about_01.jpg);
+  background-image: url(/src/assets/image/about_01.jpg);
   position: relative;
   .mask {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.35); // 這裡可調整透明度
+    background: rgba(0,0,0,0.35);
     z-index: 1;
     pointer-events: none; // 避免遮罩擋住點擊
     border-radius: inherit;
@@ -539,6 +540,7 @@
   @include flex-center;
   padding-top:132px ;
   padding-bottom: 120px;
+  
   @include mobile{
     padding-top:34px ;
     padding-bottom: 34px;
