@@ -1,12 +1,32 @@
 <script setup>
   import MainBanner from '@/components/MainBanner.vue';
+  import { onMounted, onUpdated } from 'vue';
+  import AOS from 'aos';
+  import 'aos/dist/aos.css';
+
   function scrollToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  onMounted(() => {
+    AOS.init({
+      once: false, // 每次進 viewport 都動畫
+      duration: 900,
+      offset: 80,
+    });
+    // 確保動畫正確（有時 SPA 元素動態渲染）
+    setTimeout(() => {
+      AOS.refreshHard();
+    }, 250);
+  });
+
+  onUpdated(() => {
+    setTimeout(() => {
+      AOS.refreshHard();
+    }, 250);
+  });
 </script>
+
 <template>
   <main>
     <MainBanner
@@ -33,14 +53,12 @@
         </RouterLink>
       </div>
 
-      <div
-        class="map-container"
-        data-aos="fade"
-      >
+      <div class="map-container">
         <img
           src="../../assets/image/about_map.png"
           alt="社區地圖"
           class="map-image"
+          data-aos="fade"
         />
 
         <!-- 說明文字泡泡 -->
