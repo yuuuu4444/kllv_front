@@ -98,14 +98,14 @@
   }
   @media (max-width: 768px) {
     .login-container {
-      padding: 60px 0 40px 0;
+      padding: 120px 0 60px 0;
     }
     .form-card,
     .check-card {
       min-width: 0;
-      padding: 10px;
+      padding: 30px 10px 10px 10px;
       width: 90vw;
-      // max-width: 98vw;
+      max-width: 98vw;
       box-sizing: border-box;
     }
     .check-card {
