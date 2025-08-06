@@ -352,7 +352,7 @@
 
   @media (max-width: 768px) {
     .login-container {
-      padding: 60px 0 40px 0;
+      padding: 120px 0 60px 0;
     }
     .form-card {
       padding: 12px;

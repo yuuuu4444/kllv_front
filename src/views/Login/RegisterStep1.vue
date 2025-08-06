@@ -160,13 +160,13 @@
         line-height: 26px;
         letter-spacing: 0.2em;
       }
-      .form-error {
-        color: red;
-        font-size: 15px;
-        font-weight: 400;
-        margin: 0;
-        white-space: nowrap;
-      }
+      // .form-error {
+      //   color: red;
+      //   font-size: 15px;
+      //   font-weight: 400;
+      //   margin: 0;
+      //   white-space: nowrap;
+      // }
     }
     &.row {
       display: flex;
@@ -204,9 +204,9 @@
     letter-spacing: 0.1em;
     box-sizing: border-box;
     background: #fff;
-    &.input-error {
-      border-color: red;
-    }
+    // &.input-error {
+    //   border-color: red;
+    // }
   }
   input::placeholder {
     color: $neutral-c;
