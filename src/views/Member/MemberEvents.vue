@@ -21,7 +21,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="event in props.userEvents"
+              v-for="event in paginatedEvents"
               :key="event.order_no"
               @click="selectEvent(event)"
               class="is-clickable"
@@ -42,6 +42,28 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- 桌面版：分頁 -->
+        <div
+          v-if="eventsTotalPages > 1"
+          class="pagination"
+        >
+          <button
+            class="pagination__button btn--changepage"
+            @click="eventsGoPrev"
+            :disabled="isEventsFirstPage"
+          >
+            <
+          </button>
+          <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
+          <button
+            class="pagination__button btn--changepage"
+            @click="eventsGoNext"
+            :disabled="isEventsLastPage"
+          >
+            >
+          </button>
+        </div>
 
         <!-- 桌面版：詳細資訊 -->
         <div
@@ -92,10 +114,10 @@
         </div>
       </div>
 
-      <!-- 手機版：列表 -->
+      <!-- 手機版：活動列表 -->
       <div class="mobileList">
         <div
-          v-for="event in props.userEvents"
+          v-for="event in paginatedEvents"
           :key="event.order_no"
           class="mobileList__item"
           @click="showEventDetails(event)"
@@ -110,6 +132,27 @@
           >
             已取消
           </span>
+        </div>
+        <!-- 手機版：分頁 -->
+        <div
+          v-if="eventsTotalPages > 1"
+          class="pagination"
+        >
+          <button
+            class="pagination__button btn--changepage"
+            @click="eventsGoPrev"
+            :disabled="isEventsFirstPage"
+          >
+            &lt;
+          </button>
+          <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
+          <button
+            class="pagination__button btn--changepage"
+            @click="eventsGoNext"
+            :disabled="isEventsLastPage"
+          >
+            &gt;
+          </button>
         </div>
       </div>
     </div>
@@ -325,7 +368,7 @@
   const cancellingEvent = ref(null);
   const cancellationReasonNo = ref('');
 
-  // --- 頁面專屬的資料 ---
+  // --- 彈窗取消資料 ---
   const cancelReasons = ref([
     { reason_no: 1, reason_name: '報錯活動/重複報名' },
     { reason_no: 2, reason_name: '疫情/健康安全考量' },
@@ -334,6 +377,29 @@
     { reason_no: 5, reason_name: '對活動內容不感興趣了' },
     { reason_no: 6, reason_name: '其他原因' },
   ]);
+
+  // --- 分頁 ---
+  const eventsPageSize = ref(3); // 每頁顯示 3 筆
+  const eventsCurrentPage = ref(1);
+  const eventsTotalPages = computed(() =>
+    Math.ceil(props.userEvents.length / eventsPageSize.value),
+  );
+  const isEventsFirstPage = computed(() => eventsCurrentPage.value === 1);
+  const isEventsLastPage = computed(() => eventsCurrentPage.value === eventsTotalPages.value);
+
+  // 从 props.userEvents計算當前資料
+  const paginatedEvents = computed(() => {
+    const startIndex = (eventsCurrentPage.value - 1) * eventsPageSize.value;
+    const endIndex = startIndex + eventsPageSize.value;
+    return props.userEvents.slice(startIndex, endIndex);
+  });
+
+  const eventsGoPrev = () => {
+    if (!isEventsFirstPage.value) eventsCurrentPage.value--;
+  };
+  const eventsGoNext = () => {
+    if (!isEventsLastPage.value) eventsCurrentPage.value++;
+  };
 
   // --- 輔助函式 (純計算，不改變狀態) ---
   const isCancellable = (event) => {
@@ -390,7 +456,7 @@
     screenWidth.value = window.innerWidth;
   };
   onMounted(() => {
-    if (props.userEvents.length > 0) {
+    if (paginatedEvents.value.length > 0) {
       selectedEvent.value = props.userEvents[0];
     }
     window.addEventListener('resize', handleResize);
@@ -413,30 +479,16 @@
   .eventsPage {
     &__title {
       color: $primary-c700;
-      margin-top: 30px;
       text-align: center;
+      margin-top: 30px;
       margin-bottom: 32px;
     }
-  }
-
-  /* --- 通用元件 --- */
-  .statusChip {
-    padding: 4px 12px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    &.is-cancelled {
-      background-color: $neutral-c;
-      color: $white;
+    &__desktopView {
+      display: block;
     }
   }
 
-  /* --- 桌面版表格--- */
-  .eventsPage__desktopView {
-    display: block;
-  }
-
-  .eventTable {
+  .eventsPage .eventTable {
     width: 100%;
     border: 1px solid $neutral-c;
     border-radius: $border-r-md;
@@ -487,7 +539,7 @@
           font-weight: 400;
           line-height: 26px;
           letter-spacing: 0.2em;
-          padding: 14px 0px;
+          padding: 14px 16px;
           color: $black;
           text-align: center;
           vertical-align: middle;
@@ -522,8 +574,8 @@
         // border-color: #e0e0e0;
         cursor: not-allowed;
         &:hover {
-          background-color: #e0e0e0;
           color: $white;
+          background-color: #e0e0e0;
         }
       }
       &.is-disabled {
@@ -542,7 +594,7 @@
     }
   }
 
-  .eventDetail {
+  .eventsPage .eventDetail {
     margin-top: 30px;
     &__title {
       margin-bottom: 16px;
@@ -575,43 +627,33 @@
     }
   }
 
-  .mobileList {
-    display: none;
-  }
+  .pagination {
+    @include flex-center;
+    gap: 30px;
+    margin-top: 30px;
 
-  /* --- 手機版列表 --- */
-  .mobileList {
-    &__item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px;
-      border-bottom: 1px solid $primary-c100;
-      cursor: pointer;
-      &:last-child {
-        border-bottom: none;
-      }
-      &:hover {
-        background-color: $primary-c50;
-      }
-    }
-    .item__info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .item__date {
+    &__current {
+      text-align: center;
       font-size: 14px;
-      color: $neutral-c;
+      line-height: 22px;
+      letter-spacing: 0.1em;
+      width: 80px;
+      padding: 14px 0;
+      border: 1px solid $black;
+      border-radius: $border-r-xs;
+      background-color: $white;
     }
-    .item__name {
-      // font-weight: 500;
-      line-height: 1.4;
-      color: $primary-c500;
+
+    &__button:disabled {
+      background-color: $neutral-c;
+      cursor: not-allowed;
+      &:hover {
+        background-color: $neutral-c;
+      }
     }
   }
 
-  /* --- 取消原因表單 --- */
+  //取消原因表單
   .cancelForm {
     &__title {
       text-align: center;
@@ -637,7 +679,10 @@
     }
   }
 
-  /* --- RWD --- */
+  .mobileList {
+    display: none;
+  }
+
   @include mobile {
     .eventsPage {
       &__desktopView {
@@ -685,5 +730,49 @@
     // .eventDetail {
     //   background-color: #fff;
     // }
+
+    .mobileList {
+      display: block;
+      padding-bottom: 20px;
+      &__item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid $primary-c100;
+        cursor: pointer;
+        &:last-child {
+          border-bottom: none;
+        }
+        // &:hover {
+        //   background-color: $primary-c50;
+        // }
+      }
+      .item__info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .item__date {
+        font-size: 14px;
+        color: $neutral-c;
+      }
+      .item__name {
+        // font-weight: 500;
+        line-height: 1.4;
+        color: $primary-c500;
+      }
+    }
+
+    .statusChip {
+      padding: 4px 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      &.is-cancelled {
+        color: $white;
+        background-color: $neutral-c;
+      }
+    }
   }
 </style>
