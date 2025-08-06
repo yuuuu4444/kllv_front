@@ -333,9 +333,9 @@
         font-weight: 500;
         color: $black;
       }
-      &__category {
-        color: $primary-c700;
-      }
+      // &__category {
+      //   color: $primary-c500;
+      // }
     }
 
     // 狀態
