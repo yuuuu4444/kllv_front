@@ -154,7 +154,7 @@
   @import '@/assets/scss/style.scss';
 
   .events-view {
-    background-color: $primary-c25;
+    background-color: $primary-c000;
     padding-bottom: 80px;
 
     &__banner-container :deep(.banner) {
@@ -167,11 +167,6 @@
         padding-right: 10%;
       }
     }
-    // &__container {
-    //   max-width: 1200px;
-    //   margin: 0 auto;
-    //   padding: 0px;
-    // }
 
     &__breadcrumbs {
       display: flex;
@@ -232,16 +227,12 @@
       gap: 40px;
       margin-bottom: 50px;
       justify-content: center;
-
-      // 大螢幕：3 欄
       grid-template-columns: repeat(3, 415px);
 
-      // 中螢幕：2 欄
       @media (max-width: 1400px) {
         grid-template-columns: repeat(2, 415px);
       }
 
-      // 手機
       @include mobile {
         grid-template-columns: 1fr;
         justify-items: center;
@@ -289,6 +280,13 @@
       }
       &__filter-mobile {
         display: flex;
+      }
+      &__breadcrumbs {
+        & > * {
+          font-size: 16px !important;
+          line-height: 26px !important;
+          letter-spacing: 0.1em !important;
+        }
       }
     }
   }

@@ -141,7 +141,7 @@
   @import '@/assets/scss/style.scss';
 
   .event-detail-view {
-    background-color: $primary-c25;
+    background-color: $primary-c000;
     padding-bottom: 80px;
 
     &__container {
@@ -170,6 +170,16 @@
 
     &__breadcrumb-link {
       color: $primary-c700;
+    }
+
+    @include mobile {
+      &__breadcrumbs {
+        & > * {
+          font-size: 16px !important;
+          line-height: 26px !important;
+          letter-spacing: 0.1em !important;
+        }
+      }
     }
 
     &__title-bar {

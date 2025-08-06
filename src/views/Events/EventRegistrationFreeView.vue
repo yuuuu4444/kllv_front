@@ -367,6 +367,13 @@
     p {
       color: $black;
     }
+    @include mobile {
+      & > * {
+        font-size: 16px !important;
+        line-height: 26px !important;
+        letter-spacing: 0.1em !important;
+      }
+    }
   }
   .reg-view__breadcrumb-link {
     color: $primary-c700;

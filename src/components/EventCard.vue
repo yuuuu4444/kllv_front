@@ -73,7 +73,8 @@
   // 最底層白色圓角底板
   .event-card__base {
     position: relative;
-    width: 415px;
+    max-width: 415px;
+    width: 100%;
     height: 539px;
     background-color: $white;
     border-radius: $border-r-lg;
