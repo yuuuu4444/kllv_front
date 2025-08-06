@@ -12,8 +12,11 @@
   },
   "dependencies": {
     "@img-comparison-slider/vue": "^8.0.0",
+    "@splidejs/splide": "^4.1.4",
     "@splidejs/vue-splide": "^0.6.12",
+    "aos": "^2.3.4",
     "pinia": "^3.0.3",
+    "typed.js": "^2.1.0",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
   },

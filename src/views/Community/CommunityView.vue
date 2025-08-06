@@ -83,10 +83,14 @@
   <MainBanner
     image="assets/banner/banner_community.jpg"
     title="里民開講"
+    titleAos="fade"
   />
   <div class="community">
     <div class="community__container">
-      <div class="community__action-bar">
+      <div
+        class="community__action-bar"
+        data-aos="fade"
+      >
         <div class="community__category-group">
           <button
             class="community__category__1 btn--tag"
@@ -163,7 +167,10 @@
 
       <CreatePostModal v-model:visible="showModal" />
 
-      <div class="community-wrapper">
+      <div
+        class="community-wrapper"
+        data-aos="fade"
+      >
         <ul class="community-wrapper__list">
           <li
             class="community-wrapper__item"
@@ -205,7 +212,10 @@
         </ul>
       </div>
 
-      <div class="community-pagination">
+      <div
+        class="community-pagination"
+        data-aos="fade"
+      >
         <button
           class="community-pagination__prev btn--changepage"
           @click="goPrev"

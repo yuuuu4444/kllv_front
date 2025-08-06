@@ -4,6 +4,7 @@
     <MainBanner
       image="assets/banner/banner_events.png"
       title="活動報名"
+      titleAos="fade"
     />
 
     <div class="events-view__container">
@@ -19,7 +20,10 @@
       </nav>
 
       <!-- 手機版專用的下拉選單 -->
-      <div class="events-view__filter-mobile">
+      <div
+        class="events-view__filter-mobile"
+        data-aos="fade"
+      >
         <h2 class="bold">活動總覽</h2>
         <select
           v-model="activeCategory"
@@ -36,7 +40,10 @@
       </div>
 
       <!-- 桌機版的篩選器 -->
-      <div class="events-view__filter-wrapper">
+      <div
+        class="events-view__filter-wrapper"
+        data-aos="fade"
+      >
         <div class="events-view__filters">
           <button
             v-for="category in filterCategories"
@@ -52,6 +59,7 @@
       <div
         v-if="paginatedEvents.length > 0"
         class="events-view__grid"
+        data-aos="fade"
       >
         <EventCard
           v-for="event in paginatedEvents"
@@ -66,7 +74,10 @@
         <h5 class="bold">目前沒有符合條件的活動喔！</h5>
       </div>
 
-      <div class="events-view__pagination">
+      <div
+        class="events-view__pagination"
+        data-aos="fade"
+      >
         <button
           @click="prevPage"
           :disabled="currentPage === 1"

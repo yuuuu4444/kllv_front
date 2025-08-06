@@ -79,6 +79,7 @@
   <MainBanner
     image="assets/banner/banner_repair.jpg"
     title="維修通報"
+    titleAos="fade"
   />
   <div class="report-page">
     <div class="report-page__container">
@@ -97,12 +98,18 @@
         to="/repair/form"
         class="report-page__action"
       >
-        <button class="report-button btn--process">我要報修</button>
+        <button
+          class="report-button btn--process"
+          data-aos="fade"
+        >
+          我要報修
+        </button>
       </RouterLink>
 
       <form
         action="#"
         class="report-filter"
+        data-aos="fade"
       >
         <div class="report-filter__field">
           <label
@@ -183,7 +190,10 @@
         </div>
       </form>
 
-      <section class="report-table">
+      <section
+        class="report-table"
+        data-aos="fade"
+      >
         <table class="report-table__table">
           <thead class="report-table__head">
             <tr>
@@ -219,7 +229,10 @@
         </table>
       </section>
 
-      <div class="report-pagination">
+      <div
+        class="report-pagination"
+        data-aos="fade"
+      >
         <button
           class="report-pagination__prev btn--changepage"
           @click="goPrev"

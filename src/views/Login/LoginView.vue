@@ -5,7 +5,10 @@
 
 <template>
   <div class="login-container">
-    <div class="form-card">
+    <div
+      class="form-card"
+      data-aos="fade"
+    >
       <h3>里民登入</h3>
       <div class="form-group">
         <label for="login-account">帳號</label>
