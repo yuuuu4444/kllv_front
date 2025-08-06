@@ -30,7 +30,7 @@
       <p class="body--b3 event-detail-view__date">{{ formattedStartDate }}</p>
 
       <img
-        :src="event.image"
+        :src="`${imageURL}${event.image}`"
         :alt="event.title"
         class="event-detail-view__image"
       />
@@ -106,6 +106,8 @@
     const eventId = parseInt(route.params.id, 10);
     return allEvents.find((e) => e.event_no === eventId);
   });
+
+  const imageURL = import.meta.env.BASE_URL;
 
   const formattedStartDate = computed(() => {
     if (!event.value || !event.value.start_date) return '';
