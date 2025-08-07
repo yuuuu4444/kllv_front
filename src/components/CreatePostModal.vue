@@ -1,13 +1,33 @@
 <script setup>
-  import { defineProps, defineEmits, ref } from 'vue';
+  import { defineProps, defineEmits, ref, computed, watch } from 'vue';
 
-  const props = defineProps({ visible: Boolean });
+  const props = defineProps({
+    visible: Boolean,
+    post: {
+      type: Object,
+      default: null,
+    },
+  });
   const emit = defineEmits(['update:visible']);
+  const isEdit = computed(() => !!props.post);
 
   const title = ref('');
   const category = ref('');
   const desc = ref('');
   const previewImages = ref([]);
+
+  watch(
+    () => props.post,
+    (newPost) => {
+      if (newPost) {
+        title.value = newPost.title || '';
+        category.value = String(newPost.category_no || '');
+        desc.value = newPost.desc || '';
+        previewImages.value = [...(newPost.image || [])];
+      }
+    },
+    { immediate: true },
+  );
 
   const handleSubmit = () => {
     if (!title.value.trim()) return;
@@ -21,13 +41,29 @@
       image: previewImages.value,
     });
 
-    // 成功後清空欄位
-    title.value = '';
-    category.value = '';
-    desc.value = '';
-    previewImages.value = '';
+    const data = {
+      title: title.value,
+      category: category.value,
+      desc: desc.value,
+      image: previewImages.value,
+    };
 
+    console.log(isEdit.value ? '編輯文章資料：' : '送出的資料：', data);
     emit('update:visible', false);
+
+    if (isEdit.value) {
+      emit('edit', { ...data, post_no: props.post?.post_no });
+    } else {
+      emit('create', data);
+
+      // 成功後清空欄位
+      title.value = '';
+      category.value = '';
+      desc.value = '';
+      previewImages.value = '';
+    }
+
+    // emit('update:visible', false);
   };
 
   const handleImageUpload = (e) => {
@@ -56,7 +92,7 @@
   >
     <div class="post-modal__container">
       <div class="post-modal__header">
-        <h3 class="post-modal__title bold">建立貼文</h3>
+        <h3 class="post-modal__title bold">{{ isEdit ? '編輯貼文' : '建立貼文' }}</h3>
       </div>
 
       <form
