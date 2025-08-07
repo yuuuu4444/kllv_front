@@ -15,7 +15,7 @@
   onMounted(() => {
     // line 1 打字效果
     typedInstance1 = new Typed(typed1.value, {
-      strings: ['過天青 瀧瀧山林 天色清 空色靜'],
+      strings: ['雨過天青 瀧瀧山林 天色清 空色靜'],
       typeSpeed: 50,
       backSpeed: 30,
       showCursor: false,
@@ -24,7 +24,7 @@
     });
     // line 2 打字效果（可接續上面結束後開始）
     typedInstance2 = new Typed(typed2.value, {
-      strings: ['方是'],
+      strings: ['方是空瀧浪好里'],
       typeSpeed: 200,
       showCursor: false,
       loop: false,
@@ -48,8 +48,8 @@
             data-aos="fade"
             data-aos-delay="60"
           >
-            <h1 class="bold">
-              雨
+            <h1 class="">
+             
               <span ref="typed1"></span>
             </h1>
           </div>
@@ -59,8 +59,9 @@
               data-aos="fade"
               data-aos-delay="2000"
             >
+              
               <span ref="typed2"></span>
-              空瀧浪里
+              
             </h1>
           </div>
         </div>
@@ -86,14 +87,15 @@
     </div>
     
   <!-- 卡片01 -->
-<div class="shortcuts">
+<div class="shortcuts"
+data-aos="fade-up">
 <div class="linkCards">
   <div class="linkCards__container">
     <div class="linkCards__info">
     <div class="linkCards__icon">
       <img src="../assets/icon/icon_Events_w.png" alt="">
       </div>
-      <h5 class="Event-title bold">活動報名</h5>
+      <h5 class="Event-title">活動報名</h5>
       <div class="Events-btn-container">
       <RouterLink to="/Events" class="Events-btn">
         <span>活動資訊</span>
@@ -110,7 +112,7 @@
     <div class="linkCards__icon">
       <img src="../assets/icon/icon_community_w.png" alt="">
       </div>
-      <h5 class="Event-title bold">里民開講</h5>
+      <h5 class="Event-title">里民開講</h5>
       <div class="Events-btn-container">
       <RouterLink to="/Events" class="Events-btn">
         <span>參與討論</span>
@@ -127,7 +129,7 @@
     <div class="linkCards__icon">
       <img src="../assets/icon/icon_repair_w.png" alt="">
       </div>
-      <h5 class="Event-title bold">維修通報</h5>
+      <h5 class="Event-title">維修通報</h5>
       <div class="Events-btn-container">
       <RouterLink to="/Events" class="Events-btn">
         <span>立即報修</span>
@@ -143,7 +145,8 @@
 <section class="about">
   <div class="mask"></div>
   <h2 class="about__title bold">空瀧浪里 就像這樣</h2>
-  <div class="about__container">
+  <div class="about__container"
+  data-aos="fade-up">
     <div class="about__map">
       <img src="../assets/image/index_about_map.png" alt="">
     </div>
@@ -168,7 +171,8 @@
 <section class="register">
   <div class="outcontainer">
 
-  <div class="register__container">
+  <div class="register__container"
+  data-aos="fade-up">
   <div class="mask"></div>
   <RouterLink to="/register-step1" class="">
   <button class="register__btn">
@@ -177,7 +181,8 @@
   </RouterLink>
   <h2 class="bold">里民募集中</h2>
   </div>
-      <div class="register__decorate">
+      <div class="register__decorate"
+      data-aos="fade-up">
     <img src="../assets/image/KongLi_c.png" alt="">
   </div>
 </div>
@@ -198,7 +203,7 @@
     background-size: cover;
     background-position: center;
     @include mobile{
-      height: 30vh;   
+      height: 60vh;   
     }
     .overlay {
       position: relative;
@@ -222,7 +227,7 @@
         grid-template-columns: 1fr 1fr 1fr;
       }
       span {
-        font-size: 64px;
+        font-size: 48px;
         @include mobile{
           font-size: 20px;
         }
@@ -231,6 +236,9 @@
         grid-column: 1 / 3;
         font-size: 36px;
         font-weight: bold;
+        h1{
+          font-size: 64px;
+        }
         @include mobile{
           grid-column: 1/4;
           h1{
@@ -382,7 +390,7 @@
     }
   &__info{
     position: relative;
-    padding: 5.82vw 5vw;
+    padding-top: 5.82vw;
     z-index: 1;
 
     @include mobile{
@@ -390,7 +398,7 @@
     }
   }
   &__icon{
-    width: 50px;
+    width: 2.604vw;
     margin: 0 auto;
     @include mobile{
       width: 24px;
@@ -406,6 +414,9 @@
   
   .Event-title{
     color: $white;
+    font-family: $font-sans;
+    letter-spacing: 0.2em;
+    font-size: 1.25vw;
     @include flex-center;
     padding-top:8px;
     padding-bottom: 23px;
@@ -418,17 +429,17 @@
     @include flex-center;
 
   .Events-btn{
-  width: 152px;
-  height: 40px;
+  width: 7.917vw;
+  height: 2.083vw;
   font-family: $font-sans;
-  font-size: 16px;
+  font-size: 0.833vw;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
   letter-spacing: 2.4px;
   @include flex-center;
   text-align: center;
-  border-radius: $border-r-sm;
+  border-radius: 0.521vw;
   color: $white;
   background-color: $highlight-c;
   cursor: pointer;
@@ -476,7 +487,7 @@
   &__container{
     @include flex-center;
     display: flex;
-    gap: 164px;
+    gap: 8.55vw;
     padding-bottom: 96px;
     @include mobile{
       flex-direction: column;
@@ -485,6 +496,10 @@
     
   }
   &__map{
+    width: 20vw;
+    img{
+      width: 100%;
+    }
       @include mobile{
       width: 308px;
       img{
@@ -525,8 +540,9 @@
   top: -30px;
   background-color: $highlight-c;
   @include mobile{
-    width: 200px;
+    width: 220px;
     height: 50px;
+    padding: 0 10px;
   }
 
   &:hover {
@@ -546,10 +562,15 @@
     padding-bottom: 34px;
   }
   &__decorate{
+    width: 7.8vw;
   position: relative;
   z-index: 3;
   left:-5%;
-  top: -15vh;
+  top: -5vw;
+  img{
+    width: 100%;
+
+  }
   @include mobile{
     display:none ;
   }
@@ -558,8 +579,8 @@
   position: relative;
   background-image: url(../assets/image/index_register_bg.jpg);
   display: flex;
-  width: 1200px;
-  height: 256px;
+  width: 62.5vw;
+  height: 20vw;
   background-size:cover;
   background-position: center;
   color: $white;

@@ -424,6 +424,12 @@
         border-radius: $border-r-xs;
         background-color: $white;
       }
+      &__next {
+        color: $white;
+      }
+      &__prev{
+        color:$white;
+      }
     }
 
     @include mobile {

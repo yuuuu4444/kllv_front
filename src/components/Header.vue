@@ -191,7 +191,7 @@
         <div class="mposter__slogan">
           <p class="body--b3">
             <span>雨</span>
-            過天青 瀧瀧山林 天色清 空氣凈
+            過天青 瀧瀧山林 天色清 空色靜
           </p>
           <p class="body--b3">
             方是
