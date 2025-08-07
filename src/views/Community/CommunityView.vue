@@ -397,8 +397,8 @@
       &__next {
         color: $white;
       }
-      &__prev{
-        color:$white;
+      &__prev {
+        color: $white;
       }
     }
 
@@ -452,10 +452,10 @@
           color: $white;
           font-size: 30px;
           cursor: pointer;
-          position: fixed !important;
-          bottom: 15vh !important;
-          right: 5vw !important;
-          z-index: 9999 !important;
+          position: fixed;
+          bottom: 15vh;
+          right: 5vw;
+          z-index: 1;
         }
       }
 
