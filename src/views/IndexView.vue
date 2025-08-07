@@ -352,13 +352,13 @@ data-aos="fade-up">
   }
 .linkCards{
 
-    width: 20.156vw;
-    height: 20.156vw;
+    width: clamp(210px,20vw,20.1vw);
+    height: clamp(210px,20vw,20.1vw);
     background-color: $primary-c000;
     border-radius: $border-r-md;
     border: solid 0.5px $primary-c000;
     z-index: 0;
-     box-shadow:  0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    box-shadow:  0 4px 4px 0 rgba(0, 0, 0, 0.25);
     @include mobile{
     width: 290px;
     height: 123px;  
@@ -367,8 +367,8 @@ data-aos="fade-up">
 
   &__container{
   margin: 0.521vw auto;
-  width: 19.115vw;
-  height: 19.115vw;
+  width: clamp(200px,19vw,19.1vw);
+  height: clamp(200px,19vw,19.1vw);
   border-radius: $border-r-md;
   z-index: 0;
   @include mobile{
@@ -416,11 +416,12 @@ data-aos="fade-up">
     color: $white;
     font-family: $font-sans;
     letter-spacing: 0.2em;
-    font-size: 1.25vw;
+    font-size: clamp(1rem, 1.75vw, 1.5rem);
     @include flex-center;
     padding-top:8px;
     padding-bottom: 23px;
     @include mobile{
+      font-size: clamp(var(--min-size) * 1px, var(--font-size), var(--max-size) * 1px);
       padding-bottom:10px;
     }
 
@@ -429,12 +430,12 @@ data-aos="fade-up">
     @include flex-center;
 
   .Events-btn{
-  width: 7.917vw;
-  height: 2.083vw;
+  width: 152px;
+  height: 40px;
   font-family: $font-sans;
-  font-size: 0.833vw;
+  font-size: clamp(1rem,0.833vw,1.2rem);
   font-style: normal;
-  font-weight: 700;
+  font-weight:normal;
   line-height: normal;
   letter-spacing: 2.4px;
   @include flex-center;

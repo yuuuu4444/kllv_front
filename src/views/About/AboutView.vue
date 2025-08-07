@@ -66,7 +66,7 @@
 
         <!-- 說明文字泡泡 -->
         <div class="speech-bubble">
-          <p class="body--b2">您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
+          <p class="">您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
         </div>
       </div>
 
@@ -160,7 +160,7 @@
             alt="地址"
           />
           <div><h4 class="regular">里辦地址</h4></div>
-          <div><p class="body--b2">桃園市中壢區空瀧浪里孔融路1號</p></div>
+          <div><p class="body--b2">桃園市中壢區<br></br>空瀧浪里孔融路1號</p></div>
         </div>
       </div>
 
@@ -403,14 +403,23 @@
     }
     .speech-bubble {
       position: absolute;
-      top: 26%;
+      top: 40%;
       left: 80%;
-      width: 256px;
+      width: clamp(168px,14vw,14vw);
+      height: clamp(180px,8.2vw,8.2vw);
       background: white;
       padding: 32px;
       border-radius: $border-r-lg;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
       text-align: left;
+      p{
+        font-family: $font-sans;
+        font-size: clamp(14px,1vw,20px);
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+        letter-spacing: 0.2em;
+      }
     }
   }
 
@@ -431,9 +440,10 @@
   .mayor-intro2,
   .mayor-intro3 {
     background-color: $primary-c000;
-    padding: 40px 20px;
+    padding: 40px 15vw;
     text-align: center;
-    margin: 0 20%;
+    line-height: 1.4;
+    // margin: 0 10%;
     @include mobile{
       margin: 0 5%;
     }
@@ -456,7 +466,7 @@
     }
 
     .intro-section {
-      max-width: 62.29vw;
+      max-width: 69vw;
       .images {
         display: grid;
         grid-template-columns: repeat(5, 0.5fr);
@@ -517,6 +527,12 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        h4{
+          font-size: clamp(20px,1.46vw,28px);
+        }
+        p{
+          font-size: clamp(13px,1vw,20px);
+        }
         img {
           width: 36px;
           margin-bottom: 8px;
@@ -656,10 +672,11 @@
     .mayor-intro,
     .mayor-intro2,
     .mayor-intro3 {
+      padding: 0 10px;
       .intro-section {
         .images {
-          max-height: 300px;
-          width: 330px;
+          
+          width:85vw;
           .img-large {
             grid-row: 1 / 5;
           }
@@ -669,7 +686,12 @@
           }
         }
       }
-
+      .leader-info {
+        &::before,
+        &::after {
+      display: none;
+        }
+      }
       .text-content {
         margin: 0;
         padding: 2vh 0;
