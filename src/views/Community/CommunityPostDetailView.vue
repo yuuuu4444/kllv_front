@@ -4,9 +4,12 @@
   import PostData from '@/assets/data/Community/posts_test.json';
   import Categories from '@/assets/data/Community/posts_categories_test.json';
   import ReportModal from '@/components/ReportModal.vue';
+  import CreatePostModal from '@/components/CreatePostModal.vue';
 
   const props = defineProps(['post_no']);
   const postNo = props.post_no;
+  const editModalVisible = ref(false);
+  const editingPost = ref(null);
 
   const postItem = PostData.find((item) => item.post_no === Number(postNo));
   const categoryItem = Categories.find((item) => item.category_no === postItem?.category_no);
@@ -20,6 +23,23 @@
 
   const toggleCommentMenu = () => {
     menuCommentVisible.value = !menuCommentVisible.value;
+  };
+
+  const openEditModal = () => {
+    editingPost.value = {
+      post_no: postItem.post_no,
+      title: postItem.title,
+      category_no: postItem.category_no,
+      desc: postItem.content,
+      image: postItem.image || [],
+    };
+    editModalVisible.value = true;
+    menuPostVisible.value = false;
+  };
+
+  const handleEditPost = (updatedPost) => {
+    console.log('更新後的資料', updatedPost);
+    Object.assign(postItem, updatedPost); // 模擬更新內容
   };
 
   const handleDeletePost = () => {
@@ -82,7 +102,10 @@
                 v-if="menuPostVisible"
               >
                 <li class="post-detail__menu-item">
-                  <button class="post-detail__menu-btn">
+                  <button
+                    class="post-detail__menu-btn"
+                    @click="openEditModal"
+                  >
                     <svg
                       class="post-detail__menu-icon"
                       width="24"
@@ -160,6 +183,12 @@
           </div>
 
           <ReportModal v-model:visible="showModal" />
+
+          <CreatePostModal
+            v-model:visible="editModalVisible"
+            :post="editingPost"
+            @edit="handleEditPost"
+          />
 
           <div class="post-detail__content">
             <p class="post-detail__desc body--b2">{{ postItem.content }}</p>
