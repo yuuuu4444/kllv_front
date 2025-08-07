@@ -236,6 +236,7 @@
         <button
           class="report-pagination__prev btn--changepage"
           @click="goPrev"
+          :disabled="currentPage === 1"
         >
           &lt;
         </button>
@@ -243,6 +244,7 @@
         <button
           class="report-pagination__next btn--changepage"
           @click="goNext"
+          :disabled="currentPage === totalPages"
         >
           &gt;
         </button>
@@ -424,11 +426,16 @@
         border-radius: $border-r-xs;
         background-color: $white;
       }
-      &__next {
+      &__next,
+      &__prev {
         color: $white;
+        font-size: 24px;
       }
-      &__prev{
-        color:$white;
+
+      &__next:disabled,
+      &__prev:disabled {
+        background-color: $neutral-c;
+        cursor: not-allowed;
       }
     }
 
