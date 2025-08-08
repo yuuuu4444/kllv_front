@@ -1,4 +1,3 @@
-<!-- 檔案路徑: src/views/Events/EventsView.vue -->
 <template>
   <div class="events-view">
     <MainBanner
@@ -74,10 +73,7 @@
         <h5 class="bold">目前沒有符合條件的活動喔！</h5>
       </div>
 
-      <div
-        class="events-view__pagination"
-        data-aos="fade"
-      >
+      <div class="events-view__pagination">
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
