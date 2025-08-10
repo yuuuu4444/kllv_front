@@ -1,15 +1,18 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
-  import { defineProps, ref } from 'vue';
+  import { defineProps, ref, computed } from 'vue';
   import PostData from '@/assets/data/Community/posts_test.json';
   import Categories from '@/assets/data/Community/posts_categories_test.json';
+  import Comments from '@/assets/data/Community/community_comments_test.json';
   import ReportModal from '@/components/ReportModal.vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
 
   const props = defineProps(['post_no']);
-  const postNo = props.post_no;
+  const postNo = Number(props.post_no);
   const editModalVisible = ref(false);
   const editingPost = ref(null);
+  const openCount = ref(0);
+  const modalKey = computed(() => `edit-${editingPost.value?.post_no || 'new'}-${openCount.value}`);
 
   const postItem = PostData.find((item) => item.post_no === Number(postNo));
   const categoryItem = Categories.find((item) => item.category_no === postItem?.category_no);
@@ -21,8 +24,9 @@
     menuPostVisible.value = !menuPostVisible.value;
   };
 
-  const toggleCommentMenu = () => {
-    menuCommentVisible.value = !menuCommentVisible.value;
+  const openedCommentMenu = ref(null);
+  const toggleCommentMenu = (id) => {
+    openedCommentMenu.value = openedCommentMenu.value === id ? null : id;
   };
 
   const openEditModal = () => {
@@ -33,13 +37,19 @@
       desc: postItem.content,
       image: postItem.image || [],
     };
+    openCount.value++;
     editModalVisible.value = true;
     menuPostVisible.value = false;
   };
 
-  const handleEditPost = (updatedPost) => {
-    console.log('更新後的資料', updatedPost);
-    Object.assign(postItem, updatedPost); // 模擬更新內容
+  const handleEditPost = (updated) => {
+    if (updated.post_no !== postItem.post_no) return;
+
+    postItem.title = updated.title;
+    postItem.category_no = Number(updated.category);
+    postItem.content = updated.desc;
+    postItem.image = updated.image || [];
+    console.log('更新後的資料', postItem);
   };
 
   const handleDeletePost = () => {
@@ -56,6 +66,45 @@
     showModal.value = true;
     menuPostVisible.value = false;
     menuCommentVisible.value = false;
+  };
+
+  const allComments = Comments.filter((c) => !c.is_deleted);
+  const postComments = computed(() =>
+    allComments
+      .filter((c) => c.post_no === postNo)
+      .sort((a, b) => new Date(a.commented_at) - new Date(b.commented_at)),
+  );
+
+  const currentPage = ref(1);
+  const pageSize = 3;
+
+  const pagedComments = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    return postComments.value.slice(start, start + pageSize);
+  });
+
+  const totalPages = computed(() => Math.ceil(postComments.value.length / pageSize));
+
+  const isFirstPage = computed(() => currentPage.value === 1);
+  const isLastPage = computed(() => currentPage.value === totalPages.value);
+
+  const goPrev = () => {
+    if (!isFirstPage.value) currentPage.value--;
+  };
+
+  const goNext = () => {
+    if (!isLastPage.value) currentPage.value++;
+  };
+
+  const passTime = (datetime) => {
+    const now = new Date();
+    const past = new Date(datetime);
+    const diffTime = now - past;
+
+    const hours = Math.floor(diffTime / (1000 * 60 * 60));
+    if (hours < 1) return '剛剛';
+    if (hours < 24) return `${hours} 小時前`;
+    return past.toISOString().slice(0, 10);
   };
 </script>
 
@@ -185,6 +234,8 @@
           <ReportModal v-model:visible="showModal" />
 
           <CreatePostModal
+            v-if="editModalVisible"
+            :key="modalKey"
             v-model:visible="editModalVisible"
             :post="editingPost"
             @edit="handleEditPost"
@@ -212,7 +263,11 @@
 
       <section class="post-detail__comment">
         <ul class="post-detail__comment-list">
-          <li class="post-detail__comment-wrapper">
+          <li
+            class="post-detail__comment-wrapper"
+            v-for="(comment, idx) in pagedComments"
+            :key="comment.comment_no"
+          >
             <div class="post-detail__comment-item">
               <div class="post-detail__comment-header">
                 <div class="post-detail__comment-user">
@@ -222,16 +277,20 @@
                       alt=""
                     />
                   </div>
-                  <p class="post-detail__comment-author body--b3">黃又新</p>
-                  <p class="post-detail__comment-time body--b3">40分鐘前</p>
+                  <p class="post-detail__comment-author body--b3">{{ comment.author_id }}</p>
+                  <p class="post-detail__comment-time body--b3">
+                    {{ passTime(comment.commented_at) }}
+                  </p>
                 </div>
-                <p class="post-detail__comment-no body--b3">b1</p>
+                <p class="post-detail__comment-no body--b3">
+                  b{{ (currentPage - 1) * pageSize + idx + 1 }}
+                </p>
               </div>
-              <p class="post-detail__comment-text body--b2">有興趣</p>
+              <p class="post-detail__comment-text body--b2">{{ comment.content }}</p>
               <div class="post-detail__comment-menu">
                 <button
                   class="post-detail__comment-menu-toggle"
-                  @click="toggleCommentMenu"
+                  @click="toggleCommentMenu(comment.comment_no)"
                 >
                   <img
                     src="/src/assets/icon/icon_actionMenu.svg"
@@ -240,7 +299,7 @@
                 </button>
                 <ul
                   class="post-detail__comment-menu-list"
-                  v-if="menuCommentVisible"
+                  v-if="openedCommentMenu === comment.comment_no"
                 >
                   <li class="post-detail__comment-menu-item">
                     <button
@@ -261,6 +320,27 @@
               </div>
             </div>
           </li>
+
+          <div
+            class="post-detail-pagination"
+            data-aos="fade"
+          >
+            <button
+              class="post-detail-pagination__prev btn--changepage"
+              @click="goPrev"
+              :disabled="currentPage === 1"
+            >
+              &lt;
+            </button>
+            <p class="post-detail-pagination__current">{{ currentPage }} / {{ totalPages }}</p>
+            <button
+              class="post-detail-pagination__next btn--changepage"
+              @click="goNext"
+              :disabled="currentPage === totalPages"
+            >
+              &gt;
+            </button>
+          </div>
         </ul>
       </section>
 
@@ -536,6 +616,36 @@
         position: absolute;
         bottom: 20px;
         right: 20px;
+      }
+    }
+
+    .post-detail-pagination {
+      @include flex-center;
+      gap: 30px;
+
+      &__current {
+        text-align: center;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px;
+        letter-spacing: 0.1em;
+        width: 80px;
+        padding: 14px 0;
+        border: 1px solid $black;
+        border-radius: $border-r-xs;
+        background-color: $white;
+      }
+      &__next,
+      &__prev {
+        color: $white;
+        font-size: 24px;
+      }
+
+      &__next:disabled,
+      &__prev:disabled {
+        background-color: $neutral-c;
+        cursor: not-allowed;
       }
     }
 
