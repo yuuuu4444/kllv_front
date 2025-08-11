@@ -262,64 +262,66 @@
       </section>
 
       <section class="post-detail__comment">
-        <ul class="post-detail__comment-list">
-          <li
-            class="post-detail__comment-wrapper"
-            v-for="(comment, idx) in pagedComments"
-            :key="comment.comment_no"
-          >
-            <div class="post-detail__comment-item">
-              <div class="post-detail__comment-header">
-                <div class="post-detail__comment-user">
-                  <div class="post-detail__comment-user-image">
-                    <img
-                      src="#"
-                      alt=""
-                    />
+        <div class="post-detail__comment-list">
+          <ul>
+            <li
+              class="post-detail__comment-wrapper"
+              v-for="(comment, idx) in pagedComments"
+              :key="comment.comment_no"
+            >
+              <div class="post-detail__comment-item">
+                <div class="post-detail__comment-header">
+                  <div class="post-detail__comment-user">
+                    <div class="post-detail__comment-user-image">
+                      <img
+                        src="#"
+                        alt=""
+                      />
+                    </div>
+                    <p class="post-detail__comment-author body--b3">{{ comment.author_id }}</p>
+                    <p class="post-detail__comment-time body--b3">
+                      {{ passTime(comment.commented_at) }}
+                    </p>
                   </div>
-                  <p class="post-detail__comment-author body--b3">{{ comment.author_id }}</p>
-                  <p class="post-detail__comment-time body--b3">
-                    {{ passTime(comment.commented_at) }}
+                  <p class="post-detail__comment-no body--b3">
+                    b{{ (currentPage - 1) * pageSize + idx + 1 }}
                   </p>
                 </div>
-                <p class="post-detail__comment-no body--b3">
-                  b{{ (currentPage - 1) * pageSize + idx + 1 }}
-                </p>
+                <p class="post-detail__comment-text body--b2">{{ comment.content }}</p>
+                <div class="post-detail__comment-menu">
+                  <button
+                    class="post-detail__comment-menu-toggle"
+                    @click="toggleCommentMenu(comment.comment_no)"
+                  >
+                    <img
+                      src="/src/assets/icon/icon_actionMenu.svg"
+                      alt=""
+                    />
+                  </button>
+                  <ul
+                    class="post-detail__comment-menu-list"
+                    v-if="openedCommentMenu === comment.comment_no"
+                  >
+                    <li class="post-detail__comment-menu-item">
+                      <button
+                        class="post-detail__menu-btn"
+                        @click="openReportModal"
+                      >
+                        <div>
+                          <img
+                            src="/src/assets/icon/icon_report.svg"
+                            alt=""
+                            class="post-detail__menu-icon"
+                          />
+                        </div>
+                        <span class="post-detail__menu-text">檢舉留言</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
               </div>
-              <p class="post-detail__comment-text body--b2">{{ comment.content }}</p>
-              <div class="post-detail__comment-menu">
-                <button
-                  class="post-detail__comment-menu-toggle"
-                  @click="toggleCommentMenu(comment.comment_no)"
-                >
-                  <img
-                    src="/src/assets/icon/icon_actionMenu.svg"
-                    alt=""
-                  />
-                </button>
-                <ul
-                  class="post-detail__comment-menu-list"
-                  v-if="openedCommentMenu === comment.comment_no"
-                >
-                  <li class="post-detail__comment-menu-item">
-                    <button
-                      class="post-detail__menu-btn"
-                      @click="openReportModal"
-                    >
-                      <div>
-                        <img
-                          src="/src/assets/icon/icon_report.svg"
-                          alt=""
-                          class="post-detail__menu-icon"
-                        />
-                      </div>
-                      <span class="post-detail__menu-text">檢舉留言</span>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </li>
+            </li>
+          </ul>
 
           <div
             class="post-detail-pagination"
@@ -341,7 +343,7 @@
               &gt;
             </button>
           </div>
-        </ul>
+        </div>
       </section>
 
       <section class="post-detail__reply">
@@ -513,10 +515,14 @@
         border: 1px solid $black;
         border-radius: $border-r-md;
         padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
         background-color: white;
+
+        ul {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
       }
 
       &-wrapper {
