@@ -1,7 +1,7 @@
 <!-- src/views/Member/MemberPosts.vue -->
 <template>
   <div class="postsPage">
-    <!-- 手機版 Header  -->
+    <!-- 手機版 header  -->
     <MemberMobileHeader
       v-if="mobileView === 'index'"
       title="帳戶管理"
@@ -22,9 +22,29 @@
 
     <!-- 桌面版：表格 -->
     <div class="postsPage__desktopView">
+      <!-- Tab切換按鈕 -->
+      <div class="desktopTabs">
+        <button
+          class="desktopTabs__button"
+          :class="{ 'is-active': desktopActiveTab === 'posts' }"
+          @click="desktopActiveTab = 'posts'"
+        >
+          已發布貼文
+        </button>
+        <button
+          class="desktopTabs__button"
+          :class="{ 'is-active': desktopActiveTab === 'replies' }"
+          @click="desktopActiveTab = 'replies'"
+        >
+          已回覆貼文
+        </button>
+      </div>
       <!-- 1. 貼文表格 -->
-      <div class="postSection">
-        <h5 class="postSection__title">貼文</h5>
+      <div
+        v-show="desktopActiveTab === 'posts'"
+        class="postSection"
+      >
+        <!-- <h5 class="postSection__title">貼文</h5> -->
         <table class="postTable">
           <thead>
             <tr>
@@ -116,8 +136,11 @@
       </div>
 
       <!-- 2. 已回覆貼文表格 -->
-      <div class="postSection">
-        <h5 class="postSection__title bold">已回覆貼文</h5>
+      <div
+        v-show="desktopActiveTab === 'replies'"
+        class="postSection"
+      >
+        <!-- <h5 class="postSection__title bold">已回覆貼文</h5> -->
         <table class="postTable">
           <thead>
             <tr>
@@ -176,7 +199,7 @@
           @click="mobileView = 'posts'"
           class="mobileIndex__item"
         >
-          貼文
+          已發布貼文
         </div>
         <div
           @click="mobileView = 'replies'"
@@ -196,20 +219,32 @@
           :key="post.post_no"
           class="mobileList__item"
         >
+          <div
+            v-if="post.is_reported"
+            class="mobileList__info is-reported"
+          >
+            <span class="mobileList__date">{{ post.created_at }}</span>
+            <span class="mobileList__name">{{ post.title }}</span>
+          </div>
           <router-link
+            v-else
             :to="`/community/${post.post_no}`"
             class="mobileList__info"
           >
             <span class="mobileList__date">{{ post.created_at }}</span>
             <span class="mobileList__name">{{ post.title }}</span>
           </router-link>
+
+          <!-- “...” 按鈕，被檢舉時也禁用 -->
           <button
             @click="openActionsModal(post)"
             class="iconButton"
+            :disabled="post.is_reported"
           >
             <svg
               class="moreIcon"
               viewBox="0 0 24 24"
+              :class="{ 'is-disabled': post.is_reported }"
             >
               <path
                 d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z"
@@ -248,19 +283,23 @@
           class="mobileList__item"
         >
           <router-link
-            v-if="!reply.is_deleted"
+            v-if="!reply.is_original_post_deleted"
             :to="`/community/${reply.post_no}`"
             class="mobileList__info"
           >
             <span class="mobileList__date">{{ reply.commented_at }}</span>
             <span class="mobileList__name">{{ reply.original_post_title }}</span>
           </router-link>
+          <!-- 
+            或者，直接導向一個不存在的路徑，讓 Vue Router 的萬用匹配 (*) 來處理 404 
+            <router-link v-if="!reply.is_original_post_deleted" ... >
+          -->
           <div
             v-else
-            class="mobileList__info"
+            class="mobileList__info is-deleted"
           >
             <span class="mobileList__date">{{ reply.commented_at }}</span>
-            <span class="mobileList__name is-deleted">{{ reply.original_post_title }}</span>
+            <span class="mobileList__name">{{ reply.original_post_title }} (原文已刪除)</span>
           </div>
         </div>
         <!-- 分頁 -->
@@ -346,7 +385,7 @@
               刪除貼文
             </div>
           </template>
-          <!-- 被檢舉顯示題是訊息 -->
+          <!-- 被檢舉貼文顯示訊息 -->
           <div
             v-else
             class="mobileActions__item is-disabled"
@@ -367,6 +406,8 @@
 
   const router = useRouter();
 
+  // --- Tab ---
+  const desktopActiveTab = ref('posts');
   // --- 狀態管理 ---
   const mobileView = ref('index'); // 'index', 'posts', 'replies'
   const showActionsModalForPost = ref(null); // 存放正在操作的 post 物件
@@ -455,7 +496,7 @@
 
   // --- 分頁 ---
   // 1. 我的貼文
-  const postsPageSize = ref(3); // 每頁顯示幾筆
+  const postsPageSize = ref(6); // 每頁顯示幾筆
   const postsCurrentPage = ref(1); // 當前頁碼
   // 計算總頁數
   const postsTotalPages = computed(() => Math.ceil(myPosts.value.length / postsPageSize.value));
@@ -477,7 +518,7 @@
   };
 
   // 2. 已回覆貼文
-  const repliesPageSize = ref(3);
+  const repliesPageSize = ref(6);
   const repliesCurrentPage = ref(1);
   const repliesTotalPages = computed(() =>
     Math.ceil(myReplies.value.length / repliesPageSize.value),
@@ -531,6 +572,29 @@
     display: none;
   }
 
+  .desktopTabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+    // border-bottom: 2px solid $neutral-c;
+
+    &__button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: $neutral-c;
+      // position: relative;
+      // bottom: -2px;
+
+      &.is-active {
+        color: $primary-c700;
+        font-weight: 700;
+        border-bottom: 2px solid $primary-c700;
+      }
+    }
+  }
   .postSection {
     margin-bottom: 40px;
     &__title {
@@ -721,6 +785,12 @@
         gap: 4px;
         text-decoration: none;
         color: inherit;
+        &.is-reported {
+          .mobileList__name,
+          .mobileList__date {
+            color: $neutral-c; // 文字變灰
+          }
+        }
       }
       &__date {
         font-size: 14px;
@@ -733,11 +803,16 @@
         &.is-deleted {
           color: $neutral-c;
           text-decoration: line-through;
+          cursor: default;
         }
       }
       .moreIcon {
         width: 24px;
         fill: $neutral-c;
+      }
+      .moreIcon.is-disabled {
+        fill: $neutral-c;
+        cursor: not-allowed;
       }
     }
 

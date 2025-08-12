@@ -1,5 +1,5 @@
 <script setup>
-  import { defineProps, defineEmits, ref, computed, watch } from 'vue';
+  import { defineProps, defineEmits, ref, computed } from 'vue';
 
   const props = defineProps({
     visible: Boolean,
@@ -11,23 +11,10 @@
   const emit = defineEmits(['update:visible']);
   const isEdit = computed(() => !!props.post);
 
-  const title = ref('');
-  const category = ref('');
-  const desc = ref('');
-  const previewImages = ref([]);
-
-  watch(
-    () => props.post,
-    (newPost) => {
-      if (newPost) {
-        title.value = newPost.title || '';
-        category.value = String(newPost.category_no || '');
-        desc.value = newPost.desc || '';
-        previewImages.value = [...(newPost.image || [])];
-      }
-    },
-    { immediate: true },
-  );
+  const title = ref(props.post?.title ?? '');
+  const category = ref(String(props.post?.category_no ?? ''));
+  const desc = ref(props.post?.desc ?? '');
+  const previewImages = ref([...(props.post?.image ?? [])]);
 
   const handleSubmit = () => {
     if (!title.value.trim()) return;
@@ -35,16 +22,16 @@
     if (!desc.value.trim()) return;
 
     console.log('送出的資料：', {
-      title: title.value,
-      category: category.value,
-      desc: desc.value,
+      title: title.value.trim(),
+      category: String(category.value),
+      desc: desc.value.trim(),
       image: previewImages.value,
     });
 
     const data = {
-      title: title.value,
-      category: category.value,
-      desc: desc.value,
+      title: title.value.trim(),
+      category: String(category.value),
+      desc: desc.value.trim(),
       image: previewImages.value,
     };
 
@@ -63,19 +50,19 @@
       previewImages.value = '';
     }
 
-    // emit('update:visible', false);
+    emit('update:visible', false);
   };
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     for (const file of files) {
       if (previewImages.value.length >= 10) break;
 
       const reader = new FileReader();
       reader.onload = () => {
-        previewImages.value.push(reader.result);
+        previewImages.value.push(String(reader.result));
+        reader.readAsDataURL(file);
       };
-      reader.readAsDataURL(file);
     }
     e.target.value = '';
   };
