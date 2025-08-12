@@ -14,6 +14,7 @@
     const scrollY = window.scrollY;
     const scrollLimit = window.innerHeight / 4;
     isHidden.value = scrollY > scrollLimit;
+    isOpen.value = false;
   };
   onMounted(() => {
     window.addEventListener('scroll', hideHaeder);
@@ -253,7 +254,7 @@
               @click="hidePoster"
             >
               <img
-                src="/src/assets/icon/icon_service.png"
+                src="/src/assets/icon/icon_repair.png"
                 alt="service-icon"
               />
               <h5 class="medium">維修通報</h5>
@@ -422,8 +423,16 @@
           letter-spacing: 0.1em;
         }
       }
+      &__item {
+        &:hover {
+          // border-radius: 50%;
+          // background-color: $primary-c000;
+          // box-shadow: 0 0 16px $primary-c500;
+        }
+      }
       .dropdown {
         position: relative;
+        cursor: pointer;
 
         &__list {
           display: none;

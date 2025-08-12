@@ -126,10 +126,7 @@
           </RouterLink>
         </div>
       </div>
-      <div
-        class="pagination"
-        data-aos="fade"
-      >
+      <div class="pagination">
         <div
           class="pagination__prev btn--changepage"
           @click="prevPage"
