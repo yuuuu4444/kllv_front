@@ -139,8 +139,8 @@
       reported_user: 'user_account_001',
       reported_at: '2025-05-20',
     },
-    // ... 為了測試分頁，可以再多加幾筆資料
-    { report_no: 'RR000003', reported_at: '2025-04-15', category_name: '道路坑窪', status: 1 },
+
+    { report_no: 'RR000003', reported_at: '2025-04-15', category_name: '道路坑窪', status: 2 },
     { report_no: 'RR000004', reported_at: '2025-03-02', category_name: '髒亂點檢舉', status: 3 },
   ]);
 
@@ -264,10 +264,10 @@
       color: $semantic-y;
     }
     &.is-processing {
-      color: $primary-c500;
+      color: $semantic-g;
     }
     &.is-done {
-      color: $semantic-g;
+      color: $primary-c500;
     }
     &.is-rejected {
       color: $neutral-c;
@@ -349,12 +349,13 @@
         border-color: $semantic-y;
       }
       &.is-processing {
-        color: $primary-c500;
-        border-color: $primary-c500;
-      }
-      &.is-done {
         color: $semantic-g;
         border-color: $semantic-g;
+
+        &.is-done {
+          color: $primary-c500;
+          border-color: $primary-c500;
+        }
       }
       &.is-rejected {
         color: $white;
