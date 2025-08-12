@@ -5,8 +5,9 @@
   import Typed from 'typed.js';
   // 導入swiper
   import { Swiper, SwiperSlide } from 'swiper/vue'
-  import { Navigation, Pagination } from 'swiper/modules'
+  import { EffectCoverflow, Navigation, Pagination } from 'swiper/modules'
   import 'swiper/css'
+  import 'swiper/css/effect-coverflow';
   import 'swiper/css/navigation'
   import 'swiper/css/pagination'
   // 導入活動資料
@@ -18,25 +19,52 @@
   eager: true,
   import: 'default'
 })
+
+
   const eventsForCards = computed(() =>
   eventsData.slice(0, 6).map(ev => {
     const key = `/src/${ev.image}`            // 絕對鍵索引 glob 結果
     const url = images[key]                   // 最終可用的圖片 URL
-    if (!url) {
-      console.warn('[image missing]', key, '請確認檔名或 JSON 路徑是否正確')
-    }
+    // if (!url) {
+    //   console.warn('[image missing]', key, '請確認檔名或 JSON 路徑是否正確')
+    // }
     const catName =
       categoriesData.find(c => c.category_no === ev.category_no)?.category_name ?? ''
     return { ...ev, image: url ?? ev.image, category_name: catName }
   })
 )
-const groupedEvents = computed(() => {
-  const src = eventsForCards.value
-  const out = []
-  for (let i = 0; i < src.length; i += 2) out.push(src.slice(i, i + 2))
-  return out
+// const groupedEvents = computed(() => {
+//   const src = eventsForCards.value
+//   const out = []
+//   for (let i = 0; i < src.length; i += 2) out.push(src.slice(i, i + 2))
+//   return out
+// })
+
+
+// ③ 手機偵測（≤768px）
+const isMobile = ref(false)
+let mql
+const updateIsMobile = () => (isMobile.value = mql.matches)
+onMounted(() => {
+  mql = window.matchMedia('(max-width: 768px)')
+  updateIsMobile()
+  mql.addEventListener ? mql.addEventListener('change', updateIsMobile)
+                      : mql.addListener(updateIsMobile)
+})
+onBeforeUnmount(() => {
+  mql?.removeEventListener ? mql.removeEventListener('change', updateIsMobile)
+                          : mql?.removeListener(updateIsMobile)
 })
 
+// ④ 依裝置動態分組：桌機一組2張 / 手機一組1張
+const groupedEvents = computed(() => {
+  const size = isMobile.value ? 1 : 2
+  const src = eventsForCards.value
+  const out = []
+  for (let i = 0; i < src.length; i += size) out.push(src.slice(i, i + size))
+  return out
+})
+//
   import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
   const typed1 = ref(null);
   const typed2 = ref(null);
@@ -130,14 +158,23 @@ onBeforeUnmount(() => {
 
       <!-- 卡片輪播 -->
 <Swiper
-data-aos="fade-up"
+  :effect="'coverflow'"
+  :grabCursor="true"
   :modules="[Navigation, Pagination]"
   :navigation="{ prevEl: '.events-prev', nextEl: '.events-next' }"
-  slides-per-view="1"
-  centered-slides
+      :coverflowEffect="{
+      rotate: 50,
+      stretch: 0,
+      depth: 100,
+      modifier: 1,
+      slideShadows: true,
+    }"
+  :slides-per-view="'auto'"          
+  :centered-slides="true"
   :space-between="24"
   loop
   :pagination="{ clickable: true }"
+  
   class="events-swiper"
 >
 
@@ -402,7 +439,6 @@ data-aos="fade-up">
     padding: 1.5625vw 18.75vw 6.25vw;
     background-color: $primary_c000;
     
-    
     @include desktop {
       padding-left: 10%;
       padding-right: 10%;
@@ -418,11 +454,12 @@ data-aos="fade-up">
 
 }
 .EventsContainer{
-    padding-bottom: 30px;
+  padding-top: 21px;
+    // background-color: $white;
     background-image:
-      url(/src/assets/image/background_image.png), url(/src/assets/image/index_bg.png);
+      url(/src/assets/image/background_image.png), url(/src/assets/image/index_bg.svg);
     background-repeat: repeat, no-repeat;
-    background-position: bottom;
+    background-position:0 8%;
     overflow: hidden;
 
 .EventsInfo__title{
@@ -744,7 +781,7 @@ data-aos="fade-up">
   
 }
 .events-swiper {
-  padding: 12px 0 28px;
+  padding: 12px 32px 28px;
   overflow: visible; // 放大時不要被裁切
   
 }

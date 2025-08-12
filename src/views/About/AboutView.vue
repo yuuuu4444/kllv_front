@@ -623,6 +623,14 @@
       }
     }
   }
+  @include desktop {
+    .leader-info {
+        &::before,
+        &::after {
+        display: none;
+        }
+      }
+  }
   // RWD
   @include mobile {
     .about-section {
