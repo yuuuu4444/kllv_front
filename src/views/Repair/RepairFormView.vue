@@ -1,6 +1,6 @@
 <script setup>
   import { useRouter } from 'vue-router';
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import SubBanner from '@/components/SubBanner.vue';
   import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
@@ -12,11 +12,87 @@
   const categoryOptions = ref([]);
   const previewImages = ref(['', '', '']);
 
+  const loadingCats = ref(false);
+  const categories = ref([]);
+  const categoryMap = computed(
+    () => new Map(categories.value.map((c) => [c.category_no, c.category_name])),
+  );
+
+  const submitting = ref(false);
+  const today = new Date().toISOString().slice(0, 10);
+
+  // 假資料：王小明
+  const reporterId = ref('user001'); // 對應 user_id
+  const reporterName = ref('王小明'); // fullname
+  const reporterPhone = ref('0987878787'); // phone_number
+
+  onMounted(async () => {
+    loadingCats.value = true;
+    try {
+      const res = await fetch(
+        'http://localhost:8888/kllv_backend_php/api/repair/categories_get.php',
+      );
+      const data = await res.json();
+      // console.log(data.status);
+      if (data.status === 'success') categories.value = data.data;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      loadingCats.value = false;
+    }
+  });
+
+  /*
   onMounted(() => {
     categoryOptions.value = Categories;
   });
+  */
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append('location', location.value);
+    formData.append('category_no', String(Number(selectedCategoryNo.value)));
+    formData.append('description', desc.value);
+    formData.append('reporter_id', reporterId.value);
+    formData.append('status', '0');
+
+    submitting.value = true;
+    try {
+      const res = await fetch(
+        'http://localhost:8888/kllv_backend_php/api/repair/repair_add_post.php',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
+      // const data = await res.json();
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        console.error('非 JSON 回應：', text);
+        alert(`伺服器回應非 JSON（${res.status}）`);
+        return;
+      }
+
+      if (!res.ok || data.status !== 'success') {
+        console.warn('後端回應錯誤：', data);
+        alert(data.message || `送出失敗（${res.status}）`);
+        return;
+      }
+
+      // 成功
+      const categoryName = categoryMap.value.get(Number(selectedCategoryNo.value)) || '';
+      console.log('建立成功：', data, '分類名稱(本地映射)：', categoryName);
+      router.push('/repair/complete');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      submitting.value = false;
+    }
+    /*
     if (!selectedCategoryNo.value) return;
 
     if (!location.value.trim()) return;
@@ -37,6 +113,7 @@
     console.log('模擬送出的資料:', formData);
 
     router.push('/repair/complete');
+    */
   };
 
   const handleImageUpload = (event, index) => {
@@ -85,8 +162,6 @@
 
       <form
         class="repair-form__form"
-        action="#"
-        method="#"
         @submit.prevent="handleSubmit"
       >
         <div class="repair-form__card">
@@ -99,6 +174,7 @@
               type="text"
               id="date"
               readonly
+              :value="today"
             />
           </div>
           <div class="repair-form__field">
@@ -119,7 +195,7 @@
                 請選擇
               </option>
               <option
-                v-for="item in categoryOptions"
+                v-for="item in categories"
                 :key="item.category_no"
                 :value="item.category_no"
               >
@@ -133,6 +209,12 @@
               type="text"
               id="name"
               readonly
+              :value="reporterName"
+            />
+            <input
+              type="hidden"
+              name="reporter_id"
+              :value="reporterId"
             />
           </div>
           <div class="repair-form__field">
@@ -141,6 +223,7 @@
               type="tel"
               id="phone"
               readonly
+              :value="reporterPhone"
             />
           </div>
           <div class="repair-form__field">
