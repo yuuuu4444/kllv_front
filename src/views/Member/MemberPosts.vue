@@ -18,7 +18,12 @@
       @back="mobileView = 'index'"
     />
 
-    <h5 class="postsPage__title bold">討論區足跡</h5>
+    <h5
+      v-if="!isMobile || mobileView === 'index'"
+      class="postsPage__title bold"
+    >
+      討論區足跡
+    </h5>
 
     <!-- 桌面版：表格 -->
     <div class="postsPage__desktopView">
@@ -213,7 +218,7 @@
         v-else-if="mobileView === 'posts'"
         class="mobileList"
       >
-        <h5 class="mobileList__title bold">貼文</h5>
+        <h5 class="mobileList__title bold">已發布貼文</h5>
         <div
           v-for="post in paginatedPosts"
           :key="post.post_no"
@@ -399,16 +404,15 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
   import { useRouter } from 'vue-router';
   import MemberModal from '@/components/MemberModal.vue';
   import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
 
   const router = useRouter();
 
-  // --- Tab ---
-  const desktopActiveTab = ref('posts');
   // --- 狀態管理 ---
+  const desktopActiveTab = ref('posts'); //tab
   const mobileView = ref('index'); // 'index', 'posts', 'replies'
   const showActionsModalForPost = ref(null); // 存放正在操作的 post 物件
 
@@ -555,6 +559,22 @@
   const closeActionsModal = () => {
     showActionsModalForPost.value = null;
   };
+
+  // --- JS RWD 判斷 ---
+  // 監聽視窗寬度變化，以確保 computed 屬性能夠響應
+  const screenWidth = ref(window.innerWidth);
+  const handleResize = () => {
+    screenWidth.value = window.innerWidth;
+  };
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
+  });
+
+  // 使用標準的、無歧義的斷點來定義 JS 中的「手機」
+  const isMobile = computed(() => screenWidth.value <= 768);
 </script>
 
 <style lang="scss" scoped>
