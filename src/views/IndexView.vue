@@ -3,9 +3,41 @@
   import News from '@/assets/data/News/News';
   import NewsBoard from '@/components/NewsBoard.vue';
   import Typed from 'typed.js';
-  
+  // 導入swiper
+  import { Swiper, SwiperSlide } from 'swiper/vue'
+  import { Navigation, Pagination } from 'swiper/modules'
+  import 'swiper/css'
+  import 'swiper/css/navigation'
+  import 'swiper/css/pagination'
+  // 導入活動資料
+  import EventCard from '@/components/EventCard.vue';
+  import eventsData from '@/assets/data/Events/events.json';
+  import categoriesData from '@/assets/data/Events/event_categories.json';
 
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
+  const images = import.meta.glob('/src/assets/image/events/*', {
+  eager: true,
+  import: 'default'
+})
+  const eventsForCards = computed(() =>
+  eventsData.slice(0, 6).map(ev => {
+    const key = `/src/${ev.image}`            // 絕對鍵索引 glob 結果
+    const url = images[key]                   // 最終可用的圖片 URL
+    if (!url) {
+      console.warn('[image missing]', key, '請確認檔名或 JSON 路徑是否正確')
+    }
+    const catName =
+      categoriesData.find(c => c.category_no === ev.category_no)?.category_name ?? ''
+    return { ...ev, image: url ?? ev.image, category_name: catName }
+  })
+)
+const groupedEvents = computed(() => {
+  const src = eventsForCards.value
+  const out = []
+  for (let i = 0; i < src.length; i += 2) out.push(src.slice(i, i + 2))
+  return out
+})
+
+  import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
   const typed1 = ref(null);
   const typed2 = ref(null);
 
@@ -36,6 +68,16 @@
     typedInstance1?.destroy();
     typedInstance2?.destroy();
   });
+
+
+
+
+
+onBeforeUnmount(() => {
+  typedInstance1?.destroy();
+  typedInstance2?.destroy();
+});
+
 </script>
 
 <template>
@@ -85,7 +127,51 @@
     <div class="EventsInfo">
       <h2 class="EventsInfo__title bold">活動資訊</h2>
     </div>
-    
+
+      <!-- 卡片輪播 -->
+<Swiper
+data-aos="fade-up"
+  :modules="[Navigation, Pagination]"
+  :navigation="{ prevEl: '.events-prev', nextEl: '.events-next' }"
+  slides-per-view="1"
+  centered-slides
+  :space-between="24"
+  loop
+  :pagination="{ clickable: true }"
+  class="events-swiper"
+>
+
+  <SwiperSlide
+    v-for="(pair, idx) in groupedEvents"
+    :key="idx"
+    class="event-slide"
+  >
+    <!-- 外框（同一個框框） -->
+    <div class="event-frame">
+      <div class="event-pair">
+        <EventCard
+          v-for="ev in pair"
+          :key="ev.event_no"
+          :event="ev"
+        />
+      </div>
+    </div>
+  </SwiperSlide>
+</Swiper>
+<div class="events-arrows">
+  <button class="events-prev" type="button" aria-label="上一組">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 17.7633V2.23829C16 1.81329 15.85 1.45679 15.55 1.16879C15.25 0.880787 14.9 0.737286 14.5 0.738286C14.375 0.738286 14.2435 0.756787 14.1055 0.793787C13.9675 0.830787 13.8365 0.887287 13.7125 0.963287L1.4875 8.72579C1.2625 8.87579 1.0935 9.06329 0.980499 9.28829C0.867499 9.51329 0.8115 9.75079 0.8125 10.0008C0.8135 10.2508 0.869499 10.4883 0.980499 10.7133C1.0915 10.9383 1.2605 11.1258 1.4875 11.2758L13.7125 19.0383C13.8375 19.1133 13.9685 19.1698 14.1055 19.2078C14.2425 19.2458 14.374 19.2643 14.5 19.2633C14.9 19.2633 15.25 19.1193 15.55 18.8313C15.85 18.5433 16 18.1873 16 17.7633Z" fill="white"/>
+</svg>
+
+  </button>
+  <button class="events-next" type="button" aria-label="下一組">
+    <svg width="18" height="18" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 17.7633V2.23829C0 1.81329 0.15 1.45679 0.45 1.16879C0.75 0.880787 1.1 0.737286 1.5 0.738286C1.625 0.738286 1.7565 0.756787 1.8945 0.793787C2.0325 0.830787 2.1635 0.887287 2.2875 0.963287L14.5125 8.72579C14.7375 8.87579 14.9065 9.06329 15.0195 9.28829C15.1325 9.51329 15.1885 9.75079 15.1875 10.0008C15.1865 10.2508 15.1305 10.4883 15.0195 10.7133C14.9085 10.9383 14.7395 11.1258 14.5125 11.2758L2.2875 19.0383C2.1625 19.1133 2.0315 19.1698 1.8945 19.2078C1.7575 19.2458 1.626 19.2643 1.5 19.2633C1.1 19.2633 0.75 19.1193 0.45 18.8313C0.15 18.5433 0 18.1873 0 17.7633Z" fill="white"/>
+</svg>
+
+  </button>
+</div>
   <!-- 卡片01 -->
 <div class="shortcuts"
 data-aos="fade-up">
@@ -192,6 +278,7 @@ data-aos="fade-up">
 <style lang="scss" scoped>
 @import '@/assets/scss/style.scss';
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+
 
 .banner-container {
   .banner {
@@ -336,12 +423,29 @@ data-aos="fade-up">
       url(/src/assets/image/background_image.png), url(/src/assets/image/index_bg.png);
     background-repeat: repeat, no-repeat;
     background-position: bottom;
+    overflow: hidden;
 
 .EventsInfo__title{
   text-align: center;
   padding: 4.583vh;
 }
+//活動卡片
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  justify-items: center; // 讓卡片在格子中置中
+  margin: 24px auto 48px;
+  max-width: 1280px; // 視覺更集中，可按需調整
+  padding: 0 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  
 
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
 //快速連結卡片
 .shortcuts{
   @include flex-center;
@@ -639,5 +743,65 @@ data-aos="fade-up">
   }
   
 }
+.events-swiper {
+  padding: 12px 0 28px;
+  overflow: visible; // 放大時不要被裁切
+  
+}
+/* 兩張卡片並排 */
+.event-pair {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+/* 先讓非焦點淡一點 */
+.events-swiper .swiper-slide {
+  transition: transform .25s ease, opacity .25s ease, box-shadow .25s ease;
+  opacity: .6;
+  transform: scale(.96);
+}
+
+
+/* 焦點的兩張（active 與 next）更亮、略放大 */
+.events-swiper .swiper-slide.swiper-slide-active,
+.events-swiper .swiper-slide.swiper-slide-next {
+  opacity: 1;
+  transform: scale(1.02);
+  // box-shadow: 0 8px 20px rgba(0,0,0,.12);
+  
+}
+
+.events-arrows {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+  margin-bottom: 200px;
+}
+
+/* 圓形、投影、主色 */
+.events-arrows button {
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
+  background: $highlight-c;        
+  color: #fff;
+  border: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,.15);
+  transition: transform .2s ease, opacity .2s ease, background .2s ease;
+}
+.events-arrows button:hover { transform: translateY(-1px); }
+.events-arrows button:active { transform: translateY(0); }
+
+/* Swiper 會自動幫你的自訂按鈕加上 .swiper-button-disabled */
+.events-arrows .swiper-button-disabled {
+  opacity: .35;
+  cursor: default;
+  pointer-events: none;
+}
+
 
 </style>
