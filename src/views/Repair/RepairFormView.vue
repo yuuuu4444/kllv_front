@@ -4,6 +4,10 @@
   import SubBanner from '@/components/SubBanner.vue';
   import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
+  //引入環境變數(檔案偵測是地端的env或部屬的env.prod)
+  const { VITE_API_BASE } = import.meta.env;
+  // console.log(VITE_API_BASE);
+
   const router = useRouter();
 
   const selectedCategoryNo = ref('');
@@ -29,10 +33,9 @@
   onMounted(async () => {
     loadingCats.value = true;
     try {
-      const res = await fetch(
-        'http://localhost:8888/kllv_backend_php/api/repair/categories_get.php',
-      );
+      const res = await fetch(`${VITE_API_BASE}/repair/categories_get.php`);
       const data = await res.json();
+
       // console.log(data.status);
       if (data.status === 'success') categories.value = data.data;
     } catch (e) {
