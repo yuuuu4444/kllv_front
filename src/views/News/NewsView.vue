@@ -2,12 +2,14 @@
   import { ref, computed, onMounted } from 'vue';
   import MainBanner from '@/components/MainBanner.vue';
 
+  const { VITE_API_BASE } = import.meta.env;
+
   // 分類資料
   const newsTags = ref([{ no: 0, name: '全部', type: 1 }]);
   const fetchNewsPostsCategories = async () => {
     try {
       // 模擬 API：本地 JSON 或 MAMP API
-      const res = await fetch('http://localhost:8888/kllv_backend/api/news/categories_get.php');
+      const res = await fetch(`${VITE_API_BASE}/api/news/categories_get.php`);
       const data = await res.json();
 
       // 加上 type
@@ -24,7 +26,7 @@
         }))
       ];
     } catch (error) {
-      console.error('存取失敗:', error);
+      console.error(error);
     }
   };
 
@@ -45,7 +47,7 @@
         };
       });
     } catch (error) {
-      console.error('存取失敗:', error);
+      console.error(error);
     }
   };
 
