@@ -1,19 +1,73 @@
 <script setup>
+  import { ref, computed, onMounted } from 'vue';
   import { useRoute } from 'vue-router';
   import router from '@/router';
   import SubBanner from '@/components/SubBanner.vue';
-  import News from '@/assets/data/News/News';
 
-  // 顯示內文
+  // 分類資料
+  const newsTags = ref([{ no: 0, name: '全部', type: 1 }]);
+  const fetchNewsPostsCategories = async () => {
+    try {
+      // 模擬 API：本地 JSON 或 MAMP API
+      const res = await fetch('http://localhost:8888/kllv_backend/api/news/categories_get.php');
+      const data = await res.json();
+
+      // 加上 type
+      newsTags.value = [
+        { no: 0, name: '全部', type: 1 },
+        ...data.data.map(c => ({
+          no: c.category_no,
+          name: c.category_name,
+          type: (
+            ['公告'].includes(c.category_name) ? 1 :
+            ['活動','補助'].includes(c.category_name) ? 2 :
+            ['施工','防災'].includes(c.category_name) ? 3 : 1
+          )
+        }))
+      ];
+    } catch (error) {
+      console.error('存取失敗:', error);
+    }
+  };
+  // 消息資料
+  const newsPosts = ref([]);
+  const fetchNewsPosts = async () => {
+    try {
+      // 模擬 API：本地 JSON 或 MAMP API
+      const res = await fetch('/src/assets/data/News/news.json');
+      const data = await res.json();
+
+      // 加上 type
+      newsPosts.value = data.map(n => {
+        const tag = newsTags.value.find(t => t.no === n.category_no);
+        return {
+          ...n,
+          type: tag ? tag.type : 1
+        };
+      });
+    } catch (error) {
+      console.error('存取失敗:', error);
+    }
+  };
+
+  
+  // 消息編號
   const route = useRoute();
-  const postId = Number(route.params.id);
-
-  const post = News.find((p) => p.id == postId);
-
+  const postNo = Number(route.params.news_no);
+  const post = computed(() => {
+    return newsPosts.value.find(p => p.news_no === postNo);
+  });
+  
   // 返回上頁
   const Back = () => {
     router.back();
   };
+
+  // onMounted
+  onMounted(async () => {
+    await fetchNewsPostsCategories();
+    await fetchNewsPosts();
+  });
 </script>
 
 <template>
@@ -36,11 +90,11 @@
         <div class="newspost__header">
           <div class="newspost__info">
             <div class="newspost__tag">
-              <p :class="`btn--tab${post.type}`">{{ post.tag }}</p>
+              <p :class="`btn--tab${post.type}`">{{ post.category_name }}</p>
             </div>
             <div class="newspost__date"><p class="body--b3">｜</p></div>
             <div class="newspost__date">
-              <p class="body--b3">{{ post.date }}</p>
+              <p class="body--b3">{{ post.published_at }}</p>
             </div>
           </div>
           <div class="newspost__title">

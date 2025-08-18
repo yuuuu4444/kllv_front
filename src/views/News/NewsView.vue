@@ -1,51 +1,87 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import MainBanner from '@/components/MainBanner.vue';
-  import News from '@/assets/data/News/News';
 
-  // 篩選分類
-  const newsTags = [
-    { id: 1, name: '全部', type: 1 },
-    { id: 2, name: '公告', type: 1 },
-    { id: 3, name: '活動', type: 2 },
-    { id: 4, name: '補助', type: 2 },
-    { id: 5, name: '施工', type: 3 },
-    { id: 6, name: '防災', type: 3 },
-  ];
+  // 分類資料
+  const newsTags = ref([{ no: 0, name: '全部', type: 1 }]);
+  const fetchNewsPostsCategories = async () => {
+    try {
+      // 模擬 API：本地 JSON 或 MAMP API
+      const res = await fetch('http://localhost:8888/kllv_backend/api/news/categories_get.php');
+      const data = await res.json();
 
+      // 加上 type
+      newsTags.value = [
+        { no: 0, name: '全部', type: 1 },
+        ...data.data.map(c => ({
+          no: c.category_no,
+          name: c.category_name,
+          type: (
+            ['公告'].includes(c.category_name) ? 1 :
+            ['活動','補助'].includes(c.category_name) ? 2 :
+            ['施工','防災'].includes(c.category_name) ? 3 : 1
+          )
+        }))
+      ];
+    } catch (error) {
+      console.error('存取失敗:', error);
+    }
+  };
+
+  // 消息資料
+  const newsPosts = ref([]);
+  const fetchNewsPosts = async () => {
+    try {
+      // 模擬 API：本地 JSON 或 MAMP API
+      const res = await fetch('/src/assets/data/News/news.json');
+      const data = await res.json();
+
+      // 加上 type
+      newsPosts.value = data.map(n => {
+        const tag = newsTags.value.find(t => t.no === n.category_no);
+        return {
+          ...n,
+          type: tag ? tag.type : 1
+        };
+      });
+    } catch (error) {
+      console.error('存取失敗:', error);
+    }
+  };
+
+
+  // 過濾消息
   const selectedTag = ref('全部');
   const filteredPosts = computed(() => {
-    if (selectedTag.value == '全部') {
-      return News;
-    } else {
-      return News.filter((post) => post.tag == selectedTag.value);
-    }
+    if (selectedTag.value === '全部') return newsPosts.value;
+    return newsPosts.value.filter(post => post.category_name === selectedTag.value);
   });
 
-  // 切換頁數
+  // 設定分頁
   const postsPerPage = 10;
   const currentPage = ref(1);
-  const totalPages = computed(() => {
-    return Math.ceil(filteredPosts.value.length / postsPerPage);
-  });
+  const totalPages = computed(() => Math.ceil(filteredPosts.value.length / postsPerPage));
 
   const currentPosts = computed(() => {
-    const startIndex = (currentPage.value - 1) * postsPerPage;
-    const endIndex = startIndex + postsPerPage;
-    return filteredPosts.value.slice(startIndex, endIndex);
+    const start = (currentPage.value - 1) * postsPerPage;
+    return filteredPosts.value.slice(start, start + postsPerPage);
   });
+  
+  // 控制分頁
+  const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+  const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-  function prevPage() {
-    if (currentPage.value > 1) currentPage.value--;
-  }
-  function nextPage() {
-    if (currentPage.value < totalPages.value) currentPage.value++;
-  }
-
-  function changeTag(tag) {
+  // 切換分類
+  const changeTag = (tag) => {
     selectedTag.value = tag.name;
     currentPage.value = 1;
-  }
+  };
+
+  // onMounted
+  onMounted(async () => {
+    await fetchNewsPostsCategories();
+    await fetchNewsPosts();
+  });
 </script>
 
 <template>
@@ -71,8 +107,8 @@
         >
           <button
             v-for="tag in newsTags"
-            :key="tag.id"
-            :class="`newsboard__tag btn--tab${tag.type} { active: selectedTag == tag.name }`"
+            :key="tag.no"
+            :class="`newsboard__tag btn--tab${tag.type} { active: selectedTag.value == tag.name }`"
             @click="changeTag(tag)"
           >
             {{ tag.name }}
@@ -82,7 +118,7 @@
           <select v-model="selectedTag">
             <option
               v-for="tag in newsTags"
-              :key="tag.id"
+              :key="tag.no"
               :value="tag.name"
             >
               {{ tag.name }}
@@ -95,29 +131,29 @@
         >
           <RouterLink
             v-for="post in currentPosts"
-            :key="post.id"
-            :to="`/news/${post.id}`"
+            :key="post.news_no"
+            :to="`/news/${post.news_no}`"
             class="newsboard__post"
           >
             <!-- desktop -->
             <div class="newsboard__tag--d">
-              <p :class="`btn--tab${post.type}`">{{ post.tag }}</p>
+              <p :class="`btn--tab${post.type}`">{{ post.category_name }}</p>
             </div>
             <div class="newsboard__title--d">
               <h5 class="regular">{{ post.title }}</h5>
             </div>
             <div class="newsboard__date--d">
-              <p class="body--b3">{{ post.date }}</p>
+              <p class="body--b3">{{ post.published_at }}</p>
             </div>
 
             <!-- mobile -->
             <div class="newsboard__info--m">
               <div class="newsboard__tag--m">
-                <p :class="`btn--tab${post.type}`">{{ post.tag }}</p>
+                <p :class="`btn--tab${post.type}`">{{ post.category_name }}</p>
               </div>
               <div class="newsboard__date--m"><p class="body--b3">｜</p></div>
               <div class="newsboard__date--m">
-                <p class="body--b3">{{ post.date }}</p>
+                <p class="body--b3">{{ post.published_at }}</p>
               </div>
             </div>
             <div class="newsboard__title--m">
