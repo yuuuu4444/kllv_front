@@ -2,7 +2,6 @@
   import { useRouter } from 'vue-router';
   import { ref, onMounted, computed } from 'vue';
   import SubBanner from '@/components/SubBanner.vue';
-  import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
   //引入環境變數(檔案偵測是地端的env或部屬的env.prod)
   const { VITE_API_BASE } = import.meta.env;
@@ -13,8 +12,10 @@
   const selectedCategoryNo = ref('');
   const location = ref('');
   const desc = ref('');
-  const categoryOptions = ref([]);
-  const previewImages = ref(['', '', '']);
+  const files = ref([null, null, null]);
+  const previews = ref(['', '', '']);
+  const MAX_SIZE_MB = 5;
+  const ALLOW_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
   const loadingCats = ref(false);
   const categories = ref([]);
@@ -33,7 +34,7 @@
   onMounted(async () => {
     loadingCats.value = true;
     try {
-      const res = await fetch(`${VITE_API_BASE}/repair/categories_get.php`);
+      const res = await fetch(`${VITE_API_BASE}/api/repair/categories_get.php`);
       const data = await res.json();
 
       // console.log(data.status);
@@ -45,12 +46,6 @@
     }
   });
 
-  /*
-  onMounted(() => {
-    categoryOptions.value = Categories;
-  });
-  */
-
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append('location', location.value);
@@ -59,15 +54,16 @@
     formData.append('reporter_id', reporterId.value);
     formData.append('status', '0');
 
+    files.value.forEach((f) => {
+      if (f) formData.append('images[]', f); // 後端就用 $_FILES['images']
+    });
+
     submitting.value = true;
     try {
-      const res = await fetch(
-        'http://localhost:8888/kllv_backend_php/api/repair/repair_add_post.php',
-        {
-          method: 'POST',
-          body: formData,
-        },
-      );
+      const res = await fetch(`${VITE_API_BASE}/api/repair/repair_add_post.php`, {
+        method: 'POST',
+        body: formData,
+      });
       // const data = await res.json();
 
       let data;
@@ -89,50 +85,47 @@
       // 成功
       const categoryName = categoryMap.value.get(Number(selectedCategoryNo.value)) || '';
       console.log('建立成功：', data, '分類名稱(本地映射)：', categoryName);
-      router.push('/repair/complete');
+
+      const payload = data.data;
+
+      router.push({
+        name: 'repaircomplete',
+        params: { repair_no: String(payload.repair_no) },
+        state: { record: payload },
+      });
     } catch (e) {
       console.error(e);
     } finally {
       submitting.value = false;
     }
-    /*
-    if (!selectedCategoryNo.value) return;
-
-    if (!location.value.trim()) return;
-
-    if (!desc.value.trim()) return;
-
-    const validImages = previewImages.value
-      .map((img, index) => (img ? { index: index, data: img } : null))
-      .filter((item) => item !== null);
-
-    const formData = {
-      category_no: selectedCategoryNo.value,
-      location: location.value,
-      description: desc.value,
-      image: validImages,
-    };
-
-    console.log('模擬送出的資料:', formData);
-
-    router.push('/repair/complete');
-    */
   };
 
   const handleImageUpload = (event, index) => {
     // console.log(event);
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!ALLOW_TYPES.includes(file.type)) {
+      alert('僅支援 JPG/PNG/WebP');
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      alert(`單檔大小不可超過 ${MAX_SIZE_MB}MB`);
+      return;
+    }
+
+    files.value[index] = file;
 
     const reader = new FileReader();
     reader.onload = () => {
-      previewImages.value[index] = reader.result;
+      previews.value[index] = reader.result;
     };
     reader.readAsDataURL(file);
   };
 
   const removeImage = (index) => {
-    previewImages.value[index] = '';
+    files.value[index] = null;
+    previews.value[index] = '';
   };
 </script>
 
@@ -246,7 +239,7 @@
             <div class="repair-form__upload-group">
               <div
                 class="repair-form__upload-slot"
-                v-for="(img, index) in previewImages"
+                v-for="(img, index) in previews"
                 :key="index"
               >
                 <template v-if="img">
