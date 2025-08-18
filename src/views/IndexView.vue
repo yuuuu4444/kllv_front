@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
                           : mql?.removeListener(updateIsMobile)
 })
 
-// ④ 依裝置動態分組：桌機一組2張 / 手機一組1張
+// 依裝置動態分組：桌機一組2張 / 手機一組1張
 const groupedEvents = computed(() => {
   const size = isMobile.value ? 1 : 2
   const src = eventsForCards.value
@@ -459,7 +459,7 @@ data-aos="fade-up">
     background-image:
       url(/src/assets/image/background_image.png), url(/src/assets/image/index_bg.svg);
     background-repeat: repeat, no-repeat;
-    background-position:0 8%;
+    background-position:0 0px;
     overflow: hidden;
 
 .EventsInfo__title{

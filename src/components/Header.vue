@@ -422,6 +422,56 @@
           font-weight: 500;
           letter-spacing: 0.1em;
         }
+        :nth-child(1){
+          &:hover{
+            img{
+            content: url(/src/assets/icon/news.gif);
+            width: 3.125vw;
+            height: auto;
+            margin: auto;
+            }
+          }
+        }
+        :nth-child(2){
+          &:hover{
+            img{
+            content: url(/src/assets/icon/about.gif);
+            width: 3.125vw;
+            height: auto;
+            margin: auto;
+            }
+          }
+        }
+        :nth-child(3){
+          &:hover{
+            img{
+            content: url(/src/assets/icon/service.gif);
+            width: 3.125vw;
+            height: auto;
+            margin: auto;
+            }
+          }
+        }
+        :nth-child(4){
+          &:hover{
+            img{
+            content: url(/src/assets/icon/community.gif);
+            width: 3.125vw;
+            height: auto;
+            margin: auto;
+            }
+          }
+        }
+        :nth-child(5){
+          &:hover{
+            img{
+            content: url(/src/assets/icon/login.gif);
+            width: 3.125vw;
+            height: auto;
+            margin: auto;
+            }
+          }
+        }    
       }
       &__item {
         &:hover {
