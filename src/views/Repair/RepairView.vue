@@ -2,9 +2,8 @@
   import { useRoute } from 'vue-router';
   import { ref, onMounted, computed } from 'vue';
   import MainBanner from '@/components/MainBanner.vue';
-  import Categories from '@/assets/data/Repair/repair_categories_test.json';
-  import Repair from '@/assets/data/Repair/repair_reports_test.json';
 
+  const { VITE_API_BASE } = import.meta.env;
   const filterCategory = ref('');
   const filterStatus = ref('');
   const filterReportNo = ref('');
@@ -12,30 +11,43 @@
   // table內容
   const reports = ref([]);
 
-  // 先用import方式
-  const categoryMap = new Map(Categories.map((c) => [c.category_no, c.category_name]));
-  reports.value = Repair.map((r) => ({
-    ...r,
-    category: categoryMap.get(r.category_no) || '未分類',
-    status_text: r.process_status === 2 ? '已處理' : '待處理',
-  }));
+  const loadingCats = ref(false);
+  const categories = ref([]);
 
-  /*
   onMounted(async () => {
-    const res = await fetch('/src/assets/data/Repair/repair_reports_test.json');
-    const rawData = await res.json();
+    loadingCats.value = true;
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/repair/categories_get.php`);
+      const data = await res.json();
 
-    reports.value = rawData.map((r) => {
-      const categoryItem = Categories.find((c) => c.category_no === r.category_no);
-      const statusText = r.process_status === 2 ? '已處理' : '待處理';
+      // console.log(data.status);
+      if (data.status === 'success') categories.value = data.data;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      loadingCats.value = false;
+    }
+  });
+
+  onMounted(async () => {
+    const res = await fetch(`${VITE_API_BASE}/api/repair/repair_get.php`);
+    const raw = await res.json();
+
+    const data = raw.data || [];
+
+    reports.value = data.map((r) => {
+      const statusText = r.status === 2 ? '已處理' : '待處理';
       return {
         ...r,
-        category: categoryItem ? categoryItem.category_name : '未分類',
+        ccategory_no: r.category, // 後端是 category
+        category: r.category_name, // 顯示用
+        process_status: r.status, // 後端是 status
         status_text: statusText,
+        repair_no: r.repair_no,
+        repair_code: r.repair_code,
       };
     });
   });
-  */
 
   // 篩選
   const filteredReports = computed(() => {
@@ -47,7 +59,7 @@
       // 編號篩選(忽略大小寫)
       const matchReportNo =
         !filterReportNo.value ||
-        r.report_no.toLowerCase().includes(filterReportNo.value.toLowerCase());
+        r.repair_code.toLowerCase().includes(filterReportNo.value.toLowerCase());
       return matchCategory && matchStatus && matchReportNo;
     });
   });
@@ -133,7 +145,7 @@
               請選擇
             </option>
             <option
-              v-for="item in Categories"
+              v-for="item in categories"
               :key="item.category_no"
               :value="item.category_no"
             >
@@ -211,14 +223,14 @@
               v-for="(repair, index) in pagedReports"
               :key="index"
             >
-              <td data-label="案件編號">{{ repair.report_no }}</td>
-              <td data-label="查報類別">{{ repair.category }}</td>
+              <td data-label="案件編號">{{ repair.repair_code }}</td>
+              <td data-label="查報類別">{{ repair.category_name }}</td>
               <td data-label="所在地點">{{ repair.location }}</td>
               <td data-label="狀態">{{ repair.status_text }}</td>
-              <td data-label="填表日期">{{ repair.created_at }}</td>
+              <td data-label="填表日期">{{ repair.reported_at }}</td>
               <td data-label="查閱">
                 <RouterLink
-                  :to="`/repair/${repair.report_no}`"
+                  :to="{ name: 'repairdetail', params: { repair_no: repair.repair_no } }"
                   class="report-table__link"
                 >
                   查閱
