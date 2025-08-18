@@ -1,17 +1,61 @@
 <script setup>
   import { useRouter } from 'vue-router';
+  import { onMounted, ref, computed } from 'vue';
   import SubBanner from '@/components/SubBanner.vue';
-  import RepairData from '@/assets/data/Repair/repair_reports_test.json';
-  import Categories from '@/assets/data/Repair/repair_categories_test.json';
 
-  const props = defineProps(['report_no']);
+  const { VITE_API_BASE } = import.meta.env;
+  const props = defineProps({ repair_no: { type: [String, Number], required: true } });
   const router = useRouter();
-  const reportNo = props.report_no;
+  const reportItem = ref(null);
+  const loading = ref(true);
+  const error = ref('');
 
-  const reportItem = RepairData.find((item) => item.report_no === reportNo);
-  const categoryItem = Categories.find((item) => item.category_no === reportItem?.category_no);
-  const categoryName = categoryItem ? categoryItem.category_name : '未分類';
-  const statusText = reportItem.process_status === 2 ? '已處理' : '待處理';
+  async function fetchDetail(no) {
+    // console.log('route param repair_no =', props.repair_no);
+    loading.value = true;
+    error.value = '';
+    reportItem.value = null;
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/repair/repair_detail_get.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repair_no: Number(props.repair_no) }),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status} - ${txt}`);
+      }
+
+      const data = await res.json();
+      if (data.status !== 'success' || !data.data) {
+        throw new Error(data.message || '載入失敗');
+      }
+      reportItem.value = data.data;
+    } catch (e) {
+      error.value = e.message || '未知錯誤';
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    fetchDetail(props.repair_no);
+  });
+
+  const statusText = computed(() => {
+    return reportItem.status === 2 ? '已處理' : '待處理';
+  });
+
+  const photoList = computed(() => {
+    const imgs = reportItem.value?.images || [];
+    return imgs
+      .map((it) => (typeof it === 'string' ? it : it.image_path))
+      .filter(Boolean)
+      .map((p) => {
+        if (p.startsWith('http')) return p; // 完整 URL
+        return `${VITE_API_BASE}${p}`;
+      });
+  });
 
   // 回到上一頁
   const Back = () => {
@@ -36,26 +80,31 @@
         <p class="body--b2">&#47;維修通報查閱</p>
       </nav>
 
-      <section class="detail-table">
+      <section v-if="loading">載入中…</section>
+
+      <section v-else-if="error">載入失敗：{{ error }}</section>
+
+      <section
+        class="detail-table"
+        v-else
+        v-if="reportItem"
+      >
         <table class="detail-table__table">
           <tbody class="detail-table__body">
-            <tr
-              class="detail-table__row"
-              v-if="reportItem"
-            >
+            <tr class="detail-table__row">
               <th>狀態</th>
               <td>{{ statusText }}</td>
               <th>填表日期</th>
-              <td>{{ reportItem.created_at }}</td>
+              <td>{{ reportItem.reported_at }}</td>
             </tr>
             <tr
               class="detail-table__row"
               v-if="reportItem"
             >
               <th>案件編號</th>
-              <td class="detail-table__value">{{ reportNo }}</td>
+              <td class="detail-table__value">{{ reportItem.repair_code }}</td>
               <th>查報類別</th>
-              <td class="detail-table__value">{{ categoryName }}</td>
+              <td class="detail-table__value">{{ reportItem.category_name }}</td>
             </tr>
             <tr class="detail-table__row">
               <th>所在地點</th>
@@ -73,20 +122,24 @@
             <tr class="detail-table__row">
               <th>照片</th>
               <td colspan="3">
-                <div class="detail-table__photos">
+                <div
+                  class="detail-table__photos"
+                  v-if="photoList.length"
+                >
                   <img
-                    src="https://picsum.photos/300/500"
                     class="detail-table__photo"
-                  />
-                  <img
-                    src="https://picsum.photos/500/300"
-                    class="detail-table__photo"
-                  />
-                  <img
-                    src="https://picsum.photos/500/300"
-                    class="detail-table__photo"
+                    v-for="(src, i) in photoList"
+                    :key="src + i"
+                    :src="src"
+                    alt="維修通報照片"
                   />
                 </div>
+                <p
+                  v-else
+                  class="body--b3"
+                >
+                  無上傳照片
+                </p>
               </td>
             </tr>
             <tr
