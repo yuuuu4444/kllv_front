@@ -10,7 +10,7 @@ export default [
     component: RepairView,
   },
   {
-    path: '/repair/:report_no',
+    path: '/repair/:repair_no(\\d+)',
     name: 'repairdetail',
     component: RepairDetailView,
     props: true,
@@ -21,8 +21,9 @@ export default [
     component: RepairFormView,
   },
   {
-    path: '/repair/complete',
+    path: '/repair/complete/:repair_no(\\d+)?',
     name: 'repaircomplete',
     component: RepairCompleteView,
+    props: true,
   },
 ];
