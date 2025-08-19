@@ -475,16 +475,15 @@
       }
       &__item {
         &:hover {
-<<<<<<< HEAD
+
           h5 {
             color: $primary-c500;
           }
 
-=======
           h5{
             color: $primary-c500;
           }
->>>>>>> htD
+
           // border-radius: 50%;
           // background-color: $primary-c000;
           // box-shadow: 0 0 16px $primary-c500;
@@ -493,7 +492,7 @@
       .dropdown {
         position: relative;
         cursor: pointer;
-<<<<<<< HEAD
+
 
         &:hover {
           h5 {
@@ -501,13 +500,13 @@
           }
         }
 
-=======
+
         &:hover{
           h5{
             color: $black;
           }
         }
->>>>>>> htD
+
         &__list {
           display: none;
           flex-direction: column;
@@ -521,15 +520,9 @@
           border-radius: 0 0 15px 15px;
           background-color: $white;
         }
-<<<<<<< HEAD
         &__item {
           &:hover {
             h5 {
-=======
-        &__item{
-          &:hover{
-            h5{
->>>>>>> htD
               color: $primary-c500;
             }
           }
