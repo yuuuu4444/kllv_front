@@ -2,38 +2,90 @@
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, onMounted, computed } from 'vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
-  import Posts from '@/assets/data/Community/posts_test.json';
-  import Categories from '@/assets/data/Community/posts_categories_test.json';
 
+  const { VITE_API_BASE } = import.meta.env;
+  const TEMP_USER_ID = 'user_account_001';
+  const TEMP_USER_NAME = 'Komod·Mayaw';
+  const creating = ref(false);
+  const loading = ref(true);
+  const error = ref('');
   const posts = ref([]);
   const selectedCategory = ref('所有主題');
-  const baseURL = import.meta.env.BASE_URL;
 
-  const categoryMap = new Map(Categories.map((c) => [c.category_no, c.category_name]));
-  posts.value = Posts.filter((p) => !p.is_deleted).map((p) => ({
-    ...p,
-    category: categoryMap.get(p.category_no) || '未分類',
-  }));
+  const coverUrl = (src) => {
+    if (!src) return ''; // 後端已給預設圖，理論上不會進來
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('/')) return `${VITE_API_BASE}${src}`;
+    return src;
+  };
 
-  /*
-  onMounted(async () => {
-    const postRes = await fetch('/src/assets/data/Community/posts_test.json');
-    const categoryRes = await fetch('/src/assets/data/Community/posts_categories_test.json');
+  const onCreatePost = async (payload) => {
+    if (creating.value) return;
+    creating.value = true;
 
-    const postData = await postRes.json();
-    const categoryData = await categoryRes.json();
+    try {
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('category_no', String(payload.category_no));
+      formData.append('content', payload.content);
+      formData.append('author_id', TEMP_USER_ID);
+      for (const f of payload.files ?? []) {
+        formData.append('images[]', f);
+      }
 
-    posts.value = postData
-      .filter((p) => !p.is_deleted)
-      .map((p) => {
-        const categoryItem = categoryData.find((c) => c.category_no == p.category_no);
-        return {
-          ...p,
-          category: categoryItem ? categoryItem.category_name : '未分類',
-        };
+      const res = await fetch(`${VITE_API_BASE}/api/community/post_create_post.php`, {
+        method: 'POST',
+        body: formData,
       });
+
+      const data = await res.json();
+      if (data.status !== 'success') throw new Error(data.message || '建立失敗');
+
+      const d = data.data;
+
+      posts.value.unshift({
+        ...d,
+        category: d.category_name || '未分類',
+        created_at: d.posted_at,
+      });
+    } catch (error) {
+      alert(err.message);
+    } finally {
+      creating.value = false;
+    }
+  };
+
+  onMounted(async () => {
+    loading.value = true;
+    error.value = '';
+
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/posts_get.php`);
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status} - ${txt}`);
+      }
+
+      const data = await res.json();
+      if (data.status !== 'success') {
+        throw new Error(data.message || '載入貼文失敗');
+      }
+
+      posts.value = (data.data || [])
+        .filter((p) => String(p.is_deleted) !== '1')
+        .map((p) => ({
+          ...p,
+          category: p.category_name || '未分類',
+          created_at: p.posted_at,
+          // _cover: p.image,
+        }));
+    } catch (e) {
+      console.error(e);
+      error.value = e.message || '讀取失敗';
+    } finally {
+      loading.value = false;
+    }
   });
-  */
 
   // 篩選
   const filteredPosts = computed(() => {
@@ -162,7 +214,24 @@
         </button>
       </div>
 
-      <CreatePostModal v-model:visible="showModal" />
+      <CreatePostModal
+        v-model:visible="showModal"
+        @create="onCreatePost"
+      />
+
+      <!-- 載入 / 錯誤狀態 -->
+      <div
+        v-if="loading"
+        class="py-6"
+      >
+        資料載入中...
+      </div>
+      <div
+        v-else-if="error"
+        class="py-6 text-red-600"
+      >
+        {{ error }}
+      </div>
 
       <div
         class="community-wrapper"
@@ -180,7 +249,7 @@
             >
               <div class="community-wrapper__image">
                 <img
-                  :src="`${baseURL}${post.banner_image}`"
+                  :src="coverUrl(post.image)"
                   alt=""
                 />
               </div>
@@ -195,7 +264,7 @@
                       alt=""
                     />
                   </div>
-                  <p class="community-wrapper__author body--b3">里民</p>
+                  <p class="community-wrapper__author body--b3">{{ TEMP_USER_NAME }}</p>
                   <p class="community-wrapper__time body--b3">
                     &bull;{{ passTime(post.created_at) }}
                   </p>
