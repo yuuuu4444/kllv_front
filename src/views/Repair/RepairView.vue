@@ -39,7 +39,7 @@
       const statusText = r.status === 2 ? '已處理' : '待處理';
       return {
         ...r,
-        ccategory_no: r.category, // 後端是 category
+        category_no: r.category_no,
         category: r.category_name, // 顯示用
         process_status: r.status, // 後端是 status
         status_text: statusText,
@@ -47,6 +47,7 @@
         repair_code: r.repair_code,
       };
     });
+    console.log(reports.value);
   });
 
   // 篩選

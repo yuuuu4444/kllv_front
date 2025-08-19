@@ -43,7 +43,7 @@
   });
 
   const statusText = computed(() => {
-    return reportItem.status === 2 ? '已處理' : '待處理';
+    return Number(reportItem.value?.status) === 2 ? '已處理' : '待處理';
   });
 
   const photoList = computed(() => {
@@ -151,7 +151,7 @@
                 class="detail-table__desc"
                 colspan="3"
               >
-                {{ reportItem.repair_content }}
+                {{ reportItem.reply_content }}
               </td>
             </tr>
           </tbody>

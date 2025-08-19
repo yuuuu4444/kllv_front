@@ -31,6 +31,7 @@
       console.error(error);
     }
   };
+
   // 消息資料
   const newsPosts = ref([]);
   const fetchNewsPosts = async () => {
@@ -51,7 +52,6 @@
       console.error(error);
     }
   };
-
   
   // 消息編號
   const route = useRoute();
@@ -104,14 +104,7 @@
           </div>
         </div>
         <div class="newspost__body">
-          <div class="newspost__content">
-            <p
-              class="body--b1"
-              style="white-space: pre-line"
-            >
-              {{ post.content }}
-            </p>
-          </div>
+          <div class="newspost__content" v-html="post.content"></div>
         </div>
       </div>
       <div v-else>
@@ -240,9 +233,12 @@
       }
 
       &__content {
-        p {
           font-size: clamp(16px, 1.25vw, 24px);
-        }
+          line-height: 150%;
+          letter-spacing: 0.2em;
+          @include mobile {
+            letter-spacing: 0.1em
+          }
       }
     }
 
