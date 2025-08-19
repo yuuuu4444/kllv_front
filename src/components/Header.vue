@@ -475,6 +475,9 @@
       }
       &__item {
         &:hover {
+          h5{
+            color: $primary-c500;
+          }
           // border-radius: 50%;
           // background-color: $primary-c000;
           // box-shadow: 0 0 16px $primary-c500;
@@ -483,7 +486,11 @@
       .dropdown {
         position: relative;
         cursor: pointer;
-
+        &:hover{
+          h5{
+            color: $black;
+          }
+        }
         &__list {
           display: none;
           flex-direction: column;
@@ -496,6 +503,13 @@
           gap: 1.042vw;
           border-radius: 0 0 15px 15px;
           background-color: $white;
+        }
+        &__item{
+          &:hover{
+            h5{
+              color: $primary-c500;
+            }
+          }
         }
       }
     }
