@@ -26,20 +26,20 @@ import { defineProps } from 'vue';
     <div class="newsboard__posts">
       <RouterLink
         v-for="post in limitedPosts"
-        :key="post.id"
-        :to="`/news/${post.id}`"
+        :key="post.no"
+        :to="`/news/${post.no}`"
         class="newsboard__post"
       >
         <!-- desktop -->
-        <div class="newsboard__tag--d"><p :class="`btn--tab${post.type}`">{{ post.tag }}</p></div>
+        <div class="newsboard__tag--d"><p :class="`btn--tab${post.type}`">{{ post.category_name }}</p></div>
         <div class="newsboard__title--d"><h5 class="regular">{{ post.title }}</h5></div>
-        <div class="newsboard__date--d"><p class="body--b3">{{ post.date }}</p></div>
+        <div class="newsboard__date--d"><p class="body--b3">{{ post.published_at }}</p></div>
   
         <!-- mobile -->
         <div class="newsboard__info--m">
-          <div class="newsboard__tag--m"><p :class="`btn--tab${post.type}`">{{ post.tag }}</p></div>
+          <div class="newsboard__tag--m"><p :class="`btn--tab${post.type}`">{{ post.category_name }}</p></div>
           <div class="newsboard__date--m"><p class="body--b3">｜</p></div>
-          <div class="newsboard__date--m"><p class="body--b3">{{ post.date }}</p></div>
+          <div class="newsboard__date--m"><p class="body--b3">{{ post.published_at }}</p></div>
         </div>
         <div class="newsboard__title--m"><h2 class="regular">{{ post.title }}</h2></div>
       </RouterLink>
