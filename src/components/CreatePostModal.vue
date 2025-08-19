@@ -8,67 +8,115 @@
       default: null,
     },
   });
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'create', 'edit']);
   const isEdit = computed(() => !!props.post);
 
   const title = ref(props.post?.title ?? '');
-  const category = ref(String(props.post?.category_no ?? ''));
-  const desc = ref(props.post?.desc ?? '');
-  const previewImages = ref([...(props.post?.image ?? [])]);
+  const category = ref(props.post?.category_no ? String(props.post.category_no) : '');
+
+  // 兼容舊資料 desc；後端用 content
+  const content = ref(props.post?.content ?? props.post?.desc ?? '');
+  const files = ref([]);
+  const toStrArr = (v) => (Array.isArray(v) ? v : typeof v === 'string' && v ? [v] : []);
+  const previews = ref([...toStrArr(props.post?.images), ...toStrArr(props.post?.image)]);
+
+  const MAX_FILES = 10;
+  const MAX_SIZE_MB = 8;
+  const MAX_SIZE = MAX_SIZE_MB * 1024 * 1024;
+  const ALLOW_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  const ALLOW_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+
+  function isAllowedType(file) {
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    return (file.type && ALLOW_TYPES.has(file.type)) || ALLOW_EXTS.has(ext);
+  }
 
   const handleSubmit = () => {
     if (!title.value.trim()) return;
     if (!category.value) return;
-    if (!desc.value.trim()) return;
+    if (!content.value.trim()) return;
 
     console.log('送出的資料：', {
       title: title.value.trim(),
       category: String(category.value),
-      desc: desc.value.trim(),
-      image: previewImages.value,
+      content: content.value.trim(),
+      image: previews.value,
     });
 
-    const data = {
+    const uploadFiles = files.value.filter((f) => f instanceof File).slice(0, MAX_FILES);
+
+    const payload = {
       title: title.value.trim(),
-      category: String(category.value),
-      desc: desc.value.trim(),
-      image: previewImages.value,
+      category_no: Number(category.value),
+      content: content.value.trim(),
+      files: uploadFiles,
     };
 
-    console.log(isEdit.value ? '編輯文章資料：' : '送出的資料：', data);
-    emit('update:visible', false);
+    console.log(isEdit.value ? '編輯文章資料：' : '送出的資料：', payload);
+    // emit('update:visible', false);
 
     if (isEdit.value) {
-      emit('edit', { ...data, post_no: props.post?.post_no });
+      emit('edit', { ...payload, post_no: props.post?.post_no });
     } else {
-      emit('create', data);
+      emit('create', payload);
 
       // 成功後清空欄位
       title.value = '';
       category.value = '';
-      desc.value = '';
-      previewImages.value = '';
+      content.value = '';
+      previews.value = [];
+      files.value = [];
     }
 
     emit('update:visible', false);
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files || []);
-    for (const file of files) {
-      if (previewImages.value.length >= 10) break;
+  const handleImageUpload = (event, index) => {
+    const input = event.target;
+    const picked = Array.from(input.files || []);
+    if (!picked.length) return;
+
+    let insertAt = Math.min(index, previews.value.length);
+    for (const file of picked) {
+      const isAppend = insertAt >= previews.value.length;
+      if (isAppend && previews.value.length >= MAX_FILES) {
+        alert(`最多上傳 ${MAX_FILES} 張圖片`);
+        continue;
+      }
+      if (!isAllowedType(file)) {
+        alert('僅支援 JPG/PNG/WebP');
+        continue;
+      }
+      if (!(file.size > 0 && file.size <= MAX_SIZE)) {
+        alert(`單檔大小不可超過 ${MAX_SIZE_MB}MB`);
+        continue;
+      }
+
+      if (isAppend) {
+        files.value.push(file);
+      } else {
+        files.value[insertAt] = file; // 覆蓋
+      }
+
+      const targetIndex = insertAt;
 
       const reader = new FileReader();
       reader.onload = () => {
-        previewImages.value.push(String(reader.result));
-        reader.readAsDataURL(file);
+        if (isAppend) {
+          previews.value.push(String(reader.result));
+        } else {
+          previews.value[targetIndex] = String(reader.result);
+        }
       };
+      reader.readAsDataURL(file);
+      insertAt++;
     }
-    e.target.value = '';
+    input.value = '';
   };
 
   const removeImage = (index) => {
-    previewImages.value.splice(index, 1);
+    previews.value.splice(index, 1);
+    files.value.splice(index, 1);
   };
 </script>
 
@@ -135,7 +183,7 @@
             class="post-modal__textarea"
             placeholder="在此輸入文章內容..."
             id="desc"
-            v-model="desc"
+            v-model="content"
             required
           ></textarea>
         </div>
@@ -144,16 +192,25 @@
           <div class="post-modal__image-group">
             <div
               class="post-modal__upload-slot"
-              v-for="(img, index) in previewImages"
+              v-for="(img, index) in previews"
               :key="index"
             >
               <div class="post-modal__image-wrapper">
-                <div class="post-modal__image-preview">
+                <label
+                  class="post-modal__image-preview"
+                  style="cursor: pointer"
+                >
                   <img
                     :src="img"
                     alt="預覽圖"
                   />
-                </div>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/jpeg,image/png,image/webp"
+                    @change="handleImageUpload($event, index)"
+                  />
+                </label>
                 <button
                   type="button"
                   class="post-modal__image-delete"
@@ -177,16 +234,16 @@
 
             <label
               class="post-modal__upload-slot"
-              v-if="previewImages.length < 10"
+              v-if="previews.length < MAX_FILES"
             >
               點此插入圖片
               <input
                 type="file"
                 class="post-modal__file-input"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 hidden
                 multiple
-                @change="handleImageUpload"
+                @change="handleImageUpload($event, previews.length)"
               />
             </label>
           </div>
