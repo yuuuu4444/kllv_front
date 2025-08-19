@@ -1,21 +1,65 @@
 <script setup>
-import { defineProps } from 'vue';
-  import { computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
+  import { RouterLink } from 'vue-router';
+
+  const { VITE_API_BASE } = import.meta.env;
 
   const props = defineProps({
-    posts: {
-      type: Array,
-      required: true
-    },
     limit: {
       type: Number,
-      default: 10
+      default: 3
     },
     showHeader: Boolean,
-    showFooter: Boolean,
+    showFooter: Boolean
   });
 
-  const limitedPosts = computed(() => props.posts.slice(0, props.limit));
+
+  const newsTags = ref([]);
+  const fetchNewsCategories = async () => {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/news/categories_get.php`);
+      const data = await res.json();
+
+      // 加上 type
+      newsTags.value = data.data.map(c => ({
+        no: c.category_no,
+        name: c.category_name,
+        type: (
+          ['公告'].includes(c.category_name) ? 1 :
+          ['活動','補助'].includes(c.category_name) ? 2 :
+          ['施工','防災'].includes(c.category_name) ? 3 : 1
+        )
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const newsPosts = ref([]);
+  const fetchNewsPosts = async () => {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/news/news_get.php`);
+      const data = await res.json();
+
+      // 加上 type
+      newsPosts.value = data.data.map(n => {
+        const tag = newsTags.value.find(t => t.no === n.category_no);
+        return {
+          ...n,
+          type: tag ? tag.type : 1
+        };
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const limitedPosts = computed(() => newsPosts.value.slice(0, props.limit));
+
+  onMounted(async () => {
+    await fetchNewsCategories();
+    await fetchNewsPosts();
+  });
 </script>
 
 <template>
@@ -23,27 +67,41 @@ import { defineProps } from 'vue';
     <div class="newsboard__header" v-if="showHeader">
       <h5 class="bold">最新消息</h5>
     </div>
+
     <div class="newsboard__posts">
       <RouterLink
         v-for="post in limitedPosts"
-        :key="post.no"
-        :to="`/news/${post.no}`"
+        :key="post.news_no"
+        :to="`/news/${post.news_no}`"
         class="newsboard__post"
       >
         <!-- desktop -->
-        <div class="newsboard__tag--d"><p :class="`btn--tab${post.type}`">{{ post.category_name }}</p></div>
-        <div class="newsboard__title--d"><h5 class="regular">{{ post.title }}</h5></div>
-        <div class="newsboard__date--d"><p class="body--b3">{{ post.published_at }}</p></div>
-  
+        <div class="newsboard__tag--d">
+          <p :class="`btn--tab${post.type}`">{{ post.category_name }}</p>
+        </div>
+        <div class="newsboard__title--d">
+          <h5 class="regular">{{ post.title }}</h5>
+        </div>
+        <div class="newsboard__date--d">
+          <p class="body--b3">{{ post.published_at }}</p>
+        </div>
+
         <!-- mobile -->
         <div class="newsboard__info--m">
-          <div class="newsboard__tag--m"><p :class="`btn--tab${post.type}`">{{ post.category_name }}</p></div>
+          <div class="newsboard__tag--m">
+            <p :class="`btn--tab${post.type}`">{{ post.category_name }}</p>
+          </div>
           <div class="newsboard__date--m"><p class="body--b3">｜</p></div>
-          <div class="newsboard__date--m"><p class="body--b3">{{ post.published_at }}</p></div>
+          <div class="newsboard__date--m">
+            <p class="body--b3">{{ post.published_at }}</p>
+          </div>
         </div>
-        <div class="newsboard__title--m"><h2 class="regular">{{ post.title }}</h2></div>
+        <div class="newsboard__title--m">
+          <h2 class="regular">{{ post.title }}</h2>
+        </div>
       </RouterLink>
     </div>
+
     <div class="newsboard__footer" v-if="showFooter">
       <RouterLink to="/news">
         <p class="body--b4">查看更多最新消息</p>
