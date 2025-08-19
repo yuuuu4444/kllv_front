@@ -37,11 +37,11 @@
   const fetchNewsPosts = async () => {
     try {
       // 模擬 API：本地 JSON 或 MAMP API
-      const res = await fetch('/src/assets/data/News/news.json');
+      const res = await fetch(`${VITE_API_BASE}/api/news/news_get.php`);
       const data = await res.json();
 
       // 加上 type
-      newsPosts.value = data.map(n => {
+      newsPosts.value = data.data.map(n => {
         const tag = newsTags.value.find(t => t.no === n.category_no);
         return {
           ...n,
