@@ -27,9 +27,9 @@
   const today = new Date().toISOString().slice(0, 10);
 
   // 假資料：王小明
-  const reporterId = ref('user001'); // 對應 user_id
-  const reporterName = ref('王小明'); // fullname
-  const reporterPhone = ref('0987878787'); // phone_number
+  const reporterId = ref('user_account_001'); // 對應 user_id
+  const reporterName = ref('Komod·Mayaw'); // fullname
+  const reporterPhone = ref('0987654321'); // phone_number
 
   onMounted(async () => {
     loadingCats.value = true;
