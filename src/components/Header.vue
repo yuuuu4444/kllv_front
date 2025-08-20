@@ -50,19 +50,33 @@
       >
         <li class="mainbar__item">
           <RouterLink to="/news">
+            <div class="icon__wrap">
             <img
+              class="icon icon_png"
               src="/src/assets/icon/icon_news.png"
               alt="news-icon"
             />
+            <img
+              class="icon icon_gif"
+              src="/src/assets/icon/news.gif"
+            />
+            </div>
             <h5 class="medium">最新消息</h5>
           </RouterLink>
         </li>
         <li class="mainbar__item">
           <RouterLink to="/about">
+            <div class="icon__wrap">
             <img
+              class="icon icon_png"
               src="/src/assets/icon/icon_about.png"
               alt="about-icon"
             />
+            <img
+              class="icon icon_gif"
+              src="/src/assets/icon/about.gif"
+            />
+            </div>
             <h5 class="medium">關於社區</h5>
           </RouterLink>
         </li>
@@ -71,10 +85,17 @@
           @click="openDropdown"
         >
           <a>
+            <div class="icon__wrap">
             <img
+              class="icon icon_png"
               src="/src/assets/icon/icon_service.png"
               alt="service-icon"
             />
+            <img
+              class="icon icon_gif"
+              src="/src/assets/icon/service.gif"
+            />
+            </div>
             <h5 class="medium">里民服務</h5>
           </a>
           <ul
@@ -95,10 +116,17 @@
         </li>
         <li class="mainbar__item">
           <RouterLink to="/community">
+            <div class="icon__wrap">
             <img
+              class="icon icon_png"
               src="/src/assets/icon/icon_community.png"
               alt="community-icon"
             />
+            <img
+              class="icon icon_gif"
+              src="/src/assets/icon/community.gif"
+            />
+            </div>
             <h5 class="medium">里民開講</h5>
           </RouterLink>
         </li>
@@ -112,11 +140,19 @@
           </RouterLink>
         </li> -->
         <li class="mainbar__item">
+          
           <RouterLink to="/login">
+            <div class="icon__wrap">
             <img
+              class="icon icon_png"
               src="/src/assets/icon/icon_member.png"
               alt="members-icon"
             />
+            <img
+              class="icon icon_gif"
+              src="/src/assets/icon/login.gif"
+            />
+            </div>
             <h5 class="medium">里民登入</h5>
           </RouterLink>
         </li>
@@ -397,7 +433,6 @@
     .mainbar {
       @include flex-space-between;
       padding: 0.4168vw 2.084vw;
-
       border-radius: $border-r-md;
       border-bottom-left-radius: 0;
       background-color: $white;
@@ -411,6 +446,7 @@
       &__list {
         display: flex;
         gap: 4.168vw;
+        align-items: center;
         img {
           width: 3.125vw;
           height: auto;
@@ -422,60 +458,90 @@
           font-weight: 500;
           letter-spacing: 0.1em;
         }
-        :nth-child(1){
-          &:hover{
-            img{
-            content: url(/src/assets/icon/news.gif);
-            width: 3.125vw;
-            height: auto;
-            margin: auto;
-            }
-          }
+        .icon__wrap {
+        position: relative;
+        width: 3.125vw;
+        height: 3.125vw;
+        margin: auto;
         }
-        :nth-child(2){
-          &:hover{
-            img{
-            content: url(/src/assets/icon/about.gif);
-            width: 3.125vw;
-            height: auto;
-            margin: auto;
-            }
-          }
+
+        .icon {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          position: absolute;
+          top: 0;
+          left: 0;
         }
-        :nth-child(3){
-          &:hover{
-            img{
-            content: url(/src/assets/icon/service.gif);
-            width: 3.125vw;
-            height: auto;
-            margin: auto;
-            }
-          }
+        .icon_gif{
+          opacity: 0;
+          z-index: 1;
         }
-        :nth-child(4){
-          &:hover{
-            img{
-            content: url(/src/assets/icon/community.gif);
-            width: 3.125vw;
-            height: auto;
-            margin: auto;
-            }
-          }
+        .icon_png{
+          opacity: 1;
+          z-index: 2;
         }
-        :nth-child(5){
-          &:hover{
-            img{
-            content: url(/src/assets/icon/login.gif);
-            width: 3.125vw;
-            height: auto;
-            margin: auto;
-            }
-          }
-        }    
+
+        // :nth-child(1){
+        //   &:hover{
+        //     img{
+        //     content: url(/src/assets/icon/news.gif);
+        //     width: 3.125vw;
+        //     height: auto;
+        //     margin: auto;
+        //     }
+        //   }
+        // }
+        // :nth-child(2){
+        //   &:hover{
+        //     img{
+        //     content: url(/src/assets/icon/about.gif);
+        //     width: 3.125vw;
+        //     height: auto;
+        //     margin: auto;
+        //     }
+        //   }
+        // }
+        // :nth-child(3){
+        //   &:hover{
+        //     img{
+        //     content: url(/src/assets/icon/service.gif);
+        //     width: 3.125vw;
+        //     height: auto;
+        //     margin: auto;
+        //     }
+        //   }
+        // }
+        // :nth-child(4){
+        //   &:hover{
+        //     img{
+        //     content: url(/src/assets/icon/community.gif);
+        //     width: 3.125vw;
+        //     height: auto;
+        //     margin: auto;
+        //     }
+        //   }
+        // }
+        // :nth-child(5){
+        //   &:hover{
+        //     img{
+        //     content: url(/src/assets/icon/login.gif);
+        //     width: 3.125vw;
+        //     height: auto;
+        //     margin: auto;
+        //     }
+        //   }
+        // }    
       }
+
       &__item {
         &:hover {
-
+              .icon_png {
+                opacity: 0;
+    }
+              .icon_gif {
+                opacity: 1;
+    }
           h5 {
             color: $primary-c500;
           }
