@@ -8,7 +8,7 @@ export default [
     component: CommunityView,
   },
   {
-    path: '/community/:post_no',
+    path: '/community/:post_no(\\d+)',
     name: 'communitypostdetail',
     component: CommunityPostDetailView,
     props: true,
