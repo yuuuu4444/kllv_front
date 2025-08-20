@@ -1,6 +1,8 @@
 <script setup>
   import { defineProps, defineEmits, ref, computed } from 'vue';
 
+  const { VITE_API_BASE } = import.meta.env;
+
   const props = defineProps({
     visible: Boolean,
     post: {
@@ -16,9 +18,55 @@
 
   // 兼容舊資料 desc；後端用 content
   const content = ref(props.post?.content ?? props.post?.desc ?? '');
-  const files = ref([]);
   const toStrArr = (v) => (Array.isArray(v) ? v : typeof v === 'string' && v ? [v] : []);
-  const previews = ref([...toStrArr(props.post?.images), ...toStrArr(props.post?.image)]);
+
+  // 把各種可能的圖片格式，統一取出「路徑字串」
+  const pickPath = (it) => {
+    if (!it) return '';
+    if (typeof it === 'string') return it; // '/uploads/a.jpg' 或 'https://...'
+    if (typeof it === 'object') {
+      // 常見欄位名都試一次
+      return it.image_path || it.path || it.url || it.src || '';
+    }
+    return '';
+  };
+
+  // 組成完整網址（支援 http/https、data:）
+  const toAbs = (p) => {
+    const s = String(p || '');
+    if (!s) return '';
+    if (s.startsWith('http') || s.startsWith('data:')) return s;
+    const base = String(VITE_API_BASE || '').replace(/\/+$/, '');
+    const rel = s.replace(/^\/+/, '');
+    return `${base}/${rel}`;
+  };
+
+  // 取相對路徑
+  const toRel = (u) => {
+    const s = String(u || '');
+    if (!s || s.startsWith('data:')) return '';
+    try {
+      const p = new URL(s, VITE_API_BASE).pathname; // 可能是 /kliv_backend_php/uploads/...
+      const i = p.indexOf('/uploads/'); // 錨點
+      return i >= 0 ? p.slice(i) : ''; // 只保留 /uploads/...
+    } catch {
+      const i = s.indexOf('/uploads/');
+      return i >= 0 ? s.slice(i) : '';
+    }
+  };
+
+  // 這篇文章「原本就有」的圖片相對路徑（用來做差集合）
+  const originalRel = ref(
+    [...toStrArr(props.post?.images), ...toStrArr(props.post?.image)]
+      .map(pickPath)
+      .map(toRel)
+      .filter(Boolean),
+  );
+
+  const previews = ref(originalRel.value.map(toAbs));
+
+  const files = ref([]); // 新上傳的 File
+  const removedOlds = ref([]); // 被刪/被覆蓋的「舊圖相對路徑」
 
   const MAX_FILES = 10;
   const MAX_SIZE_MB = 8;
@@ -43,6 +91,9 @@
       image: previews.value,
     });
 
+    const currentRel = previews.value.map(toRel);
+    const kept = new Set(currentRel);
+    const diffRemoved = originalRel.value.filter((p) => !kept.has(p));
     const uploadFiles = files.value.filter((f) => f instanceof File).slice(0, MAX_FILES);
 
     const payload = {
@@ -50,22 +101,23 @@
       category_no: Number(category.value),
       content: content.value.trim(),
       files: uploadFiles,
+      remove_image_paths: Array.from(new Set([...removedOlds.value, ...diffRemoved])),
+      post_no: props.post?.post_no,
     };
 
+    emit(isEdit.value ? 'edit' : 'create', payload);
     console.log(isEdit.value ? '編輯文章資料：' : '送出的資料：', payload);
     // emit('update:visible', false);
 
-    if (isEdit.value) {
-      emit('edit', { ...payload, post_no: props.post?.post_no });
-    } else {
-      emit('create', payload);
-
-      // 成功後清空欄位
+    if (!isEdit.value) {
+      // 新增成功後清空
       title.value = '';
       category.value = '';
       content.value = '';
       previews.value = [];
       files.value = [];
+      originalRel.value = [];
+      removedOlds.value = [];
     }
 
     emit('update:visible', false);
@@ -92,21 +144,25 @@
         continue;
       }
 
+      const target = insertAt;
+
       if (isAppend) {
         files.value.push(file);
+        previews.value.push(''); // 先佔位，等 reader onload 再塞 dataURL
+        originalRel.value.push(''); // 新增的槽，本來沒有舊圖
       } else {
-        files.value[insertAt] = file; // 覆蓋
+        // 覆蓋：如果這格原本有舊圖，把舊圖放進要刪
+        const oldRel = originalRel.value[target];
+        if (oldRel) {
+          removedOlds.value.push(oldRel);
+          originalRel.value[target] = ''; // 這格已經不是舊圖了
+        }
+        files.value[target] = file; // 用新檔覆蓋
       }
-
-      const targetIndex = insertAt;
 
       const reader = new FileReader();
       reader.onload = () => {
-        if (isAppend) {
-          previews.value.push(String(reader.result));
-        } else {
-          previews.value[targetIndex] = String(reader.result);
-        }
+        previews.value[target] = String(reader.result);
       };
       reader.readAsDataURL(file);
       insertAt++;
@@ -115,8 +171,11 @@
   };
 
   const removeImage = (index) => {
+    const oldRel = originalRel.value[index];
+    if (oldRel) removedOlds.value.push(oldRel);
     previews.value.splice(index, 1);
     files.value.splice(index, 1);
+    originalRel.value.splice(index, 1);
   };
 </script>
 
@@ -254,7 +313,7 @@
             class="post-modal__submit-btn btn--popup"
             type="submit"
           >
-            發布文章
+            {{ isEdit ? '編輯文章' : '發布文章' }}
           </button>
         </div>
       </form>
