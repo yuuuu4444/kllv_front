@@ -12,6 +12,17 @@
   const posts = ref([]);
   const selectedCategory = ref('所有主題');
 
+  const LOCAL_CATEGORY = {
+    1: '舊物交換',
+    2: '生活抱怨',
+    3: '揪團來買',
+  };
+
+  const getCategoryName = (category_no, apiName) => {
+    if (apiName && apiName.trim()) return apiName;
+    return LOCAL_CATEGORY[Number(category_no)] || '';
+  };
+
   const coverUrl = (src) => {
     if (!src) return ''; // 後端已給預設圖，理論上不會進來
     if (/^https?:\/\//i.test(src)) return src;
@@ -45,11 +56,11 @@
 
       posts.value.unshift({
         ...d,
-        category: d.category_name || '未分類',
+        category: getCategoryName(d.category_no, d.category_name),
         created_at: d.posted_at,
       });
     } catch (error) {
-      alert(err.message);
+      alert(error.message);
     } finally {
       creating.value = false;
     }
@@ -75,7 +86,7 @@
         .filter((p) => String(p.is_deleted) !== '1')
         .map((p) => ({
           ...p,
-          category: p.category_name || '未分類',
+          category: getCategoryName(p.category_no, p.category_name),
           created_at: p.posted_at,
           // _cover: p.image,
         }));
