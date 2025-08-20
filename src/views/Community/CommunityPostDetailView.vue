@@ -1,22 +1,100 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
-  import { defineProps, ref, computed } from 'vue';
-  import PostData from '@/assets/data/Community/posts_test.json';
-  import Categories from '@/assets/data/Community/posts_categories_test.json';
+  import { defineProps, ref, computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import Comments from '@/assets/data/Community/community_comments_test.json';
   import ReportModal from '@/components/ReportModal.vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
 
-  const props = defineProps(['post_no']);
+  const { VITE_API_BASE } = import.meta.env;
+  const TEMP_USER_ID = 'user_account_001';
+  const TEMP_USER_NAME = 'Komod·Mayaw';
+  const router = useRouter();
+  const props = defineProps({ post_no: { type: [String, Number], required: true } });
+  const postItem = ref(null);
+  const loading = ref(true);
+  const error = ref('');
+
+  async function fetchDetail(no) {
+    loading.value = true;
+    error.value = '';
+    postItem.value = null;
+
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/post_detail_get.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_no: Number(props.post_no) }),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status} - ${txt}`);
+      }
+
+      const data = await res.json();
+      if (data.status !== 'success' || !data.data) throw new Error(data.message || '載入失敗');
+      postItem.value = data.data;
+    } catch (e) {
+      error.value = e.message || '未知錯誤';
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    fetchDetail(props.post_no);
+    fetchCategories();
+  });
+
+  const categoryName = computed(() => {
+    if (!postItem.value) return '';
+    const no = Number(postItem.value?.category_no);
+    if (!no) return '';
+    const hit = categories.value.find((c) => Number(c.category_no) === no);
+    return hit?.category_name || '';
+  });
+
+  const photoList = computed(() => {
+    const toPath = (it) => (typeof it === 'string' ? it : it?.image_path);
+    const toAbs = (p) => (p?.startsWith('http') ? p : `${VITE_API_BASE}${p}`);
+    return (postItem.value?.images || []).map(toPath).filter(Boolean).map(toAbs);
+  });
+
+  const showEdited = computed(() => {
+    return postItem.value?.updated_at != null && postItem.value.updated_at !== '';
+  });
+
   const postNo = Number(props.post_no);
   const editModalVisible = ref(false);
   const editingPost = ref(null);
   const openCount = ref(0);
   const modalKey = computed(() => `edit-${editingPost.value?.post_no || 'new'}-${openCount.value}`);
 
-  const postItem = PostData.find((item) => item.post_no === Number(postNo));
-  const categoryItem = Categories.find((item) => item.category_no === postItem?.category_no);
-  const categoryName = categoryItem ? categoryItem.category_name : '未分類';
+  // const postItem = PostData.find((item) => item.post_no === Number(postNo));
+  const categories = ref([]);
+  const loadingCats = ref(false);
+  const categoriesError = ref('');
+
+  async function fetchCategories() {
+    loadingCats.value = true;
+    categoriesError.value = '';
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/categories_get.php`, {
+        method: 'GET',
+        // headers: { 'Accept': 'application/json' } // 可有可無
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.status !== 'success') throw new Error(data.message || '取得分類失敗');
+      categories.value = Array.isArray(data.data) ? data.data : [];
+    } catch (e) {
+      console.error(e);
+      categoriesError.value = e.message || '分類載入失敗';
+    } finally {
+      loadingCats.value = false;
+    }
+  }
 
   const menuPostVisible = ref(false);
   const menuCommentVisible = ref(false);
@@ -30,26 +108,74 @@
   };
 
   const openEditModal = () => {
+    const toPaths = (arr) =>
+      (Array.isArray(arr) ? arr : [])
+        .map((it) => (typeof it === 'string' ? it : it?.image_path))
+        .filter(Boolean);
+
     editingPost.value = {
-      post_no: postItem.post_no,
-      title: postItem.title,
-      category_no: postItem.category_no,
-      desc: postItem.content,
-      image: postItem.image || [],
+      post_no: postItem.value.post_no,
+      title: postItem.value.title,
+      category_no: postItem.value.category_no,
+      content: postItem.value.content,
+      images: toPaths(postItem.value.images),
     };
+
     openCount.value++;
     editModalVisible.value = true;
     menuPostVisible.value = false;
   };
 
-  const handleEditPost = (updated) => {
-    if (updated.post_no !== postItem.post_no) return;
+  const handleEditPost = async (payload) => {
+    if (payload.post_no !== postItem.value?.post_no) return;
 
-    postItem.title = updated.title;
-    postItem.category_no = Number(updated.category);
-    postItem.content = updated.desc;
-    postItem.image = updated.image || [];
-    console.log('更新後的資料', postItem);
+    try {
+      const formData = new FormData();
+      formData.append('post_no', String(payload.post_no));
+      formData.append('title', payload.title);
+      formData.append('category_no', String(payload.category_no));
+      formData.append('content', payload.content);
+      formData.append('author_id', TEMP_USER_ID);
+
+      for (const f of payload.files ?? []) {
+        if (f instanceof File) formData.append('images[]', f);
+      }
+
+      for (const p of payload.remove_image_paths ?? []) {
+        formData.append('remove_image_paths[]', p);
+      }
+
+      const res = await fetch(`${VITE_API_BASE}/api/community/post_update_post.php`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status} - ${txt}`);
+      }
+
+      const data = await res.json();
+
+      if (data.status !== 'success') throw new Error(data.message || '更新失敗');
+
+      const { images = [], image: banner } = data.data || {};
+
+      postItem.value = {
+        ...postItem.value,
+        title: payload.title,
+        category_no: payload.category_no,
+        content: payload.content,
+        images, // 陣列（字串路徑）
+        image: banner, // 主圖
+        updated_at: new Date().toISOString(),
+      };
+
+      editModalVisible.value = false;
+    } catch (error) {
+      console.error(error);
+      alert(error.message || '更新失敗');
+    }
   };
 
   const handleDeletePost = () => {
@@ -112,12 +238,20 @@
   <SubBanner title="里民開講" />
   <div class="post-detail">
     <div class="post-detail__container">
+      <section v-if="loading">載入中…</section>
+      <section v-else-if="error">載入失敗：{{ error }}</section>
+
       <section
         class="post-detail__body"
-        v-if="postItem"
+        v-else-if="postItem"
       >
         <div class="post-detail__header">
-          <h5 class="post-detail__category bold">【{{ categoryName }}】</h5>
+          <h5
+            class="post-detail__category bold"
+            v-if="categoryName"
+          >
+            【{{ categoryName }}】
+          </h5>
           <h5 class="post-detail__title bold">
             {{ postItem.title }}
           </h5>
@@ -132,9 +266,14 @@
                   alt=""
                 />
               </div>
-              <p class="post-detail__author body--b2">陳聲聲</p>
-              <p class="post-detail__time body--b2">2小時前</p>
-              <p class="post-detail__edit body--b2">10分鐘前 已編輯</p>
+              <p class="post-detail__author body--b2">{{ TEMP_USER_NAME }}</p>
+              <p class="post-detail__time body--b2">{{ passTime(postItem.posted_at) }}</p>
+              <p
+                class="post-detail__edit body--b2"
+                v-if="showEdited"
+              >
+                {{ passTime(postItem.updated_at) }} 已編輯
+              </p>
             </div>
             <div class="post-detail__menu">
               <button
@@ -243,18 +382,15 @@
 
           <div class="post-detail__content">
             <p class="post-detail__desc body--b2">{{ postItem.content }}</p>
-            <div class="post-detail__images">
+            <div
+              class="post-detail__images"
+              v-if="photoList.length"
+            >
               <img
-                src="https://picsum.photos/500/300"
-                alt=""
-              />
-              <img
-                src="https://picsum.photos/500/300"
-                alt=""
-              />
-              <img
-                src="https://picsum.photos/500/300"
-                alt=""
+                v-for="(src, i) in photoList"
+                :key="src + i"
+                :src="src"
+                alt="貼文照片"
               />
             </div>
           </div>
