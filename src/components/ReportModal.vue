@@ -1,28 +1,54 @@
 <script setup>
-  import { defineProps, defineEmits, ref } from 'vue';
-  import Reasons from '@/assets/data/Community/report_reasons_test.json';
+  import { defineProps, defineEmits, ref, computed } from 'vue';
 
-  const props = defineProps({ visible: Boolean });
-  const emit = defineEmits(['update:visible']);
+  const props = defineProps({
+    visible: Boolean,
+    categories: { type: Array, default: () => [] },
+    loading: Boolean,
+  });
+  const emit = defineEmits(['update:visible', 'submit', 'close']);
 
   const step = ref(1);
-  const selectedReason = ref('');
+  // const selectedReason = ref('');
+  const selectedReasonNo = ref(null);
+  const isSubmitting = ref(false);
+  const selectedReasonName = computed(() => {
+    const hit = props.categories.find(
+      (c) => Number(c.category_no) === Number(selectedReasonNo.value),
+    );
+    return hit?.category_name || '';
+  });
+
+  function resetState() {
+    step.value = 1;
+    selectedReasonNo.value = null;
+    isSubmitting.value = false;
+  }
 
   function closeModal() {
     emit('update:visible', false);
-    step.value = 1;
-    selectedReason.value = '';
+    resetState();
+    emit('close');
   }
 
-  function chooseReason(reason) {
+  function chooseReason(item) {
     // console.log(reason);
-    selectedReason.value = reason;
+    selectedReasonNo.value = item.category_no;
     step.value = 2;
   }
 
   function submitReport() {
-    // 呼叫 API 或 emit 回 parent（可加 loading）
-    step.value = 3;
+    if (!selectedReasonNo.value || isSubmitting.value) return;
+    isSubmitting.value = true;
+
+    emit('submit', { category_no: Number(selectedReasonNo.value) }, (ok, message) => {
+      isSubmitting.value = false;
+      if (ok) {
+        step.value = 3;
+      } else {
+        alert(message || '檢舉失敗，請稍後再試');
+      }
+    });
   }
 </script>
 
@@ -53,14 +79,33 @@
         <div class="report-modal__header">
           <h3 class="report-modal__title bold">向管理員檢舉</h3>
         </div>
-        <ul class="report-modal__list">
+
+        <div
+          v-if="loading"
+          class="body--b2"
+          style="padding: 8px 0"
+        >
+          載入分類中…
+        </div>
+        <div
+          v-else-if="!categories.length"
+          class="body--b2"
+          style="padding: 8px 0"
+        >
+          目前沒有可選分類
+        </div>
+
+        <ul
+          class="report-modal__list"
+          v-else
+        >
           <li
             class="report-modal__item"
-            v-for="reason in Reasons"
-            :key="reason.reason_no"
-            @click="chooseReason(reason)"
+            v-for="item in categories"
+            :key="item.category_no"
+            @click="chooseReason(item)"
           >
-            <p class="report-modal__item-text body--b2">{{ reason.reason_name }}</p>
+            <p class="report-modal__item-text body--b2">{{ item.category_name }}</p>
             <div class="report-modal__item-icon">
               <img
                 src="/src/assets/icon/icon_report-arrow.svg"
@@ -79,13 +124,14 @@
           <p class="report-modal__info-text body--b2">我們只會移除違反社群守則的內容。</p>
           <p class="report-modal__info-text body--b2">檢舉詳細資料</p>
           <p class="report-modal__info-text body--b3">你為何要檢舉這則貼文？</p>
-          <p class="report-modal__info-text body--b2">{{ selectedReason.reason_name }}</p>
+          <p class="report-modal__info-text body--b2">{{ selectedReasonName }}</p>
         </div>
         <button
           class="report-modal__submit btn--popup"
           @click="submitReport"
+          :disabled="isSubmitting"
         >
-          送出檢舉
+          {{ isSubmitting ? '送出中…' : '送出檢舉' }}
         </button>
       </template>
 
