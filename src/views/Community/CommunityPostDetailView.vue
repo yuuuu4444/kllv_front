@@ -1,7 +1,6 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
   import { defineProps, ref, computed, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
   import Comments from '@/assets/data/Community/community_comments_test.json';
   import ReportModal from '@/components/ReportModal.vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
@@ -9,11 +8,29 @@
   const { VITE_API_BASE } = import.meta.env;
   const TEMP_USER_ID = 'user_account_001';
   const TEMP_USER_NAME = 'Komod·Mayaw';
-  const router = useRouter();
   const props = defineProps({ post_no: { type: [String, Number], required: true } });
   const postItem = ref(null);
   const loading = ref(true);
   const error = ref('');
+  const reportCategories = ref([]);
+  const loadingReportCats = ref(false);
+  const reportCatsError = ref('');
+
+  async function fetchReportCategories() {
+    loadingReportCats.value = true;
+    reportCatsError.value = '';
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/report_categories_get.php`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.status !== 'success') throw new Error(data.message || '取得檢舉分類失敗');
+      reportCategories.value = Array.isArray(data.data) ? data.data : [];
+    } catch (error) {
+      reportCatsError.value = error.message || '分類載入失敗';
+    } finally {
+      loadingReportCats.value = false;
+    }
+  }
 
   async function fetchDetail(no) {
     loading.value = true;
@@ -24,7 +41,8 @@
       const res = await fetch(`${VITE_API_BASE}/api/community/post_detail_get.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_no: Number(props.post_no) }),
+        body: JSON.stringify({ post_no: Number(no) }),
+        // credentials: 'include',
       });
 
       if (!res.ok) {
@@ -45,6 +63,7 @@
   onMounted(() => {
     fetchDetail(props.post_no);
     fetchCategories();
+    fetchReportCategories();
   });
 
   const categoryName = computed(() => {
@@ -65,13 +84,12 @@
     return postItem.value?.updated_at != null && postItem.value.updated_at !== '';
   });
 
-  const postNo = Number(props.post_no);
+  const postNo = computed(() => Number(props.post_no));
   const editModalVisible = ref(false);
   const editingPost = ref(null);
   const openCount = ref(0);
   const modalKey = computed(() => `edit-${editingPost.value?.post_no || 'new'}-${openCount.value}`);
 
-  // const postItem = PostData.find((item) => item.post_no === Number(postNo));
   const categories = ref([]);
   const loadingCats = ref(false);
   const categoriesError = ref('');
@@ -80,10 +98,7 @@
     loadingCats.value = true;
     categoriesError.value = '';
     try {
-      const res = await fetch(`${VITE_API_BASE}/api/community/categories_get.php`, {
-        method: 'GET',
-        // headers: { 'Accept': 'application/json' } // 可有可無
-      });
+      const res = await fetch(`${VITE_API_BASE}/api/community/categories_get.php`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.status !== 'success') throw new Error(data.message || '取得分類失敗');
@@ -192,12 +207,50 @@
     showModal.value = true;
     menuPostVisible.value = false;
     menuCommentVisible.value = false;
+    openedCommentMenu.value = null;
   };
+
+  async function handleSubmitReport(payload, done) {
+    if (!postItem.value?.post_no) {
+      done(false, '找不到貼文編號');
+      return;
+    }
+
+    if (!payload?.category_no) {
+      done(false, '請先選擇檢舉原因');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/report_create_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          post_no: Number(postItem.value.post_no),
+          category_no: Number(payload.category_no),
+          reporter_id: TEMP_USER_ID,
+        }),
+        // credentials: 'include',
+      });
+
+      const text = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('回傳格式錯誤');
+      }
+      done(data.status === 'success', data.message || '');
+    } catch (error) {
+      done(false, error.message || '檢舉失敗');
+    }
+  }
 
   const allComments = Comments.filter((c) => !c.is_deleted);
   const postComments = computed(() =>
     allComments
-      .filter((c) => c.post_no === postNo)
+      .filter((c) => c.post_no === postNo.value)
       .sort((a, b) => new Date(a.commented_at) - new Date(b.commented_at)),
   );
 
@@ -311,7 +364,10 @@
                   </button>
                 </li>
                 <li class="post-detail__menu-item">
-                  <button class="post-detail__menu-btn">
+                  <button
+                    class="post-detail__menu-btn"
+                    @click="handleDeletePost"
+                  >
                     <svg
                       class="post-detail__menu-icon"
                       width="24"
@@ -342,35 +398,33 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span
-                      class="post-detail__menu-text"
-                      @click="handleDeletePost"
-                    >
-                      刪除貼文
-                    </span>
+                    <span class="post-detail__menu-text">刪除貼文</span>
                   </button>
                 </li>
                 <li class="post-detail__menu-item">
-                  <button class="post-detail__menu-btn">
+                  <button
+                    class="post-detail__menu-btn"
+                    @click="openReportModal"
+                  >
                     <div>
                       <img
                         src="/src/assets/icon/icon_report.svg"
                         alt=""
                       />
                     </div>
-                    <span
-                      class="post-detail__menu-text"
-                      @click="openReportModal"
-                    >
-                      檢舉貼文
-                    </span>
+                    <span class="post-detail__menu-text">檢舉貼文</span>
                   </button>
                 </li>
               </ul>
             </div>
           </div>
 
-          <ReportModal v-model:visible="showModal" />
+          <ReportModal
+            v-model:visible="showModal"
+            :categories="reportCategories"
+            :loading="loadingReportCats"
+            @submit="handleSubmitReport"
+          />
 
           <CreatePostModal
             v-if="editModalVisible"
