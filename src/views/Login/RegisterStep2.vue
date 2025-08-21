@@ -134,15 +134,14 @@
       const res = await fetch(`${VITE_API_BASE}/api/login/register_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // 加入此行以支援 session
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-
       if (data.status === 'success') {
         router.push('/register-check');
       } else {
-        // 根據後端回傳的錯誤訊息顯示對應欄位的錯誤
         if (data.message.includes('帳號已存在')) {
           accountError.value = '此帳號已被使用';
         } else if (data.message.includes('Email')) {

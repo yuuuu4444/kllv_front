@@ -31,12 +31,12 @@
     }
     if (hasError) return;
 
-    // 如果驗證通過，執行登入邏輯
     isLoading.value = true;
     try {
       const res = await fetch(`${VITE_API_BASE}/api/login/login_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // 加入此行以支援 session
         body: JSON.stringify({
           user_id: account.value,
           password: password.value,
@@ -44,27 +44,12 @@
       });
 
       const data = await res.json();
-
-      // 根據 HTTP 狀態碼處理不同情況
-      switch (res.status) {
-        case 200:
-          if (data.status === 'success') {
-            const authStore = useAuthStore();
-            authStore.setUser(data.data);
-            router.push('/member');
-          }
-          break;
-        case 400:
-          loginError.value = '帳號密碼必填';
-          break;
-        case 401:
-          loginError.value = '帳號或密碼錯誤';
-          break;
-        case 403:
-          loginError.value = data.message; // '帳號已停用' 或 '帳號尚未啟用'
-          break;
-        default:
-          loginError.value = data.message || '登入失敗，請稍後再試';
+      if (data.status === 'success') {
+        const authStore = useAuthStore();
+        authStore.setUser(data.data);
+        router.push('/member');
+      } else {
+        loginError.value = data.message || '登入失敗，請確認帳號密碼';
       }
     } catch (err) {
       console.error('登入錯誤:', err);

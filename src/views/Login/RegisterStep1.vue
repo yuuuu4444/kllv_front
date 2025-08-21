@@ -23,11 +23,13 @@
     try {
       const res = await fetch(
         `${VITE_API_BASE}/api/login/address_check.php?address=${encodeURIComponent(fullAddress)}`,
+        {
+          credentials: 'include', // 加入此行以支援 session
+        },
       );
 
       if (!res.ok) {
-        console.error('地址檢查請求失敗');
-        return false;
+        throw new Error('請求失敗');
       }
 
       const data = await res.json();
@@ -36,7 +38,7 @@
       }
       return false;
     } catch (e) {
-      console.error('地址檢查錯誤:', e);
+      console.error('檢查地址錯誤:', e);
       return false;
     } finally {
       checkingAddress.value = false;
