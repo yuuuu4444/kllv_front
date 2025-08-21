@@ -15,15 +15,17 @@
       // 加上 type
       newsTags.value = [
         { no: 0, name: '全部', type: 1 },
-        ...data.data.map(c => ({
+        ...data.data.map((c) => ({
           no: c.category_no,
           name: c.category_name,
-          type: (
-            ['公告'].includes(c.category_name) ? 1 :
-            ['活動','補助'].includes(c.category_name) ? 2 :
-            ['施工','防災'].includes(c.category_name) ? 3 : 1
-          )
-        }))
+          type: ['公告'].includes(c.category_name)
+            ? 1
+            : ['活動', '補助'].includes(c.category_name)
+              ? 2
+              : ['施工', '防災'].includes(c.category_name)
+                ? 3
+                : 1,
+        })),
       ];
     } catch (error) {
       console.error(error);
@@ -35,15 +37,15 @@
   const fetchNewsPosts = async () => {
     try {
       // 模擬 API：本地 JSON 或 MAMP API
-      const res = await fetch(`${VITE_API_BASE}/api/news/news_get.php`);
+      const res = await fetch(`${VITE_API_BASE}/api/news/news_get1.php`);
       const data = await res.json();
 
       // 加上 type
-      newsPosts.value = data.data.map(n => {
-        const tag = newsTags.value.find(t => t.no === n.category_no);
+      newsPosts.value = data.data.map((n) => {
+        const tag = newsTags.value.find((t) => t.no === n.category_no);
         return {
           ...n,
-          type: tag ? tag.type : 1
+          type: tag ? tag.type : 1,
         };
       });
     } catch (error) {
@@ -51,12 +53,11 @@
     }
   };
 
-
   // 過濾消息
   const selectedTag = ref('全部');
   const filteredPosts = computed(() => {
     if (selectedTag.value === '全部') return newsPosts.value;
-    return newsPosts.value.filter(post => post.category_name === selectedTag.value);
+    return newsPosts.value.filter((post) => post.category_name === selectedTag.value);
   });
 
   // 設定分頁
@@ -68,10 +69,14 @@
     const start = (currentPage.value - 1) * postsPerPage;
     return filteredPosts.value.slice(start, start + postsPerPage);
   });
-  
+
   // 控制分頁
-  const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
-  const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+  const prevPage = () => {
+    if (currentPage.value > 1) currentPage.value--;
+  };
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) currentPage.value++;
+  };
 
   // 切換分類
   const changeTag = (tag) => {

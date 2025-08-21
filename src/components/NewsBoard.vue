@@ -7,12 +7,11 @@
   const props = defineProps({
     limit: {
       type: Number,
-      default: 3
+      default: 3,
     },
     showHeader: Boolean,
-    showFooter: Boolean
+    showFooter: Boolean,
   });
-
 
   const newsTags = ref([]);
   const fetchNewsCategories = async () => {
@@ -21,14 +20,16 @@
       const data = await res.json();
 
       // 加上 type
-      newsTags.value = data.data.map(c => ({
+      newsTags.value = data.data.map((c) => ({
         no: c.category_no,
         name: c.category_name,
-        type: (
-          ['公告'].includes(c.category_name) ? 1 :
-          ['活動','補助'].includes(c.category_name) ? 2 :
-          ['施工','防災'].includes(c.category_name) ? 3 : 1
-        )
+        type: ['公告'].includes(c.category_name)
+          ? 1
+          : ['活動', '補助'].includes(c.category_name)
+            ? 2
+            : ['施工', '防災'].includes(c.category_name)
+              ? 3
+              : 1,
       }));
     } catch (error) {
       console.error(error);
@@ -38,15 +39,15 @@
   const newsPosts = ref([]);
   const fetchNewsPosts = async () => {
     try {
-      const res = await fetch(`${VITE_API_BASE}/api/news/news_get.php`);
+      const res = await fetch(`${VITE_API_BASE}/api/news/news_get1.php`);
       const data = await res.json();
 
       // 加上 type
-      newsPosts.value = data.data.map(n => {
-        const tag = newsTags.value.find(t => t.no === n.category_no);
+      newsPosts.value = data.data.map((n) => {
+        const tag = newsTags.value.find((t) => t.no === n.category_no);
         return {
           ...n,
-          type: tag ? tag.type : 1
+          type: tag ? tag.type : 1,
         };
       });
     } catch (error) {
@@ -64,7 +65,10 @@
 
 <template>
   <div class="newsboard">
-    <div class="newsboard__header" v-if="showHeader">
+    <div
+      class="newsboard__header"
+      v-if="showHeader"
+    >
       <h5 class="bold">最新消息</h5>
     </div>
 
@@ -102,7 +106,10 @@
       </RouterLink>
     </div>
 
-    <div class="newsboard__footer" v-if="showFooter">
+    <div
+      class="newsboard__footer"
+      v-if="showFooter"
+    >
       <RouterLink to="/news">
         <p class="body--b4">查看更多最新消息</p>
       </RouterLink>
@@ -111,7 +118,7 @@
 </template>
 
 <style scoped lang="scss">
-  @import "@/assets/scss/style";
+  @import '@/assets/scss/style';
 
   .newsboard {
     display: flex;
@@ -156,7 +163,7 @@
       padding: 1.5625vw 3.125vw;
       gap: 3.125vw;
       background-color: $white;
-      
+
       &:first-child {
         // border-top-left-radius: $border-r-md;
         // border-top-right-radius: $border-r-md;
@@ -166,17 +173,17 @@
         border-bottom-right-radius: $border-r-md;
       }
       &:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.75)
+        background-color: rgba(255, 255, 255, 0.75);
       }
-  
+
       @include mobile {
         flex-direction: column;
         align-items: flex-start;
         padding: 8px 8px 12px;
         gap: 32px;
-      } 
+      }
     }
-  
+
     &__tag--d {
       p {
         font-size: clamp(16px, 1.25vw, 24px);
@@ -185,7 +192,7 @@
         display: none;
       }
     }
-  
+
     &__title--d {
       h5 {
         font-size: clamp(20px, 1.25vw, 24px);
@@ -194,16 +201,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-  
+
         @include desktop {
           width: 45vw;
         }
       }
       @include mobile {
-          display: none;
+        display: none;
       }
     }
-  
+
     &__date--d {
       margin-left: auto;
       p {
@@ -211,10 +218,10 @@
         color: $black;
       }
       @include mobile {
-          display: none;
+        display: none;
       }
     }
-  
+
     &__info--m {
       display: none;
       @include mobile {
@@ -224,7 +231,7 @@
         gap: 4px;
       }
     }
-  
+
     &__tag--m {
       display: none;
       @include mobile {
@@ -234,7 +241,7 @@
         }
       }
     }
-  
+
     &__title--m {
       display: none;
       @include mobile {
@@ -244,7 +251,7 @@
         }
       }
     }
-  
+
     &__date--m {
       display: none;
       @include mobile {
