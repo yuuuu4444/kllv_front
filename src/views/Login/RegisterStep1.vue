@@ -1,15 +1,91 @@
-<script setup></script>
 <script setup>
+  import { ref } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useRegisterStore } from '@/stores/register';
+
+  const { VITE_API_BASE } = import.meta.env;
   const router = useRouter();
+  const registerStore = useRegisterStore();
+
+  const city = ref('桃園市');
+  const district = ref('中壢區');
+  const village = ref('');
+  const address = ref('');
+  const villageError = ref('');
+  const addressError = ref('');
+  const checkingAddress = ref(false);
+
+  // 新增地址檢查函數
+  async function checkAddress(fullAddress) {
+    if (!fullAddress) return false;
+
+    checkingAddress.value = true;
+    try {
+      const res = await fetch(
+        `${VITE_API_BASE}/api/login/address_check.php?address=${encodeURIComponent(fullAddress)}`,
+      );
+
+      if (!res.ok) {
+        console.error('地址檢查請求失敗');
+        return false;
+      }
+
+      const data = await res.json();
+      if (data.status === 'success') {
+        return data.data.exists;
+      }
+      return false;
+    } catch (e) {
+      console.error('地址檢查錯誤:', e);
+      return false;
+    } finally {
+      checkingAddress.value = false;
+    }
+  }
+
+  // 修改 goToRegisterStep2 函數
+  async function goToRegisterStep2() {
+    // 重置錯誤訊息
+    villageError.value = '';
+    addressError.value = '';
+
+    // 表單驗證
+    let hasError = false;
+
+    if (!village.value) {
+      villageError.value = '請選擇村里';
+      hasError = true;
+    }
+
+    if (!address.value) {
+      addressError.value = '地址為必填';
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // 檢查地址是否已被註冊
+    const fullAddress = `${city.value}${district.value}${village.value}${address.value}`;
+    const addressExists = await checkAddress(fullAddress);
+
+    if (addressExists) {
+      addressError.value = '此地址已被註冊';
+      return;
+    }
+
+    // 儲存第一步資料至 Pinia
+    registerStore.city = city.value;
+    registerStore.district = district.value;
+    registerStore.village = village.value;
+    registerStore.address = address.value;
+    router.push('/register-step2');
+  }
 
   function goToLogin() {
     router.push('/login');
   }
-  function goToRegisterStep2() {
-    router.push('/register-step2');
-  }
 </script>
+
 <template>
   <div class="login-container">
     <div class="form-card">
@@ -25,7 +101,7 @@
           <div class="step-label gray">確認送出</div>
         </div>
       </div>
-      <form @submit.prevent>
+      <form @submit.prevent="goToRegisterStep2">
         <div class="form-group row">
           <div>
             <label>縣/市</label>
@@ -41,19 +117,41 @@
           </div>
           <div>
             <label>村/里</label>
-            <select>
+            <select
+              v-model="village"
+              :class="{ 'input-error': villageError }"
+            >
+              <option value="">請選擇村里</option>
               <option>空瀧浪里</option>
             </select>
+            <div
+              v-if="villageError"
+              class="form-error"
+            >
+              {{ villageError }}
+            </div>
           </div>
         </div>
         <div class="form-group">
           <div class="label-row">
             <label>地址*</label>
-            <div class="form-error">地址已被註冊，請與家庭管理員聯繫</div>
+            <div
+              v-if="addressError"
+              class="form-error"
+            >
+              {{ addressError }}
+            </div>
+            <div
+              v-if="checkingAddress"
+              class="checking-address"
+            >
+              檢查地址中...
+            </div>
           </div>
           <input
             type="text"
-            class="input-error"
+            v-model="address"
+            :class="{ 'input-error': addressError }"
             placeholder="請輸入地址"
           />
         </div>
@@ -68,7 +166,6 @@
           <button
             type="submit"
             class="btn--membersend"
-            @click="goToRegisterStep2"
           >
             註冊
           </button>
@@ -217,11 +314,20 @@
     box-shadow: 0 0px 5px 0 $primary-c300;
     outline: none;
   }
+  .input-error {
+    border-color: red !important;
+  }
   .form-error {
     color: red;
     font-size: 13px;
     margin-top: 4px;
     margin-bottom: 0;
+    white-space: nowrap;
+  }
+  .checking-address {
+    color: $primary-c300;
+    font-size: 13px;
+    margin-left: 8px;
   }
   .btn--membersend {
     border: none;

@@ -1,6 +1,78 @@
 <script setup>
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
+
+  const { VITE_API_BASE } = import.meta.env;
+  const router = useRouter();
   const showPassword = ref(false);
+  const account = ref('');
+  const password = ref('');
+  const accountError = ref('');
+  const passwordError = ref('');
+  const loginError = ref('');
+  const isLoading = ref(false);
+
+  async function handleLogin() {
+    // 重置錯誤訊息
+    accountError.value = '';
+    passwordError.value = '';
+    loginError.value = '';
+
+    // 表單驗證
+    let hasError = false;
+    if (!account.value) {
+      accountError.value = '帳號為必填';
+      hasError = true;
+    }
+    if (!password.value) {
+      passwordError.value = '密碼為必填';
+      hasError = true;
+    }
+    if (hasError) return;
+
+    // 如果驗證通過，執行登入邏輯
+    isLoading.value = true;
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/login/login_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: account.value,
+          password: password.value,
+        }),
+      });
+
+      const data = await res.json();
+
+      // 根據 HTTP 狀態碼處理不同情況
+      switch (res.status) {
+        case 200:
+          if (data.status === 'success') {
+            const authStore = useAuthStore();
+            authStore.setUser(data.data);
+            router.push('/member');
+          }
+          break;
+        case 400:
+          loginError.value = '帳號密碼必填';
+          break;
+        case 401:
+          loginError.value = '帳號或密碼錯誤';
+          break;
+        case 403:
+          loginError.value = data.message; // '帳號已停用' 或 '帳號尚未啟用'
+          break;
+        default:
+          loginError.value = data.message || '登入失敗，請稍後再試';
+      }
+    } catch (err) {
+      console.error('登入錯誤:', err);
+      loginError.value = '無法連線伺服器，請稍後再試';
+    } finally {
+      isLoading.value = false;
+    }
+  }
 </script>
 
 <template>
@@ -10,46 +82,73 @@
       data-aos="fade"
     >
       <h3>里民登入</h3>
-      <div class="form-group">
-        <label for="login-account">帳號</label>
-        <input
-          type="text"
-          id="login-account"
-          placeholder="請輸入帳號"
-        />
-      </div>
-      <div class="form-group">
-        <label for="login-password">密碼</label>
-        <div class="password-toggle">
+      <form @submit.prevent="handleLogin">
+        <div class="form-group">
+          <label for="login-account">帳號</label>
           <input
-            :type="showPassword ? 'text' : 'password'"
-            id="login-password"
-            placeholder="請輸入密碼"
+            type="text"
+            id="login-account"
+            v-model="account"
+            :class="{ 'input-error': accountError }"
+            placeholder="請輸入帳號"
           />
+          <div
+            v-if="accountError"
+            class="form-error"
+          >
+            {{ accountError }}
+          </div>
         </div>
-      </div>
-      <router-link
-        to="/forgot-password"
-        class="forgot-link"
-      >
-        忘記密碼？
-      </router-link>
-      <button
-        type="submit"
-        class="btn--membersend"
-        @click="$router.push('/resident-account')"
-      >
-        登入
-      </button>
-      <p class="register-text">
-        尚未加入空瀧浪里？
-        <router-link
-          to="/register-step1"
-          class="register-link"
+        <div class="form-group">
+          <label for="login-password">密碼</label>
+          <div class="password-toggle">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              id="login-password"
+              v-model="password"
+              :class="{ 'input-error': passwordError }"
+              placeholder="請輸入密碼"
+            />
+          </div>
+          <div
+            v-if="passwordError"
+            class="form-error"
+          >
+            {{ passwordError }}
+          </div>
+        </div>
+        <div
+          v-if="loginError"
+          class="form-error text-center"
         >
-          立即註冊
+          {{ loginError }}
+        </div>
+
+        <router-link
+          to="/forgot-password"
+          class="forgot-link"
+        >
+          忘記密碼？
         </router-link>
-      </p>
+
+        <button
+          type="submit"
+          class="btn--membersend"
+          :disabled="isLoading"
+        >
+          {{ isLoading ? '登入中...' : '登入' }}
+        </button>
+
+        <p class="register-text">
+          尚未加入空瀧浪里？
+          <router-link
+            to="/register-step1"
+            class="register-link"
+          >
+            立即註冊
+          </router-link>
+        </p>
+      </form>
     </div>
   </div>
 </template>
@@ -125,6 +224,11 @@
     margin: auto;
     border: none;
     padding: 0 0 3px 4px;
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
   }
   .register-text {
     text-align: center;
@@ -150,6 +254,22 @@
   .register-text a:hover {
     text-decoration: underline;
   }
+  // 新增錯誤相關樣式
+  .input-error {
+    border-color: red !important;
+  }
+
+  .form-error {
+    color: red;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .text-center {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
   @media (max-width: 768px) {
     .login-container {
       padding: 120px 0 60px 0;
