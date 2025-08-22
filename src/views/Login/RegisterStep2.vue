@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { useRegisterStore } from '@/stores/register';
 
@@ -30,6 +30,9 @@
   const genderError = ref('');
   const agreeError = ref('');
   const generalError = ref('');
+
+  // 新增 household_no 相關狀態
+  const household_no = ref('');
 
   function goToCancel() {
     router.push('/register-step1');
@@ -113,7 +116,7 @@
 
     return !hasError;
   }
-
+  // 提交註冊
   async function submitRegistration() {
     if (!validateForm()) return;
 
@@ -128,7 +131,9 @@
         phone_number: phone.value,
         birth_date: birthDate.value,
         gender: gender.value,
-        address: `${registerStore.city}${registerStore.district}${registerStore.village}${registerStore.address}`,
+        role_type: 0,
+        household_no: household_no.value,
+        // 移除 created_at，由後端處理
       };
 
       const res = await fetch(`${VITE_API_BASE}/api/login/register_post.php`, {
@@ -155,6 +160,28 @@
       generalError.value = '系統錯誤，請稍後再試';
     }
   }
+
+  // 在元件載入時獲取 household_no
+  onMounted(async () => {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/login/households_get.php`, {
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (data.status === 'success' && data.data.length > 0) {
+        // 取得最後一筆資料的 household_no 並加 1
+        const lastNo = data.data[data.data.length - 1].household_no;
+        household_no.value = String(Number(lastNo) + 1);
+      } else {
+        // 如果沒有資料，從 1 開始
+        household_no.value = '1';
+      }
+    } catch (err) {
+      console.error('獲取戶號失敗:', err);
+      household_no.value = '1'; // 發生錯誤時預設值
+    }
+  });
 </script>
 
 <template>
@@ -164,15 +191,15 @@
       <div class="form-stepper">
         <div class="step-group">
           <div class="step-circle">1</div>
-          <div class="step-label">填寫資料</div>
+          <div class="step-label">戶籍資料</div>
         </div>
         <div class="step-line"></div>
         <div class="step-group">
           <div class="step-circle active">2</div>
-          <div class="step-label gray">確認送出</div>
+          <div class="step-label gray">成員資料</div>
         </div>
       </div>
-      <form @submit.prevent="submitRegistration">
+      <form @submit.prevent="(submitRegistration, submitRegistration2)">
         <!-- 地址顯示 -->
         <div class="form-group">
           <label>地址</label>
@@ -313,7 +340,7 @@
                 <input
                   type="radio"
                   name="sex"
-                  value="男"
+                  value="M"
                   v-model="gender"
                 />
                 男
@@ -322,7 +349,7 @@
                 <input
                   type="radio"
                   name="sex"
-                  value="女"
+                  value="F"
                   v-model="gender"
                 />
                 女
@@ -331,7 +358,7 @@
                 <input
                   type="radio"
                   name="sex"
-                  value="不願透漏"
+                  value="N"
                   v-model="gender"
                 />
                 不願透漏
