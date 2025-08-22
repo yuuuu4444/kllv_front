@@ -1,3 +1,273 @@
+<script setup>
+  import { ref, reactive, onMounted, computed, defineEmits } from 'vue';
+  import { useRouter } from 'vue-router';
+  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
+
+  const emit = defineEmits(['update:avatar']);
+  const router = useRouter();
+  // const props = defineProps({
+  //   userData: {
+  //     type: Object,
+  //     required: true,
+  //   },
+  // });
+
+  const isEditing = ref(false);
+  const localUserData = reactive({
+    user_id: '',
+    fullname: '',
+    nickname: '',
+    profile_image: '',
+    phone_number: '',
+    email: '',
+    id_number: '',
+    birth_date: '',
+    gender: '',
+    address: '',
+  });
+  const originalUserData = ref({});
+  const isLoading = ref(true);
+  const error = ref(null);
+
+  const fileInput = ref(null);
+  const stagedAvatarUrl = ref(null);
+  const phoneFieldTouched = ref(false);
+
+  // 引入環境變數
+  const { VITE_API_BASE } = import.meta.env;
+  console.log(VITE_API_BASE);
+
+  // 原本用父層傳遞個人資料
+  // onMounted(() => {
+  //   Object.assign(localUserData, props.userData);
+  // });
+
+  //GET獲取個人資料
+  onMounted(async () => {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/profile_get.php`;
+      const res = await fetch(apiUrl);
+      // if (!res.ok) {
+      //   throw new Error(`HTTP 錯誤！狀態: ${res.status}`);
+      // }
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        Object.assign(localUserData, data.data);
+        originalUserData.value = { ...data.data };
+
+        // 通知父層更新側邊欄頭像，使用計算後的完整 URL
+        emit('update:avatar', displayAvatar.value);
+      } else {
+        // 如果後端回傳的 JSON 中 status 不是 'success'
+        throw new Error(data.message || '獲取資料失敗');
+      }
+    } catch (err) {
+      console.error('API 請求失敗:', err);
+      error.value = err.message;
+    } finally {
+      isLoading.value = false;
+    }
+  });
+
+  const genderText = computed(() => {
+    const map = { M: '男', F: '女', N: '不願透漏' };
+    return map[localUserData.gender] || '未設定';
+  });
+
+  const isPhoneInvalid = computed(() => {
+    // 在「編輯中」且「使用者碰過輸入框」且「電話是空的」時無效
+    return isEditing.value && phoneFieldTouched.value && !localUserData.phone_number;
+  });
+
+  const toggleEdit = () => {
+    // 從編輯模式 -> 非編輯模式，等同於取消編輯
+    isEditing.value = !isEditing.value;
+    if (!isEditing.value) {
+      // 直接呼叫 cancelEdit 還原資料
+      cancelEdit();
+    }
+  };
+
+  const cancelEdit = () => {
+    Object.assign(localUserData, originalUserData.value);
+    stagedAvatarUrl.value = null;
+    isEditing.value = false;
+    phoneFieldTouched.value = false;
+  };
+
+  //原本的儲存修改按鈕
+  // const saveChanges = () => {
+  //   // 儲存前的防禦性檢查
+  //   if (!localUserData.phone_number) {
+  //     // 如果電話是空的，顯示 alert 並終止函式
+  //     alert('「聯絡電話」欄位不得為空');
+  //     // 同時，手動觸發 touched 狀態，確保錯誤樣式會顯示
+  //     phoneFieldTouched.value = true;
+  //     return;
+  //   }
+  //   if (stagedAvatarUrl.value) {
+  //     emit('update:avatar', stagedAvatarUrl.value);
+  //   }
+  //   alert('資料已儲存');
+  //   stagedAvatarUrl.value = null;
+  //   isEditing.value = false;
+  //   phoneFieldTouched.value = false;
+  // };
+
+  const goBackToMenu = () => {
+    router.push('/member');
+  };
+
+  const handleBack = () => {
+    if (isEditing.value) {
+      cancelEdit();
+    } else {
+      goBackToMenu();
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInput.value.click();
+  };
+
+  //POST上傳大頭貼
+  //handleFileChange 使用 FileReader 進行本地預覽 ---
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 為了即時預覽，使用 FileReader
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      // e.target.result 是一個 base64 data URL用它來即時更新本地預覽圖
+      localUserData.profile_image = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // 將檔案上傳到後端
+    const formData = new FormData();
+    formData.append('avatar', file);
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/avatar_upload_post.php`;
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error('圖片上傳伺服器錯誤');
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        // 上傳成功後，我們用後端回傳的【真實相對路徑】再次更新本地狀態
+        // 這會覆蓋掉剛才的 base64 URL，displayAvatar 會自動重新計算
+        localUserData.profile_image = data.data.profile_image_url;
+        alert('大頭貼上傳成功!');
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (err) {
+      alert(`圖片上傳失敗: ${err.message}`);
+    }
+  };
+
+  //確定最終要顯示的頭像 URL ---
+  const displayAvatar = computed(() => {
+    const imagePath = localUserData.profile_image;
+    console.log(imagePath);
+
+    // 情況1: 如果路徑是一個完整的 URL (例如上傳後回傳的)
+    if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) {
+      return imagePath;
+    }
+
+    // 情況2: 路徑是後端回傳的相對路徑 (例如 '/uploads/avatars/user123.jpg')
+    // 這種路徑通常以斜線開頭
+    if (imagePath.startsWith('/')) {
+      return `${VITE_API_BASE}${imagePath}`;
+    }
+
+    // (備用) 如果因為某些未知原因，路徑格式不符預期
+    // 回傳一個絕對不會壞掉的本地預設圖，但理論上不會執行到這裡
+    return '/image/default_avatar.png';
+  });
+
+  //PATCH修改個人資訊
+  const saveChanges = async () => {
+    if (!localUserData.phone_number) {
+      alert('「聯絡電話」欄位不得為空');
+      phoneFieldTouched.value = true;
+      return;
+    }
+
+    const payload = {};
+    const allowedFields = ['nickname', 'phone_number', 'gender', 'profile_image'];
+
+    for (const key of allowedFields) {
+      if (localUserData[key] !== originalUserData.value[key]) {
+        // 儲存時只傳送相對路徑或檔名
+        const imageValue = localUserData[key];
+        if (key === 'profile_image' && imageValue.startsWith('data:image')) {
+          // 如果是 base64 預覽圖，說明圖片已上傳，但 saveChanges 比 handleFileChange 的 API 回應更快
+          // 此時應該等待 stagedAvatarUrl，或者在真實應用中，將上傳和儲存合併
+          // 為了簡單起見，假設 handleFileChange 已經將它更新為相對路徑了
+          // 因此，我們只需要傳送不是 http 開頭的路徑
+          continue; // 暫時跳過 base64 的儲存
+        }
+        // 只儲存相對路徑
+        if (key === 'profile_image' && imageValue.startsWith('http')) {
+          payload[key] = new URL(imageValue).pathname;
+        } else {
+          payload[key] = imageValue;
+        }
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      isEditing.value = false;
+      return;
+    }
+
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/profile_update_patch.php`;
+      const res = await fetch(apiUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`HTTP 錯誤！狀態: ${res.status}`);
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        // API 成功後，用後端回傳的最新資料，更新本地狀態
+        Object.assign(localUserData, data.data);
+        originalUserData.value = { ...data.data };
+
+        // 再次通知父層更新側邊欄，使用計算後的完整 URL
+        emit('update:avatar', displayAvatar.value);
+
+        isEditing.value = false;
+        phoneFieldTouched.value = false;
+        alert('資料已儲存！');
+      } else {
+        throw new Error(data.message || '更新資料失敗');
+      }
+    } catch (err) {
+      alert(`儲存失敗: ${err.message}`);
+      error.value = err.message;
+      // 失敗時，還原到編輯前的狀態
+      cancelEdit();
+    } finally {
+      isLoading.value = false;
+    }
+  };
+</script>
+
 <template>
   <div class="profilePage">
     <!-- 手機版 header -->
@@ -34,7 +304,7 @@
     <!-- 手機版：大頭貼 -->
     <div class="profilePage__avatarContainer">
       <img
-        :src="localUserData.profile_image"
+        :src="displayAvatar"
         alt="使用者頭像"
         class="profilePage__avatar"
         :class="{ 'is-editable': isEditing }"
@@ -177,7 +447,7 @@
               上傳圖片
             </button>
             <img
-              :src="localUserData.profile_image"
+              :src="displayAvatar"
               alt="頭像預覽"
               class="avatarUpload__preview"
             />
@@ -213,115 +483,17 @@
   </div>
 </template>
 
-<script setup>
-  import { ref, reactive, onMounted, computed, defineEmits } from 'vue';
-  import { useRouter } from 'vue-router';
-  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
-
-  const emit = defineEmits(['update:avatar']);
-  const router = useRouter();
-  const props = defineProps({
-    userData: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  const isEditing = ref(false);
-  const localUserData = reactive({});
-  const fileInput = ref(null);
-  const stagedAvatarUrl = ref(null);
-  const phoneFieldTouched = ref(false);
-
-  onMounted(() => {
-    Object.assign(localUserData, props.userData);
-  });
-
-  const genderText = computed(() => {
-    const map = { M: '男', F: '女', N: '不願透漏' };
-    return map[localUserData.gender] || '未設定';
-  });
-
-  const isPhoneInvalid = computed(() => {
-    // 在「編輯中」且「使用者碰過輸入框」且「電話是空的」時無效
-    return isEditing.value && phoneFieldTouched.value && !localUserData.phone_number;
-  });
-
-  const toggleEdit = () => {
-    // 從編輯模式 -> 非編輯模式，等同於取消編輯
-    isEditing.value = !isEditing.value;
-    if (!isEditing.value) {
-      // 直接呼叫 cancelEdit 還原資料
-      cancelEdit();
-    }
-  };
-
-  const cancelEdit = () => {
-    Object.assign(localUserData, props.userData);
-    stagedAvatarUrl.value = null;
-    isEditing.value = false;
-    phoneFieldTouched.value = false;
-  };
-
-  const saveChanges = () => {
-    // 儲存前的防禦性檢查
-    if (!localUserData.phone_number) {
-      // 如果電話是空的，顯示 alert 並終止函式
-      alert('「聯絡電話」欄位不得為空');
-      // 同時，手動觸發 touched 狀態，確保錯誤樣式會顯示
-      phoneFieldTouched.value = true;
-      return;
-    }
-    if (stagedAvatarUrl.value) {
-      emit('update:avatar', stagedAvatarUrl.value);
-    }
-    alert('資料已儲存');
-    stagedAvatarUrl.value = null;
-    isEditing.value = false;
-    phoneFieldTouched.value = false;
-  };
-
-  const goBackToMenu = () => {
-    router.push('/member');
-  };
-
-  const handleBack = () => {
-    if (isEditing.value) {
-      cancelEdit();
-    } else {
-      goBackToMenu();
-    }
-  };
-
-  const triggerFileUpload = () => {
-    fileInput.value.click();
-  };
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newAvatarUrl = e.target.result;
-        localUserData.profile_image = newAvatarUrl;
-        stagedAvatarUrl.value = newAvatarUrl;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-</script>
-
 <style lang="scss" scoped>
   // 最外層容器
   .profilePage {
     margin-top: 30px;
     width: 100%;
 
-    // --- 手機版元素 (預設隱藏) ---
+    // 手機版元素 (預設隱藏)
     &__avatarContainer {
       display: none;
     }
 
-    // --- 桌面版樣式 ---
     &__title {
       color: $primary-c700;
       margin-bottom: 24px;
@@ -462,6 +634,7 @@
           width: 150px;
           height: 150px;
           border-radius: 50%;
+          object-fit: cover;
           &.is-editable {
             cursor: pointer;
             &:hover {
