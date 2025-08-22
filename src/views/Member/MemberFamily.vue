@@ -1,3 +1,241 @@
+<script setup>
+  import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+  import { useRouter } from 'vue-router';
+  import MemberModal from '@/components/MemberModal.vue';
+  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
+
+  const router = useRouter();
+  const isFormVisible = ref(false);
+  const viewingMember = ref(null);
+
+  // 引入環境變數
+  const { VITE_API_BASE } = import.meta.env;
+  const familyMembers = ref([]);
+
+  // 假的家庭成員資料
+  // const familyMembers = ref([
+  //   {
+  //     user_id: 'f001',
+  //     fullname: 'Foday·Afo',
+  //     email: 'abc123@gmail.com',
+  //     phone_number: '0988123459',
+  //   },
+  //   {
+  //     user_id: 'f002',
+  //     fullname: 'Panay·Mayaw',
+  //     email: 'abc1234@gmail.com',
+  //     phone_number: '09881234567',
+  //   },
+  // ]);
+
+  // GET家庭成員
+  const isLoading = ref(true);
+  const fetchFamilyMembers = async () => {
+    isLoading.value = true; // 開始載入
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/family_get.php`;
+      const res = await fetch(apiUrl);
+      console.log(res);
+
+      if (!res.ok) {
+        // 如果伺服器回應 4xx 或 5xx 錯誤
+        throw new Error(`伺服器錯誤: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        // API 成功回傳資料，將其賦值給 familyMembers
+        familyMembers.value = data.data;
+      } else {
+        // API 回傳的 JSON 內容表示有錯誤
+        throw new Error(data.message || '無法獲取家庭成員列表');
+      }
+    } catch (error) {
+      console.error('獲取家庭成員時發生錯誤:', error);
+      alert(error.message); // 顯示錯誤訊息給使用者
+    } finally {
+      isLoading.value = false; // 載入結束
+    }
+  };
+
+  const newMember = reactive({
+    fullname: '',
+    user_id: '',
+    password: '',
+    email: '',
+    phone_number: '',
+  });
+
+  // 原本的新增的成員
+  // const addMember = () => {
+  //   if (
+  //     !newMember.fullname ||
+  //     !newMember.user_id ||
+  //     !newMember.password ||
+  //     !newMember.email ||
+  //     !newMember.phone_number
+  //   ) {
+  //     alert('所有欄位皆必填');
+  //     return;
+  //   }
+  //   familyMembers.value.push({ user_id: `f${Date.now()}`, ...newMember });
+  //   alert(`家庭成員 ${newMember.fullname} 已新增！`);
+  //   hideForm();
+  // };
+
+  // 原本的刪除成員
+  // const deleteMember = (memberId) => {
+  //   if (confirm('確定要刪除這位家庭成員嗎？')) {
+  //     familyMembers.value = familyMembers.value.filter((m) => m.user_id !== memberId);
+  //   }
+  // };
+
+  //POST新增家庭成員
+  const addMember = async () => {
+    if (
+      !newMember.fullname ||
+      !newMember.user_id ||
+      !newMember.password ||
+      !newMember.email ||
+      !newMember.phone_number
+    ) {
+      alert('所有欄位皆必填');
+      return;
+    }
+
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/family_add_post.php`;
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newMember),
+      });
+      const data = await res.json();
+
+      // res.ok 檢查 HTTP 狀態碼是否為 2xx (成功)
+      if (res.ok && data.status === 'success') {
+        // familyMembers.value.push(data.data);
+
+        const updatedMembers = [...familyMembers.value, data.data];
+        familyMembers.value = updatedMembers;
+
+        alert(`家庭成員 ${newMember.fullname} 已新增！`);
+        hideForm(); // 關閉表單並清空輸入框
+      } else {
+        // 如果後端回傳錯誤訊息 (例如帳號重複)
+        throw new Error(data.message || '新增家庭成員失敗');
+      }
+    } catch (error) {
+      console.error('新增家庭成員時發生錯誤:', error);
+      alert(error.message);
+    }
+  };
+
+  // 重設表單函式
+  const resetForm = () => {
+    Object.assign(newMember, {
+      fullname: '',
+      user_id: '',
+      password: '',
+      email: '',
+      phone_number: '',
+    });
+  };
+
+  //POST(DELETE)刪除家庭成員
+  const deleteMember = async (userId) => {
+    if (confirm('確定要刪除這位家庭成員嗎？')) {
+      try {
+        // URL 指向 .php 檔案本身，沒有後面的 ID
+        const apiUrl = `${VITE_API_BASE}/api/member/family_delete_post.php`;
+
+        const res = await fetch(apiUrl, {
+          method: 'POST', // 使用 POST 方法
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // 將要刪除的 ID 放在 Body 中發送
+          body: JSON.stringify({ user_id: userId }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          // familyMembers.value = familyMembers.value.filter((m) => m.user_id !== userId);
+
+          const updatedMembers = familyMembers.value.filter((m) => m.user_id !== userId);
+          familyMembers.value = updatedMembers;
+
+          alert('成員已刪除');
+        } else {
+          throw new Error(data.message || '刪除失敗');
+        }
+      } catch (error) {
+        console.error('刪除成員時發生錯誤:', error);
+        alert(error.message);
+      }
+    }
+  };
+
+  // --- 事件處理函式 ---
+  const showAddForm = () => {
+    isFormVisible.value = true;
+  };
+  const hideForm = () => {
+    isFormVisible.value = false;
+    resetForm();
+  };
+
+  const goBackToMenu = () => {
+    router.push('/member');
+  };
+
+  const showMemberDetails = (member) => {
+    // 只在手機版生效
+    if (window.innerWidth <= 768) {
+      viewingMember.value = member;
+    }
+  };
+  const hideMemberDetails = () => {
+    viewingMember.value = null;
+  };
+
+  // --- JS RWD 判斷 ---
+  // 監聽視窗寬度變化，以確保 computed 屬性能夠響應
+  const screenWidth = ref(window.innerWidth);
+  const handleResize = () => {
+    screenWidth.value = window.innerWidth;
+  };
+  onMounted(() => {
+    // 在元件掛載到畫面上時，自動呼叫 API 函式來獲取資料
+    fetchFamilyMembers();
+    window.addEventListener('resize', handleResize);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
+  });
+
+  // 使用標準的、無歧義的斷點來定義 JS 中的「手機」
+  const isMobile = computed(() => screenWidth.value <= 768);
+
+  // 計算屬性，用於決定顯示哪個 UI
+  const isModalOpen = computed(() => {
+    // 彈窗只在「表單可見」且「不是手機」時顯示
+    return isFormVisible.value && !isMobile.value;
+  });
+  const isMobileFormVisible = computed(() => {
+    // 手機表單只在「表單可見」且「是手機」時顯示
+    return isFormVisible.value && isMobile.value;
+  });
+
+  const isViewingDetails = computed(() => {
+    // 只有在 viewingMember 有值，且「是手機」時顯示
+    return viewingMember.value !== null && isMobile.value;
+  });
+</script>
+
 <template>
   <div class="familyPage">
     <!-- 手機版表格、桌面版列表 顯示狀態 -->
@@ -24,14 +262,14 @@
           <tbody>
             <tr
               v-for="member in familyMembers"
-              :key="member.id"
+              :key="member.user_id"
             >
-              <td>{{ member.full_name }}</td>
+              <td>{{ member.fullname }}</td>
               <td>{{ member.email }}</td>
-              <td>{{ member.phone }}</td>
+              <td>{{ member.phone_number }}</td>
               <td>
                 <button
-                  @click="deleteMember(member.id)"
+                  @click="deleteMember(member.user_id)"
                   class="iconButton"
                 >
                   <svg viewBox="0 0 24 24">
@@ -63,17 +301,17 @@
       <div class="mobileList">
         <div
           v-for="member in familyMembers"
-          :key="member.id"
+          :key="member.user_id"
           class="mobileList__item"
         >
           <span
             @click="showMemberDetails(member)"
             class="is-clickable"
           >
-            {{ member.full_name }}
+            {{ member.fullname }}
           </span>
           <button
-            @click="deleteMember(member.id)"
+            @click="deleteMember(member.user_id)"
             class="iconButton"
           >
             <svg viewBox="0 0 24 24">
@@ -128,7 +366,7 @@
           <div class="detailItem">
             <label class="detailItem__label body--b4">姓名 *</label>
             <input
-              v-model="newMember.full_name"
+              v-model="newMember.fullname"
               class="detailItem__input"
               type="text"
             />
@@ -136,7 +374,7 @@
           <div class="detailItem">
             <label class="detailItem__label body--b4">帳號 *</label>
             <input
-              v-model="newMember.id"
+              v-model="newMember.user_id"
               class="detailItem__input"
               type="text"
             />
@@ -166,7 +404,7 @@
               <span class="labelText--remark">家庭成員登入後可自行修改</span>
             </label>
             <input
-              v-model="newMember.phone"
+              v-model="newMember.phone_number"
               class="detailItem__input"
               type="tel"
             />
@@ -193,7 +431,7 @@
       >
         <div class="detailItem">
           <label class="detailItem__label body--b4">姓名</label>
-          <p class="detailItem__content body--b3">{{ viewingMember.full_name }}</p>
+          <p class="detailItem__content body--b3">{{ viewingMember.fullname }}</p>
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">電子信箱</label>
@@ -201,7 +439,7 @@
         </div>
         <div class="detailItem">
           <label class="detailItem__label body--b4">聯絡電話</label>
-          <p class="detailItem__content body--b3">{{ viewingMember.phone }}</p>
+          <p class="detailItem__content body--b3">{{ viewingMember.phone_number }}</p>
         </div>
       </div>
     </div>
@@ -221,7 +459,7 @@
             <div class="detailItem">
               <label class="detailItem__label body--b4">姓名 *</label>
               <input
-                v-model="newMember.full_name"
+                v-model="newMember.fullname"
                 class="detailItem__input"
                 type="text"
               />
@@ -229,7 +467,7 @@
             <div class="detailItem">
               <label class="detailItem__label body--b4">帳號 *</label>
               <input
-                v-model="newMember.id"
+                v-model="newMember.user_id"
                 class="detailItem__input"
                 type="text"
               />
@@ -259,7 +497,7 @@
                 <span class="labelText--remark">家庭成員登入後可自行修改</span>
               </label>
               <input
-                v-model="newMember.phone"
+                v-model="newMember.phone_number"
                 class="detailItem__input"
                 type="tel"
               />
@@ -288,124 +526,6 @@
     </MemberModal>
   </div>
 </template>
-
-<script setup>
-  import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRouter } from 'vue-router';
-  import MemberModal from '@/components/MemberModal.vue';
-  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
-
-  const router = useRouter();
-  const isFormVisible = ref(false);
-  const viewingMember = ref(null);
-
-  // 假的家庭成員資料
-  const familyMembers = ref([
-    {
-      id: 'f001',
-      full_name: 'Foday·Afo',
-      email: 'abc123@gmail.com',
-      phone: '0988123459',
-    },
-    {
-      id: 'f002',
-      full_name: 'Panay·Mayaw',
-      email: 'abc1234@gmail.com',
-      phone: '09881234567',
-    },
-  ]);
-  const newMember = reactive({
-    full_name: '',
-    id: '', // 帳號對應到 users.id
-    password: '',
-    email: '',
-    phone: '',
-  });
-
-  // 重設表單函式
-  const resetForm = () => {
-    Object.assign(newMember, {
-      full_name: '',
-      id: '',
-      password: '',
-      email: '',
-      phone: '',
-    });
-  };
-
-  // --- 事件處理函式 ---
-  const showAddForm = () => {
-    isFormVisible.value = true;
-  };
-  const hideForm = () => {
-    isFormVisible.value = false;
-    resetForm();
-  };
-  const addMember = () => {
-    if (
-      !newMember.full_name ||
-      !newMember.id ||
-      !newMember.password ||
-      !newMember.email ||
-      !newMember.phone
-    ) {
-      alert('所有欄位皆必填');
-      return;
-    }
-    familyMembers.value.push({ id: `f${Date.now()}`, ...newMember });
-    alert(`家庭成員 ${newMember.full_name} 已新增！`);
-    hideForm();
-  };
-  const deleteMember = (memberId) => {
-    if (confirm('確定要刪除這位家庭成員嗎？')) {
-      familyMembers.value = familyMembers.value.filter((m) => m.id !== memberId);
-    }
-  };
-  const goBackToMenu = () => {
-    router.push('/member');
-  };
-
-  const showMemberDetails = (member) => {
-    // 只在手機版生效
-    if (window.innerWidth <= 768) {
-      viewingMember.value = member;
-    }
-  };
-  const hideMemberDetails = () => {
-    viewingMember.value = null;
-  };
-
-  // --- JS RWD 判斷 ---
-  // 監聽視窗寬度變化，以確保 computed 屬性能夠響應
-  const screenWidth = ref(window.innerWidth);
-  const handleResize = () => {
-    screenWidth.value = window.innerWidth;
-  };
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  // 使用標準的、無歧義的斷點來定義 JS 中的「手機」
-  const isMobile = computed(() => screenWidth.value <= 768);
-
-  // 計算屬性，用於決定顯示哪個 UI
-  const isModalOpen = computed(() => {
-    // 彈窗只在「表單可見」且「不是手機」時顯示
-    return isFormVisible.value && !isMobile.value;
-  });
-  const isMobileFormVisible = computed(() => {
-    // 手機表單只在「表單可見」且「是手機」時顯示
-    return isFormVisible.value && isMobile.value;
-  });
-
-  const isViewingDetails = computed(() => {
-    // 只有在 viewingMember 有值，且「是手機」時顯示
-    return viewingMember.value !== null && isMobile.value;
-  });
-</script>
 
 <style lang="scss" scoped>
   .familyPage {
