@@ -1,4 +1,259 @@
-<!-- src/views/Member/MemberPosts.vue -->
+<script setup>
+  import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+  import { useRouter } from 'vue-router';
+  import MemberModal from '@/components/MemberModal.vue';
+  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
+
+  const router = useRouter();
+  // 引入環境變數
+  const { VITE_API_BASE } = import.meta.env;
+
+  // --- 狀態管理 ---
+  const desktopActiveTab = ref('posts'); //tab
+  const mobileView = ref('index'); // 'index', 'posts', 'replies'
+  const showActionsModalForPost = ref(null); // 存放正在操作的 post 物件
+  const isLoadingPosts = ref(true); // 追蹤貼文載入狀態
+  const isLoadingReplies = ref(true); // 追蹤回覆載入狀態
+
+  // 原本的假資料
+  // const myPosts = ref([
+  //   {
+  //     post_no: 1, //  (PK)
+  //     author_id: 'user_account_001',
+  //     title: '多出來的書要交換嗎？',
+  //     created_at: '2025-07-14', // 此欄位需要json或後端處理
+  //     is_reported: false,
+  //   },
+  //   {
+  //     post_no: 2,
+  //     author_id: 'user_account_001',
+  //     title: '公共廁所太髒了',
+  //     created_at: '2025-06-20',
+  //     is_reported: false,
+  //   },
+  //   {
+  //     post_no: 3,
+  //     author_id: 'user_account_001',
+  //     title: '大家會參加馬拉松嗎？',
+  //     created_at: '2025-06-19',
+  //     is_reported: true, // 假設被檢舉下架
+  //   },
+  //   {
+  //     post_no: 4,
+  //     author_id: 'user_account_001',
+  //     title: '多出來的書要交換嗎？',
+  //     created_at: '2025-06-18',
+  //     is_reported: false,
+  //   },
+  //   {
+  //     post_no: 5,
+  //     author_id: 'user_account_001',
+  //     title: '想買飲水機來團嗎？',
+  //     created_at: '2025-06-25',
+  //     is_reported: true,
+  //   },
+  // ]);
+
+  // const myReplies = ref([
+  //   {
+  //     comment_no: 1, // 留言編號 (PK)
+  //     post_no: 1, // 所屬貼文編號 (FK)
+  //     commenter_id: 'user_account_001',
+  //     commented_at: '2025-07-14',
+  //     original_post_title: '多出來的書要交換嗎？',
+  //     is_original_post_deleted: false, // 原文是否已删除 (此欄位還需要json或後端判斷)
+  //   },
+  //   {
+  //     comment_no: 2,
+  //     post_no: 2,
+  //     commenter_id: 'user_account_001',
+  //     commented_at: '2025-06-20',
+  //     original_post_title: '公共廁所太髒了',
+  //     is_original_post_deleted: false,
+  //   },
+  //   {
+  //     comment_no: 3,
+  //     post_no: 999,
+  //     commenter_id: 'user_account_001',
+  //     commented_at: '2025-06-19',
+  //     original_post_title: '好想睡哦哦',
+  //     is_original_post_deleted: true, // 假設此貼文已刪除
+  //   },
+  //   {
+  //     comment_no: 4,
+  //     post_no: 2,
+  //     commenter_id: 'user_account_001',
+  //     commented_at: '2025-06-24',
+  //     original_post_title: '太髒了',
+  //     is_original_post_deleted: false,
+  //   },
+  //   {
+  //     comment_no: 2,
+  //     post_no: 2,
+  //     commenter_id: 'user_account_001',
+  //     commented_at: '2025-06-21',
+  //     original_post_title: '怎麼路燈又壞了',
+  //     is_original_post_deleted: false,
+  //   },
+  // ]);
+
+  // GET已發布貼文
+  const myPosts = ref([]);
+  const fetchMyPosts = async () => {
+    isLoadingPosts.value = true;
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/posts_get.php`;
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error(`伺服器錯誤: ${res.status}`);
+
+      const data = await res.json();
+      if (data.status === 'success') {
+        myPosts.value = data.data;
+      } else {
+        throw new Error(data.message || '無法獲取已發布貼文');
+      }
+    } catch (error) {
+      console.error('獲取已發布貼文時發生錯誤:', error);
+      alert(error.message);
+    } finally {
+      isLoadingPosts.value = false;
+    }
+  };
+
+  // GET已回覆貼文
+  const myReplies = ref([]);
+  const fetchMyReplies = async () => {
+    isLoadingReplies.value = true;
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/replies_get.php`;
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        myReplies.value = data.data;
+      } else {
+        throw new Error(data.message || '無法獲取已回覆貼文');
+      }
+    } catch (error) {
+      console.error('獲取已回覆貼文時發生錯誤:', error);
+      alert(error.message);
+    } finally {
+      isLoadingReplies.value = false;
+    }
+  };
+
+  // --- 分頁 ---
+  // 1. 我的貼文
+  const postsPageSize = ref(6); // 每頁顯示幾筆
+  const postsCurrentPage = ref(1); // 當前頁碼
+  // 計算總頁數
+  const postsTotalPages = computed(() => Math.ceil(myPosts.value.length / postsPageSize.value));
+  // 計算當前是否為第一頁/最後一頁
+  const isPostsFirstPage = computed(() => postsCurrentPage.value === 1);
+  const isPostsLastPage = computed(() => postsCurrentPage.value === postsTotalPages.value);
+  // 計算屬性：從完整列表中“切割”出當前頁要顯示的資料
+  const paginatedPosts = computed(() => {
+    const startIndex = (postsCurrentPage.value - 1) * postsPageSize.value;
+    const endIndex = startIndex + postsPageSize.value;
+    return myPosts.value.slice(startIndex, endIndex);
+  });
+  // 換頁函式
+  const postsGoPrev = () => {
+    if (!isPostsFirstPage.value) postsCurrentPage.value--;
+  };
+  const postsGoNext = () => {
+    if (!isPostsLastPage.value) postsCurrentPage.value++;
+  };
+
+  // 2. 已回覆貼文
+  const repliesPageSize = ref(6);
+  const repliesCurrentPage = ref(1);
+  const repliesTotalPages = computed(() =>
+    Math.ceil(myReplies.value.length / repliesPageSize.value),
+  );
+  const isRepliesFirstPage = computed(() => repliesCurrentPage.value === 1);
+  const isRepliesLastPage = computed(() => repliesCurrentPage.value === repliesTotalPages.value);
+  const paginatedReplies = computed(() => {
+    const startIndex = (repliesCurrentPage.value - 1) * repliesPageSize.value;
+    const endIndex = startIndex + repliesPageSize.value;
+    return myReplies.value.slice(startIndex, endIndex);
+  });
+  const repliesGoPrev = () => {
+    if (!isRepliesFirstPage.value) repliesCurrentPage.value--;
+  };
+  const repliesGoNext = () => {
+    if (!isRepliesLastPage.value) repliesCurrentPage.value++;
+  };
+
+  // --- 事件處理函式 ---
+  const goBackToMenu = () => router.push('/member');
+
+  //原本的刪除貼文
+  // const deletePost = (postNo) => {
+  //   if (confirm('確定要刪除這篇貼文嗎？')) {
+  //     //呼叫 API: axios.delete(`/api/posts/${postNo}`)
+  //     myPosts.value = myPosts.value.filter((p) => p.post_no !== postNo);
+  //     closeActionsModal(); // 刪除後關閉彈窗
+  //     alert('貼文已刪除');
+  //   }
+  // };
+
+  // POST(DELETE)已發布貼文
+  const deletePost = async (postNo) => {
+    if (confirm('確定要刪除這篇貼文嗎？')) {
+      try {
+        const apiUrl = `${VITE_API_BASE}/api/member/post_delete.php?post_no=${postNo}`;
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          // headers: { 'Content-Type': 'application/json' },
+          // body: JSON.stringify({ post_no: postNo }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          // 使用 filter 建立新陣列來確保響應性
+          myPosts.value = myPosts.value.filter((p) => p.post_no !== postNo);
+          closeActionsModal(); // 刪除後關閉彈窗
+          alert('貼文已刪除');
+        } else {
+          throw new Error(data.message || '刪除失敗');
+        }
+      } catch (error) {
+        console.error('刪除貼文時發生錯誤:', error);
+        alert(error.message);
+      }
+    }
+  };
+
+  const openActionsModal = (post) => {
+    showActionsModalForPost.value = post;
+  };
+  const closeActionsModal = () => {
+    showActionsModalForPost.value = null;
+  };
+
+  // --- JS RWD 判斷 ---
+  // 監聽視窗寬度變化，以確保 computed 屬性能夠響應
+  const screenWidth = ref(window.innerWidth);
+  const handleResize = () => {
+    screenWidth.value = window.innerWidth;
+  };
+  onMounted(() => {
+    // 元件載入時，同時獲取兩種資料
+    fetchMyPosts();
+    fetchMyReplies();
+    window.addEventListener('resize', handleResize);
+  });
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
+  });
+
+  // 使用標準的、無歧義的斷點來定義 JS 中的「手機」
+  const isMobile = computed(() => screenWidth.value <= 768);
+</script>
+
 <template>
   <div class="postsPage">
     <!-- 手機版 header  -->
@@ -66,7 +321,7 @@
               class="postTable__row"
               :class="{ 'is-reported': post.is_reported }"
             >
-              <td>{{ post.created_at }}</td>
+              <td>{{ post.posted_at }}</td>
 
               <td>
                 <span v-if="post.is_reported">{{ post.title }}</span>
@@ -156,7 +411,7 @@
           <tbody>
             <tr
               v-for="reply in paginatedReplies"
-              :key="reply.comment_no"
+              :key="reply.comments_no"
               class="postTable__row"
             >
               <td>{{ reply.commented_at }}</td>
@@ -166,7 +421,7 @@
                   :to="`/community/${reply.post_no}`"
                   class="postTable__link"
                 >
-                  {{ reply.original_post_title }}
+                  {{ reply.title }}
                 </router-link>
               </td>
             </tr>
@@ -228,7 +483,7 @@
             v-if="post.is_reported"
             class="mobileList__info is-reported"
           >
-            <span class="mobileList__date">{{ post.created_at }}</span>
+            <span class="mobileList__date">{{ post.posted_at }}</span>
             <span class="mobileList__name">{{ post.title }}</span>
           </div>
           <router-link
@@ -236,7 +491,7 @@
             :to="`/community/${post.post_no}`"
             class="mobileList__info"
           >
-            <span class="mobileList__date">{{ post.created_at }}</span>
+            <span class="mobileList__date">{{ post.posted_at }}</span>
             <span class="mobileList__name">{{ post.title }}</span>
           </router-link>
 
@@ -284,27 +539,27 @@
         <h5 class="mobileList__title">已回覆貼文</h5>
         <div
           v-for="reply in paginatedReplies"
-          :key="reply.comment_no"
+          :key="reply.comments_no"
           class="mobileList__item"
         >
           <router-link
-            v-if="!reply.is_original_post_deleted"
+            v-if="!reply.is_deleted"
             :to="`/community/${reply.post_no}`"
             class="mobileList__info"
           >
             <span class="mobileList__date">{{ reply.commented_at }}</span>
-            <span class="mobileList__name">{{ reply.original_post_title }}</span>
+            <span class="mobileList__name">{{ reply.title }}</span>
           </router-link>
           <!-- 
             或者，直接導向一個不存在的路徑，讓 Vue Router 的萬用匹配 (*) 來處理 404 
-            <router-link v-if="!reply.is_original_post_deleted" ... >
+            <router-link v-if="!reply.is_deleted" ... >
           -->
           <div
             v-else
             class="mobileList__info is-deleted"
           >
             <span class="mobileList__date">{{ reply.commented_at }}</span>
-            <span class="mobileList__name">{{ reply.original_post_title }} (原文已刪除)</span>
+            <span class="mobileList__name">{{ reply.title }} (原文已刪除)</span>
           </div>
         </div>
         <!-- 分頁 -->
@@ -402,180 +657,6 @@
     </MemberModal>
   </div>
 </template>
-
-<script setup>
-  import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRouter } from 'vue-router';
-  import MemberModal from '@/components/MemberModal.vue';
-  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
-
-  const router = useRouter();
-
-  // --- 狀態管理 ---
-  const desktopActiveTab = ref('posts'); //tab
-  const mobileView = ref('index'); // 'index', 'posts', 'replies'
-  const showActionsModalForPost = ref(null); // 存放正在操作的 post 物件
-
-  // --- 假資料 ---
-  const myPosts = ref([
-    {
-      post_no: 1, //  (PK)
-      author_id: 'user_account_001',
-      title: '多出來的書要交換嗎？',
-      created_at: '2025-07-14', // 此欄位需要json或後端處理
-      is_reported: false,
-    },
-    {
-      post_no: 2,
-      author_id: 'user_account_001',
-      title: '公共廁所太髒了',
-      created_at: '2025-06-20',
-      is_reported: false,
-    },
-    {
-      post_no: 3,
-      author_id: 'user_account_001',
-      title: '大家會參加馬拉松嗎？',
-      created_at: '2025-06-19',
-      is_reported: true, // 假設被檢舉下架
-    },
-    {
-      post_no: 4,
-      author_id: 'user_account_001',
-      title: '多出來的書要交換嗎？',
-      created_at: '2025-06-18',
-      is_reported: false,
-    },
-    {
-      post_no: 5,
-      author_id: 'user_account_001',
-      title: '想買飲水機來團嗎？',
-      created_at: '2025-06-25',
-      is_reported: true,
-    },
-  ]);
-
-  const myReplies = ref([
-    {
-      comment_no: 1, // 留言編號 (PK)
-      post_no: 1, // 所屬貼文編號 (FK)
-      commenter_id: 'user_account_001',
-      commented_at: '2025-07-14',
-      original_post_title: '多出來的書要交換嗎？',
-      is_original_post_deleted: false, // 原文是否已删除 (此欄位還需要json或後端判斷)
-    },
-    {
-      comment_no: 2,
-      post_no: 2,
-      commenter_id: 'user_account_001',
-      commented_at: '2025-06-20',
-      original_post_title: '公共廁所太髒了',
-      is_original_post_deleted: false,
-    },
-    {
-      comment_no: 3,
-      post_no: 999,
-      commenter_id: 'user_account_001',
-      commented_at: '2025-06-19',
-      original_post_title: '好想睡哦哦',
-      is_original_post_deleted: true, // 假設此貼文已刪除
-    },
-    {
-      comment_no: 4,
-      post_no: 2,
-      commenter_id: 'user_account_001',
-      commented_at: '2025-06-24',
-      original_post_title: '太髒了',
-      is_original_post_deleted: false,
-    },
-    {
-      comment_no: 2,
-      post_no: 2,
-      commenter_id: 'user_account_001',
-      commented_at: '2025-06-21',
-      original_post_title: '怎麼路燈又壞了',
-      is_original_post_deleted: false,
-    },
-  ]);
-
-  // --- 分頁 ---
-  // 1. 我的貼文
-  const postsPageSize = ref(6); // 每頁顯示幾筆
-  const postsCurrentPage = ref(1); // 當前頁碼
-  // 計算總頁數
-  const postsTotalPages = computed(() => Math.ceil(myPosts.value.length / postsPageSize.value));
-  // 計算當前是否為第一頁/最後一頁
-  const isPostsFirstPage = computed(() => postsCurrentPage.value === 1);
-  const isPostsLastPage = computed(() => postsCurrentPage.value === postsTotalPages.value);
-  // 計算屬性：從完整列表中“切割”出當前頁要顯示的資料
-  const paginatedPosts = computed(() => {
-    const startIndex = (postsCurrentPage.value - 1) * postsPageSize.value;
-    const endIndex = startIndex + postsPageSize.value;
-    return myPosts.value.slice(startIndex, endIndex);
-  });
-  // 換頁函式
-  const postsGoPrev = () => {
-    if (!isPostsFirstPage.value) postsCurrentPage.value--;
-  };
-  const postsGoNext = () => {
-    if (!isPostsLastPage.value) postsCurrentPage.value++;
-  };
-
-  // 2. 已回覆貼文
-  const repliesPageSize = ref(6);
-  const repliesCurrentPage = ref(1);
-  const repliesTotalPages = computed(() =>
-    Math.ceil(myReplies.value.length / repliesPageSize.value),
-  );
-  const isRepliesFirstPage = computed(() => repliesCurrentPage.value === 1);
-  const isRepliesLastPage = computed(() => repliesCurrentPage.value === repliesTotalPages.value);
-  const paginatedReplies = computed(() => {
-    const startIndex = (repliesCurrentPage.value - 1) * repliesPageSize.value;
-    const endIndex = startIndex + repliesPageSize.value;
-    return myReplies.value.slice(startIndex, endIndex);
-  });
-  const repliesGoPrev = () => {
-    if (!isRepliesFirstPage.value) repliesCurrentPage.value--;
-  };
-  const repliesGoNext = () => {
-    if (!isRepliesLastPage.value) repliesCurrentPage.value++;
-  };
-
-  // --- 事件處理函式 ---
-  const goBackToMenu = () => router.push('/member');
-
-  const deletePost = (postNo) => {
-    if (confirm('確定要刪除這篇貼文嗎？')) {
-      //呼叫 API: axios.delete(`/api/posts/${postNo}`)
-      myPosts.value = myPosts.value.filter((p) => p.post_no !== postNo);
-      closeActionsModal(); // 刪除後關閉彈窗
-      alert('貼文已刪除');
-    }
-  };
-
-  const openActionsModal = (post) => {
-    showActionsModalForPost.value = post;
-  };
-  const closeActionsModal = () => {
-    showActionsModalForPost.value = null;
-  };
-
-  // --- JS RWD 判斷 ---
-  // 監聽視窗寬度變化，以確保 computed 屬性能夠響應
-  const screenWidth = ref(window.innerWidth);
-  const handleResize = () => {
-    screenWidth.value = window.innerWidth;
-  };
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  // 使用標準的、無歧義的斷點來定義 JS 中的「手機」
-  const isMobile = computed(() => screenWidth.value <= 768);
-</script>
 
 <style lang="scss" scoped>
   .postsPage {
