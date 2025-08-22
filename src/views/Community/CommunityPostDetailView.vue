@@ -542,7 +542,7 @@
             name=""
             id=""
             class="post-detail__reply-textarea"
-            placeholder="以王小明的身分發表留言..."
+            :placeholder="`以${TEMP_USER_NAME}的身分發表留言...`"
           ></textarea>
           <button
             type="submit"
