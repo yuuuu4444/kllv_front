@@ -246,6 +246,7 @@
         width: 100%;
         img {
           width: 100%;
+          border-radius: $border-r-md;
         }
       }
 
