@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { useRegisterStore } from '@/stores/register';
 
@@ -9,8 +9,8 @@
 
   const city = ref('桃園市');
   const district = ref('中壢區');
-  const village = ref('');
-  const address = ref('');
+  const village = ref('空瀧浪里');
+  const road = ref('');
   const villageError = ref('');
   const addressError = ref('');
   const checkingAddress = ref(false);
@@ -45,6 +45,46 @@
     }
   }
 
+  const address = computed(() => {
+    return `${city.value}${district.value}${village.value}${road.value}`;
+  });
+
+  // 修改 submitAddress 函數
+  async function submitAddress() {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/login/address_post.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          address: address.value, // 使用組合後的地址
+          status: 0,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        // 儲存戶號到 store
+        registerStore.household_no = data.data.household_no;
+        // 儲存地址資訊到 store
+        registerStore.city = city.value;
+        registerStore.district = district.value;
+        registerStore.village = village.value;
+        registerStore.address = road.value;
+        // 導向下一步
+        router.push('/register-step2');
+      } else {
+        addressError.value = data.message;
+      }
+    } catch (err) {
+      console.error('新增地址錯誤:', err);
+      addressError.value = '系統錯誤，請稍後再試';
+    }
+  }
+
   // 修改 goToRegisterStep2 函數
   async function goToRegisterStep2() {
     // 重置錯誤訊息
@@ -59,7 +99,7 @@
       hasError = true;
     }
 
-    if (!address.value) {
+    if (!road.value) {
       addressError.value = '地址為必填';
       hasError = true;
     }
@@ -67,20 +107,15 @@
     if (hasError) return;
 
     // 檢查地址是否已被註冊
-    const fullAddress = `${city.value}${district.value}${village.value}${address.value}`;
-    const addressExists = await checkAddress(fullAddress);
+    const addressExists = await checkAddress(address.value);
 
     if (addressExists) {
       addressError.value = '此地址已被註冊';
       return;
     }
 
-    // 儲存第一步資料至 Pinia
-    registerStore.city = city.value;
-    registerStore.district = district.value;
-    registerStore.village = village.value;
-    registerStore.address = address.value;
-    router.push('/register-step2');
+    // 提交地址
+    await submitAddress();
   }
 
   function goToLogin() {
@@ -95,12 +130,12 @@
       <div class="form-stepper">
         <div class="step-group">
           <div class="step-circle active">1</div>
-          <div class="step-label">填寫資料</div>
+          <div class="step-label">戶籍資料</div>
         </div>
         <div class="step-line"></div>
         <div class="step-group">
           <div class="step-circle">2</div>
-          <div class="step-label gray">確認送出</div>
+          <div class="step-label gray">成員資料</div>
         </div>
       </div>
       <form @submit.prevent="goToRegisterStep2">
@@ -152,7 +187,7 @@
           </div>
           <input
             type="text"
-            v-model="address"
+            v-model="road"
             :class="{ 'input-error': addressError }"
             placeholder="請輸入地址"
           />

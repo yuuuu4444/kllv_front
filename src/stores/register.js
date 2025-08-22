@@ -7,6 +7,7 @@ export const useRegisterStore = defineStore('register', () => {
   const district = ref('');
   const village = ref('');
   const address = ref('');
+  const household_no = ref(''); // 新增戶號欄位
 
   // 重置所有資料的方法
   function resetRegisterData() {
@@ -14,6 +15,7 @@ export const useRegisterStore = defineStore('register', () => {
     district.value = '';
     village.value = '';
     address.value = '';
+    household_no.value = '';
   }
 
   return {
@@ -22,6 +24,7 @@ export const useRegisterStore = defineStore('register', () => {
     district,
     village,
     address,
+    household_no,
     // actions
     resetRegisterData,
   };
