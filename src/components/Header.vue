@@ -333,7 +333,7 @@
             <RouterLink
               to="/login"
               @click="hidePoster"
-              v-if="auth.isLoggedIn"
+              v-if="!auth.isLoggedIn"
             >
               <img
                 src="/src/assets/icon/icon_member.png"
