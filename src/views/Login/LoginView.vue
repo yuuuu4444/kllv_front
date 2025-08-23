@@ -7,6 +7,7 @@
   const authStore = useAuthStore();
 
   const showPassword = ref(false);
+
   const user_id = ref('');
   const password = ref('');
   const user_idError = ref('');

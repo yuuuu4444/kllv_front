@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!user.value);
 
   const setUser = (payload) => {
-    user.value = payload.user;
+    user.value = payload; // 直接就是 user 物件
   };
 
   const login = async (user_id, password) => {
