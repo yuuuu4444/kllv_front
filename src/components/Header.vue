@@ -1,6 +1,9 @@
 <script setup>
   import { RouterLink } from 'vue-router';
   import { ref, onMounted, onBeforeUnmount } from 'vue';
+  import { useAuthStore } from '@/stores/auth';
+
+  const auth = useAuthStore();
 
   // 開啟子選單
   const isOpen = ref(false);
@@ -51,15 +54,15 @@
         <li class="mainbar__item">
           <RouterLink to="/news">
             <div class="icon__wrap">
-            <img
-              class="icon icon_png"
-              src="/src/assets/icon/icon_news.png"
-              alt="news-icon"
-            />
-            <img
-              class="icon icon_gif"
-              src="/src/assets/icon/news.gif"
-            />
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_news.png"
+                alt="news-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/news.gif"
+              />
             </div>
             <h5 class="medium">最新消息</h5>
           </RouterLink>
@@ -67,15 +70,15 @@
         <li class="mainbar__item">
           <RouterLink to="/about">
             <div class="icon__wrap">
-            <img
-              class="icon icon_png"
-              src="/src/assets/icon/icon_about.png"
-              alt="about-icon"
-            />
-            <img
-              class="icon icon_gif"
-              src="/src/assets/icon/about.gif"
-            />
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_about.png"
+                alt="about-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/about.gif"
+              />
             </div>
             <h5 class="medium">關於社區</h5>
           </RouterLink>
@@ -86,15 +89,15 @@
         >
           <a>
             <div class="icon__wrap">
-            <img
-              class="icon icon_png"
-              src="/src/assets/icon/icon_service.png"
-              alt="service-icon"
-            />
-            <img
-              class="icon icon_gif"
-              src="/src/assets/icon/service.gif"
-            />
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_service.png"
+                alt="service-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/service.gif"
+              />
             </div>
             <h5 class="medium">里民服務</h5>
           </a>
@@ -117,43 +120,53 @@
         <li class="mainbar__item">
           <RouterLink to="/community">
             <div class="icon__wrap">
-            <img
-              class="icon icon_png"
-              src="/src/assets/icon/icon_community.png"
-              alt="community-icon"
-            />
-            <img
-              class="icon icon_gif"
-              src="/src/assets/icon/community.gif"
-            />
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_community.png"
+                alt="community-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/community.gif"
+              />
             </div>
             <h5 class="medium">里民開講</h5>
           </RouterLink>
         </li>
-        <!-- <li class="mainbar__item">
-          <RouterLink to="/member">
-            <img
-              src="/src/assets/icon/icon_member.png"
-              alt="members-icon"
-            />
-            <h5 class="medium">帳戶管理</h5>
-          </RouterLink>
-        </li> -->
         <li class="mainbar__item">
-          
-          <RouterLink to="/login">
+          <RouterLink
+            to="/login"
+            v-if="!auth.isLoggedIn"
+          >
             <div class="icon__wrap">
-            <img
-              class="icon icon_png"
-              src="/src/assets/icon/icon_member.png"
-              alt="members-icon"
-            />
-            <img
-              class="icon icon_gif"
-              src="/src/assets/icon/login.gif"
-            />
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_member.png"
+                alt="members-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/login.gif"
+              />
             </div>
             <h5 class="medium">里民登入</h5>
+          </RouterLink>
+          <RouterLink
+            to="/member"
+            v-else
+          >
+            <div class="icon__wrap">
+              <img
+                class="icon icon_png"
+                src="/src/assets/icon/icon_member.png"
+                alt="members-icon"
+              />
+              <img
+                class="icon icon_gif"
+                src="/src/assets/icon/login.gif"
+              />
+            </div>
+            <h5 class="medium">帳戶管理</h5>
           </RouterLink>
         </li>
       </ul>
@@ -320,12 +333,28 @@
             <RouterLink
               to="/login"
               @click="hidePoster"
+              v-if="auth.isLoggedIn"
             >
               <img
                 src="/src/assets/icon/icon_member.png"
                 alt="members-icon"
               />
               <h5 class="medium">里民登入</h5>
+              <img
+                src="/src/assets/icon/icon_arrow-left.svg"
+                alt="arrow-icon"
+              />
+            </RouterLink>
+            <RouterLink
+              to="/member"
+              @click="hidePoster"
+              v-else
+            >
+              <img
+                src="/src/assets/icon/icon_member.png"
+                alt="members-icon"
+              />
+              <h5 class="medium">帳戶管理</h5>
               <img
                 src="/src/assets/icon/icon_arrow-left.svg"
                 alt="arrow-icon"
@@ -459,10 +488,10 @@
           letter-spacing: 0.1em;
         }
         .icon__wrap {
-        position: relative;
-        width: 3.125vw;
-        height: 3.125vw;
-        margin: auto;
+          position: relative;
+          width: 3.125vw;
+          height: 3.125vw;
+          margin: auto;
         }
 
         .icon {
@@ -473,11 +502,11 @@
           top: 0;
           left: 0;
         }
-        .icon_gif{
+        .icon_gif {
           opacity: 0;
           z-index: 1;
         }
-        .icon_png{
+        .icon_png {
           opacity: 1;
           z-index: 2;
         }
@@ -531,22 +560,22 @@
         //     margin: auto;
         //     }
         //   }
-        // }    
+        // }
       }
 
       &__item {
         &:hover {
-              .icon_png {
-                opacity: 0;
-    }
-              .icon_gif {
-                opacity: 1;
-    }
+          .icon_png {
+            opacity: 0;
+          }
+          .icon_gif {
+            opacity: 1;
+          }
           h5 {
             color: $primary-c500;
           }
 
-          h5{
+          h5 {
             color: $primary-c500;
           }
 
@@ -559,16 +588,14 @@
         position: relative;
         cursor: pointer;
 
-
         &:hover {
           h5 {
             color: $black;
           }
         }
 
-
-        &:hover{
-          h5{
+        &:hover {
+          h5 {
             color: $black;
           }
         }
