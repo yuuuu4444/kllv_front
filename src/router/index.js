@@ -1,11 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import IndexView from '@/views/IndexView.vue';
-// import AboutView from '@/views/About/AboutView.vue'
-// import EventsView from '@/views/Events/EventsView.vue'
-// import RepairView from '@/views/Repair/RepairView.vue'
-// import CommunityView from '@/views/Community/CommunityView.vue'
-// import MemberView from '@/views/Member/MemberView.vue'
-
 import NewsRoutes from '@/router/news';
 import AboutRoutes from '@/router/about';
 import EventsRoutes from '@/router/events';
@@ -33,6 +28,27 @@ const router = createRouter({
     ...LoginRoutes,
     ...NotFound,
   ],
+});
+
+// 全域路由守衛
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore();
+
+  if (!auth.isLoggedIn) {
+    await auth.checkAuth();
+  }
+
+  // 布林值，判斷這個路由是否需要登入
+  const requiresAuth = to.meta.requiresAuth;
+
+  // 如果需要登入，但尚未登入：導向登入頁，同時帶上 query 參數 redirect，表示登入成功後要回去的頁面
+  if (requiresAuth && !auth.isLoggedIn) {
+    next({ path: '/login', query: { redirect: to.fullPath } });
+
+    // 如果不需要登入，或已經登入：導向目標頁
+  } else {
+    next();
+  }
 });
 
 export default router;

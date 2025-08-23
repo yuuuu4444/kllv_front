@@ -19,6 +19,7 @@ export default [
         path: '', // 當路徑為 /member 時，預設顯示此元件
         name: 'member-index',
         component: MemberIndex,
+        meta: { requiresAuth: true },
       },
       {
         // 個人資料頁
@@ -28,11 +29,32 @@ export default [
         //  新增別名：讓桌面版訪問 /member 時，也激活此路由以套用 active 樣式
         alias: ['/member/desktop-default'], // 先設定一個不會衝突的路徑
       },
-      { path: 'family', name: 'member-family', component: MemberFamily },
-      { path: 'events', name: 'member-events', component: MemberEvents },
-      { path: 'repairs', name: 'member-repairs', component: MemberRepairs },
-      { path: 'posts', name: 'member-posts', component: MemberPosts },
-      { path: 'password', name: 'member-password', component: MemberPassword },
+      {
+        path: 'family',
+        name: 'member-family',
+        component: MemberFamily,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'events',
+        name: 'member-events',
+        component: MemberEvents,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'repairs',
+        name: 'member-repairs',
+        component: MemberRepairs,
+        meta: { requiresAuth: true },
+      },
+      { path: 'posts', name: 'member-posts', component: MemberPosts, meta: { requiresAuth: true } },
+      {
+        path: 'password',
+        name: 'member-password',
+        component: MemberPassword,
+        meta: { requiresAuth: true },
+      },
     ],
+    meta: { requiresAuth: true }, // 標註需要登入
   },
 ];

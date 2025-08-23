@@ -38,9 +38,11 @@
 <script setup>
   import { ref, reactive, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
   import MemberSidebar from '@/components/MemberSidebar.vue';
 
   const router = useRouter();
+  const auth = useAuthStore();
 
   const memberMenuItems = ref([
     { name: '個人資料', path: '/member/profile' },
@@ -51,8 +53,10 @@
     { name: '重設密碼', path: '/member/password' },
   ]);
 
-  const handleLogout = () => {
-    alert('帳號已登出');
+  const handleLogout = async () => {
+    await auth.logout();
+    router.push('/login');
+    alert('已成功登出');
   };
 
   // 使用者的個人資料，欄位名稱對應資料庫 users 表格

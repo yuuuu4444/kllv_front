@@ -4,13 +4,15 @@ import { ref, computed } from 'vue';
 const { VITE_API_BASE } = import.meta.env;
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null);
-  const isLoggedIn = computed(() => !!user.value);
+  const user = ref(null); // user 資料
+  const isLoggedIn = computed(() => !!user.value); // 是否登入
 
+  // 設定 user 資料
   const setUser = (payload) => {
     user.value = payload; // 直接就是 user 物件
   };
 
+  // 登入
   const login = async (user_id, password) => {
     try {
       const res = await fetch(`${VITE_API_BASE}/api/login/login_post.php`, {
@@ -35,6 +37,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // 初始或 F5 時檢查登入狀態
   const checkAuth = async () => {
     try {
       const res = await fetch(`${VITE_API_BASE}/api/login/check_session.php`, {
@@ -45,13 +48,16 @@ export const useAuthStore = defineStore('auth', () => {
         setUser(data.data);
         return true;
       }
+      setUser(null);
       return false;
     } catch (err) {
       console.error('檢查登入狀態失敗:', err);
+      setUser(null);
       return false;
     }
   };
 
+  // 登出
   const logout = async () => {
     user.value = null;
     try {

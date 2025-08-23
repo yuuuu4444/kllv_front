@@ -3,8 +3,8 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth';
 
+  const auth = useAuthStore();
   const router = useRouter();
-  const authStore = useAuthStore();
 
   const showPassword = ref(false);
 
@@ -33,8 +33,9 @@
 
     isLoading.value = true;
     try {
-      const result = await authStore.login(user_id.value, password.value);
+      const result = await auth.login(user_id.value, password.value);
       if (result.success) {
+        // 登入成功後導向 member
         router.push('/member');
       } else {
         loginError.value = result.message;
@@ -43,7 +44,7 @@
       console.error('登入流程錯誤:', err);
       loginError.value = '登入失敗';
     } finally {
-      isLoading.value = false; // 無論成功或失敗都會執行
+      isLoading.value = false;
     }
   }
 </script>
