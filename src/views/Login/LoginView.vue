@@ -3,59 +3,46 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth';
 
-  const { VITE_API_BASE } = import.meta.env;
   const router = useRouter();
+  const authStore = useAuthStore();
+
   const showPassword = ref(false);
-  const account = ref('');
+  const user_id = ref('');
   const password = ref('');
-  const accountError = ref('');
+  const user_idError = ref('');
   const passwordError = ref('');
   const loginError = ref('');
   const isLoading = ref(false);
 
   async function handleLogin() {
-    // 重置錯誤訊息
-    accountError.value = '';
+    user_idError.value = '';
     passwordError.value = '';
     loginError.value = '';
 
-    // 表單驗證
     let hasError = false;
-    if (!account.value) {
-      accountError.value = '帳號為必填';
+    if (!user_id.value) {
+      user_idError.value = '帳號必填';
       hasError = true;
     }
     if (!password.value) {
-      passwordError.value = '密碼為必填';
+      passwordError.value = '密碼必填';
       hasError = true;
     }
     if (hasError) return;
 
     isLoading.value = true;
     try {
-      const res = await fetch(`${VITE_API_BASE}/api/login/login_post.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 加入此行以支援 session
-        body: JSON.stringify({
-          user_id: account.value,
-          password: password.value,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.status === 'success') {
-        const authStore = useAuthStore();
-        authStore.setUser(data.data);
+      const result = await authStore.login(user_id.value, password.value);
+      if (result.success) {
         router.push('/member');
       } else {
-        loginError.value = data.message || '登入失敗，請確認帳號密碼';
+        loginError.value = result.message;
       }
     } catch (err) {
-      console.error('登入錯誤:', err);
-      loginError.value = '無法連線伺服器，請稍後再試';
+      console.error('登入流程錯誤:', err);
+      loginError.value = '登入失敗';
     } finally {
-      isLoading.value = false;
+      isLoading.value = false; // 無論成功或失敗都會執行
     }
   }
 </script>
@@ -69,19 +56,19 @@
       <h3>里民登入</h3>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="login-account">帳號</label>
+          <label for="login-user_id">帳號</label>
           <input
             type="text"
-            id="login-account"
-            v-model="account"
-            :class="{ 'input-error': accountError }"
+            id="login-user_id"
+            v-model="user_id"
+            :class="{ 'input-error': user_idError }"
             placeholder="請輸入帳號"
           />
           <div
-            v-if="accountError"
+            v-if="user_idError"
             class="form-error"
           >
-            {{ accountError }}
+            {{ user_idError }}
           </div>
         </div>
         <div class="form-group">
