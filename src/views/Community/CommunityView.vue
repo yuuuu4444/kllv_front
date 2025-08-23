@@ -1,11 +1,26 @@
 <script setup>
   import MainBanner from '@/components/MainBanner.vue';
   import { ref, onMounted, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
+  import { storeToRefs } from 'pinia';
   import CreatePostModal from '@/components/CreatePostModal.vue';
 
   const { VITE_API_BASE } = import.meta.env;
+
+  const router = useRouter();
+  const auth = useAuthStore();
+  const { user, isLoggedIn } = storeToRefs(auth);
+
   const TEMP_USER_ID = 'user_account_001';
   const TEMP_USER_NAME = 'Komod·Mayaw';
+  // 用 computed 取代假資料
+  // const TEMP_USER_ID = computed(() => user.value?.user_id ?? '');
+  // const TEMP_USER_NAME = computed(() => user.value?.fullname ?? '');
+
+  // 如果使用者重新整理過頁面，補一次 session 檢查
+  // onMounted(() => { auth.checkAuth(); });
+
   const creating = ref(false);
   const loading = ref(true);
   const error = ref('');
@@ -39,7 +54,7 @@
       formData.append('title', payload.title);
       formData.append('category_no', String(payload.category_no));
       formData.append('content', payload.content);
-      formData.append('author_id', TEMP_USER_ID);
+      formData.append('author_id', TEMP_USER_ID); // 登入部分ok後移除
       for (const f of payload.files ?? []) {
         formData.append('images[]', f);
       }
@@ -47,6 +62,7 @@
       const res = await fetch(`${VITE_API_BASE}/api/community/post_create_post.php`, {
         method: 'POST',
         body: formData,
+        // credentials: 'include',
       });
 
       const data = await res.json();
@@ -88,6 +104,8 @@
           ...p,
           category: getCategoryName(p.category_no, p.category_name),
           created_at: p.posted_at,
+          author_id: p.author_id,
+          author_fullname: p.fullname,
           // _cover: p.image,
         }));
     } catch (e) {
@@ -141,6 +159,29 @@
   };
 
   const showModal = ref(false);
+
+  /*
+  const openCreateModal = async () => {
+    // 確保有最新登入狀態
+    if (!isLoggedIn.value) {
+      await auth.checkAuth();
+    }
+    if (!isLoggedIn.value) {
+      // 未登入 → 導去登入頁，回來後自動打開 modal（用 redirect + hash）
+      router.push({
+        name: 'login',
+        query: { redirect: router.currentRoute.value.fullPath + '#create' },
+      });
+      return;
+    }
+    showModal.value = true;
+  };
+
+  // 若從 login 返回並帶著 #create，就自動打開
+  onMounted(() => {
+    if (location.hash === '#create') showModal.value = true;
+  });
+  */
 </script>
 
 <template>
@@ -275,7 +316,7 @@
                       alt=""
                     />
                   </div>
-                  <p class="community-wrapper__author body--b3">{{ TEMP_USER_NAME }}</p>
+                  <p class="community-wrapper__author body--b3">{{ post.author_fullname }}</p>
                   <p class="community-wrapper__time body--b3">
                     &bull;{{ passTime(post.created_at) }}
                   </p>

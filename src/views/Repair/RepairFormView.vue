@@ -2,12 +2,21 @@
   import { useRouter } from 'vue-router';
   import { ref, onMounted, computed } from 'vue';
   import SubBanner from '@/components/SubBanner.vue';
+  import { useAuthStore } from '@/stores/auth';
+  import { storeToRefs } from 'pinia';
 
   //引入環境變數(檔案偵測是地端的env或部屬的env.prod)
   const { VITE_API_BASE } = import.meta.env;
   // console.log(VITE_API_BASE);
 
   const router = useRouter();
+
+  const auth = useAuthStore();
+  const { user } = storeToRefs(auth);
+
+  // const reporterId = computed(() => user.value?.user_id ?? '');
+  // const reporterName = computed(() => user.value?.fullname ?? '');
+  // const reporterPhone = computed(() => user.value?.phone_number ?? '');
 
   const selectedCategoryNo = ref('');
   const location = ref('');
