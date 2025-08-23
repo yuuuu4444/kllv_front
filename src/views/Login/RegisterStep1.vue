@@ -59,7 +59,7 @@
         },
         credentials: 'include',
         body: JSON.stringify({
-          address: address.value, // 使用組合後的地址
+          address: address.value,
           status: 0,
         }),
       });
@@ -67,8 +67,11 @@
       const data = await res.json();
 
       if (data.status === 'success') {
-        // 儲存戶號到 store
-        registerStore.household_no = data.data.household_no;
+        registerStore.creator_id = data.data.creator_id;
+        // 儲存戶號到 store（如果有的話）
+        if (data.data.household_no) {
+          registerStore.household_no = data.data.household_no;
+        }
         // 儲存地址資訊到 store
         registerStore.city = city.value;
         registerStore.district = district.value;
@@ -114,12 +117,23 @@
       return;
     }
 
-    // 提交地址
-    await submitAddress();
+    // **只暫存，不送出到後端**
+    registerStore.city = city.value;
+    registerStore.district = district.value;
+    registerStore.village = village.value;
+    registerStore.address = road.value;
+
+    // 導向下一步
+    router.push('/register-step2');
   }
 
   function goToLogin() {
     router.push('/login');
+  }
+
+  async function handleRegister() {
+    await goToRegisterStep2();
+    await submitAddress();
   }
 </script>
 
@@ -138,7 +152,7 @@
           <div class="step-label gray">成員資料</div>
         </div>
       </div>
-      <form @submit.prevent="goToRegisterStep2">
+      <form @submit.prevent="handleRegister">
         <div class="form-group row">
           <div>
             <label>縣/市</label>
