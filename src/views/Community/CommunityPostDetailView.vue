@@ -4,8 +4,20 @@
   import Comments from '@/assets/data/Community/community_comments_test.json';
   import ReportModal from '@/components/ReportModal.vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
+  import { useAuthStore } from '@/stores/auth';
+  import { storeToRefs } from 'pinia';
 
   const { VITE_API_BASE } = import.meta.env;
+
+  const auth = useAuthStore();
+  const { user, isLoggedIn } = storeToRefs(auth);
+
+  /*
+  // 之後在編輯/刪除貼文要做v-if判斷
+  const isOwner = computed(
+    () => !!user.value && !!postItem.value && user.value.user_id === postItem.value.author_id,
+  );
+  */
   const TEMP_USER_ID = 'user_account_001';
   const TEMP_USER_NAME = 'Komod·Mayaw';
   const props = defineProps({ post_no: { type: [String, Number], required: true } });
@@ -143,6 +155,7 @@
 
   const handleEditPost = async (payload) => {
     if (payload.post_no !== postItem.value?.post_no) return;
+    // if (!isOwner.value) { alert('僅作者可編輯此貼文'); return; }
 
     try {
       const formData = new FormData();
@@ -150,7 +163,7 @@
       formData.append('title', payload.title);
       formData.append('category_no', String(payload.category_no));
       formData.append('content', payload.content);
-      formData.append('author_id', TEMP_USER_ID);
+      formData.append('author_id', TEMP_USER_ID); // 之後改用 Session，可以拉掉
 
       for (const f of payload.files ?? []) {
         if (f instanceof File) formData.append('images[]', f);
@@ -163,6 +176,7 @@
       const res = await fetch(`${VITE_API_BASE}/api/community/post_update_post.php`, {
         method: 'POST',
         body: formData,
+        // credentials: 'include',
       });
 
       if (!res.ok) {
@@ -175,6 +189,7 @@
       if (data.status !== 'success') throw new Error(data.message || '更新失敗');
 
       const { images = [], image: banner } = data.data || {};
+      // const { images = [], image: banner, author_name } = data.data || {};
 
       postItem.value = {
         ...postItem.value,
@@ -184,6 +199,7 @@
         images, // 陣列（字串路徑）
         image: banner, // 主圖
         updated_at: new Date().toISOString(),
+        author_name,
       };
 
       editModalVisible.value = false;
@@ -194,6 +210,7 @@
   };
 
   const handleDeletePost = () => {
+    // if (!isOwner.value) { alert('僅作者可刪除此貼文'); return; }
     const confirm = window.confirm('您確定要刪除此則貼文嗎?');
     if (confirm) {
       console.log('確定');
@@ -228,7 +245,7 @@
         body: JSON.stringify({
           post_no: Number(postItem.value.post_no),
           category_no: Number(payload.category_no),
-          reporter_id: TEMP_USER_ID,
+          reporter_id: TEMP_USER_ID, // 之後改用 Session，可以拉掉
         }),
         // credentials: 'include',
       });
@@ -319,7 +336,7 @@
                   alt=""
                 />
               </div>
-              <p class="post-detail__author body--b2">{{ TEMP_USER_NAME }}</p>
+              <p class="post-detail__author body--b2">{{ postItem.author_name }}</p>
               <p class="post-detail__time body--b2">{{ passTime(postItem.posted_at) }}</p>
               <p
                 class="post-detail__edit body--b2"
