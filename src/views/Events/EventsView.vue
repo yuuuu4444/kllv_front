@@ -54,11 +54,19 @@
     currentPage.value = 1;
   };
 
+  // const filteredEvents = computed(() => {
+  //   const selectedCategoryNo = Number(activeCategory.value);
+  //   if (selectedCategoryNo === 0) {
+  //     return allEvents.value;
+  //   }
+  //   return allEvents.value.filter((event) => event.category_no === selectedCategoryNo);
+  // });
+
   const filteredEvents = computed(() => {
     if (activeCategory.value === 0) {
       return allEvents.value;
     }
-    return allEvents.value.filter((event) => event.category_no === activeCategory.value);
+    return allEvents.value.filter((event) => event.category_no == activeCategory.value);
   });
 
   const totalPages = computed(() => {
