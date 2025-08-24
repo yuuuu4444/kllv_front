@@ -12,14 +12,28 @@
   const auth = useAuthStore();
   const { user, isLoggedIn } = storeToRefs(auth);
 
-  const TEMP_USER_ID = 'user_account_001';
-  const TEMP_USER_NAME = 'Komod·Mayaw';
+  // const TEMP_USER_ID = 'user_account_001';
+  // const TEMP_USER_NAME = 'Komod·Mayaw';
   // 用 computed 取代假資料
-  // const TEMP_USER_ID = computed(() => user.value?.user_id ?? '');
-  // const TEMP_USER_NAME = computed(() => user.value?.fullname ?? '');
+  const profile = computed(() => user.value?.user ?? null);
+  const TEMP_USER_ID = computed(() => profile.value?.user_id ?? '');
+  const TEMP_USER_NAME = computed(() => profile.value?.fullname ?? '');
+  const profileImg = computed(() => {
+    return profile.value?.profile_image ?? '/uploads/avatars/default_avatar.png';
+  });
+
+  // 處理使用者頭像路徑
+  const avatarUrl = (src) => {
+    if (!src) return `${VITE_API_BASE}/uploads/avatars/default_avatar.png`;
+    if (/^https?:\/\//i.test(src)) return src; // 如果已經是完整網址
+    if (src.startsWith('/')) return `${VITE_API_BASE}${src}`;
+    return `${VITE_API_BASE}/${src}`;
+  };
 
   // 如果使用者重新整理過頁面，補一次 session 檢查
-  // onMounted(() => { auth.checkAuth(); });
+  onMounted(() => {
+    auth.checkAuth();
+  });
 
   const creating = ref(false);
   const loading = ref(true);
@@ -54,7 +68,7 @@
       formData.append('title', payload.title);
       formData.append('category_no', String(payload.category_no));
       formData.append('content', payload.content);
-      formData.append('author_id', TEMP_USER_ID); // 登入部分ok後移除
+      // formData.append('author_id', TEMP_USER_ID); // 登入部分ok後移除
       for (const f of payload.files ?? []) {
         formData.append('images[]', f);
       }
@@ -62,7 +76,7 @@
       const res = await fetch(`${VITE_API_BASE}/api/community/post_create_post.php`, {
         method: 'POST',
         body: formData,
-        // credentials: 'include',
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -160,7 +174,6 @@
 
   const showModal = ref(false);
 
-  /*
   const openCreateModal = async () => {
     // 確保有最新登入狀態
     if (!isLoggedIn.value) {
@@ -181,7 +194,6 @@
   onMounted(() => {
     if (location.hash === '#create') showModal.value = true;
   });
-  */
 </script>
 
 <template>
@@ -254,13 +266,13 @@
         </div>
         <button
           class="community__create-btn btn--tag"
-          @click="showModal = true"
+          @click="openCreateModal"
         >
           我要發文
         </button>
         <button
           class="community__phone-btn"
-          @click="showModal = true"
+          @click="openCreateModal"
         >
           +
         </button>
@@ -312,7 +324,7 @@
                 <div class="community-wrapper__meta">
                   <div class="community-wrapper__author-image">
                     <img
-                      src="#"
+                      :src="avatarUrl(profileImg)"
                       alt=""
                     />
                   </div>
@@ -486,10 +498,13 @@
       }
 
       &__author-image {
-        background-color: #ccc;
+        background-color: #fff;
         width: 25px;
         aspect-ratio: 1;
         border-radius: 50%;
+        img {
+          width: 100%;
+        }
       }
 
       &__content {
