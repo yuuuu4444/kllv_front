@@ -179,9 +179,9 @@
       if (result.status === 'success') {
         alert(result.message);
         if (paymentMethod.value === 'creditCard') {
-          router.push('/events/complete/paid');
+          router.push(`/events/complete/paid?reg_no=${result.data.reg_no}`);
         } else {
-          router.push('/events/complete/unpaid');
+          router.push(`/events/complete/unpaid?reg_no=${result.data.reg_no}`);
         }
       } else {
         throw new Error(result.message || '報名失敗');

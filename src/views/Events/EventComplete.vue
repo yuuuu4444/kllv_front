@@ -1,8 +1,84 @@
+<script setup>
+  import SubBanner from '@/components/SubBanner.vue';
+  import { RouterLink, useRoute } from 'vue-router';
+  import { ref, computed, onMounted } from 'vue';
+  // import eventsData from '@/assets/data/Events/events.json';
+  // const eventData = ref(eventsData.find((e) => e.event_no === 6));
+
+  // 1.接收資料
+  const { VITE_API_BASE } = import.meta.env;
+  const route = useRoute(); // 初始化 route
+  const orderSummary = ref(null);
+  const isLoading = ref(true);
+
+  // 2.在onMounted中根據reg_no呼叫新API
+  onMounted(async () => {
+    // 從URL的query參數，拿到由報名頁傳過來的reg_no
+    const regNo = route.query.reg_no;
+    if (!regNo) {
+      alert('缺少訂單編號，無法顯示詳情');
+      // router.push('/');
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      const response = await fetch(
+        `${VITE_API_BASE}/api/events/registration_summary_get.php?reg_no=${regNo}`,
+        {
+          credentials: 'include', // 攜帶Session cookie
+        },
+      );
+      if (!response.ok) throw new Error('API 請求失敗');
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        orderSummary.value = result.data;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('載入訂單摘要失敗:', error);
+      alert(error.message || '無法載入訂單資訊');
+    } finally {
+      isLoading.value = false;
+    }
+  });
+
+  const formattedTimeRange = computed(() => {
+    if (
+      !orderSummary.value ||
+      !orderSummary.value.event_start_date ||
+      !orderSummary.value.event_end_date
+    )
+      return '';
+    const startDate = new Date(orderSummary.value.event_start_date);
+    const endDate = new Date(orderSummary.value.event_end_date);
+    const startTime = startDate.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const endTime = endDate.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${orderSummary.value.event_start_date.split(' ')[0]} ${startTime} - ${endTime}`;
+  });
+</script>
+
 <template>
-  <div class="completion-page">
+  <div
+    class="completion-page"
+    v-loading="isLoading"
+  >
     <SubBanner title="活動報名" />
 
-    <div class="completion-page__container">
+    <div
+      v-if="orderSummary"
+      class="completion-page__container"
+    >
       <nav class="completion-page__breadcrumb">
         <RouterLink
           to="/"
@@ -17,7 +93,7 @@
         >
           /活動報名
         </RouterLink>
-        <p class="body--b2">/{{ eventData.title }}</p>
+        <p class="body--b2">/{{ orderSummary.event_title }}</p>
         <p class="body--b2">/報名成功</p>
       </nav>
 
@@ -36,11 +112,11 @@
         <ul class="completion-page__list">
           <li>
             <p class="completion-page__label body--b2">訂單編號：</p>
-            <p class="completion-page__value body--b2">AAA00001</p>
+            <p class="completion-page__value body--b2">{{ orderSummary.reg_no }}</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">活動名稱：</p>
-            <p class="completion-page__value body--b2">{{ eventData.title }}</p>
+            <p class="completion-page__value body--b2">{{ orderSummary.event_title }}</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">活動時間：</p>
@@ -48,15 +124,15 @@
           </li>
           <li>
             <p class="completion-page__label body--b2">活動地點：</p>
-            <p class="completion-page__value body--b2">{{ eventData.location }}</p>
+            <p class="completion-page__value body--b2">{{ orderSummary.event_location }}</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">報名金額：</p>
-            <p class="completion-page__value body--b2">{{ eventData.fee_per_person * 2 }}元</p>
+            <p class="completion-page__value body--b2">{{ orderSummary.fee_total }}元</p>
           </li>
           <li>
             <p class="completion-page__label body--b2">參加人數：</p>
-            <p class="completion-page__value body--b2">2人</p>
+            <p class="completion-page__value body--b2">{{ orderSummary.p_total }}人</p>
           </li>
         </ul>
       </div>
@@ -67,32 +143,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-  import SubBanner from '@/components/SubBanner.vue';
-  import { RouterLink } from 'vue-router';
-  import { ref, computed } from 'vue';
-  import eventsData from '@/assets/data/Events/events.json';
-
-  const eventData = ref(eventsData.find((e) => e.event_no === 6));
-
-  const formattedTimeRange = computed(() => {
-    if (!eventData.value || !eventData.value.start_date || !eventData.value.end_date) return '';
-    const startDate = new Date(eventData.value.start_date);
-    const endDate = new Date(eventData.value.end_date);
-    const startTime = startDate.toLocaleTimeString('zh-TW', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    const endTime = endDate.toLocaleTimeString('zh-TW', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    return `${eventData.value.start_date.split(' ')[0]} ${startTime} - ${endTime}`;
-  });
-</script>
 
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';
