@@ -88,6 +88,7 @@
     fetchDetail(props.post_no);
     fetchCategories();
     fetchReportCategories();
+    fetchCommentsAll();
   });
 
   const categoryName = computed(() => {
@@ -312,10 +313,88 @@
     }
   }
 
-  const allComments = Comments.filter((c) => !c.is_deleted);
+  const replyNote = ref('');
+  const isSendingComment = ref(false);
+
+  const allCommentsRef = ref([]);
+
+  async function handleSubmitComment() {
+    if (!isLoggedIn.value) {
+      alert('請先登入再留言');
+      return;
+    }
+
+    const txt = replyNote.value.trim();
+    if (!txt || isSendingComment.value) return;
+
+    try {
+      isSendingComment.value = true;
+      const res = await fetch(`${VITE_API_BASE}/api/community/comment_create_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          post_no: postNo.value,
+          content: txt,
+        }),
+      });
+
+      const text = await res.text();
+      const ct = res.headers.get('content-type') || '';
+
+      // console.log('[comment_create raw]', { status: res.status, ct, text: text.slice(0, 300) });
+      if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
+      if (!ct.includes('application/json')) {
+        throw new Error(`回傳格式錯誤（Content-Type=${ct}）`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('回傳格式錯誤');
+      }
+      if (data.status !== 'success') throw new Error(data.message || '留言失敗');
+
+      const created = data.data;
+
+      allCommentsRef.value.push(created);
+      replyNote.value = '';
+      await fetchCommentsAll();
+      currentPage.value = Math.max(1, Math.ceil(postComments.value.length / pageSize));
+    } catch (error) {
+      alert(error.message || '留言失敗');
+    } finally {
+      isSendingComment.value = false;
+    }
+  }
+
+  async function fetchCommentsAll() {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/comments_get_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ post_no: postNo.value }),
+      });
+      const text = await res.text();
+      const ct = res.headers.get('content-type') || '';
+      if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
+      if (!ct.includes('application/json')) throw new Error(`回傳格式錯誤 (Content-Type=${ct})`);
+
+      const data = JSON.parse(text);
+      if (data.status !== 'success') throw new Error(data.message || '留言載入失敗');
+
+      allCommentsRef.value = Array.isArray(data.data?.items) ? data.data.items : [];
+    } catch (error) {
+      console.error(error);
+      alert(error.message || '留言載入失敗');
+    }
+  }
+
   const postComments = computed(() =>
-    allComments
-      .filter((c) => c.post_no === postNo.value)
+    allCommentsRef.value
+      .filter((c) => Number(c.post_no) === postNo.value)
       .sort((a, b) => new Date(a.commented_at) - new Date(b.commented_at)),
   );
 
@@ -544,18 +623,18 @@
             <li
               class="post-detail__comment-wrapper"
               v-for="(comment, idx) in pagedComments"
-              :key="comment.comment_no"
+              :key="comment.comments_no"
             >
               <div class="post-detail__comment-item">
                 <div class="post-detail__comment-header">
                   <div class="post-detail__comment-user">
                     <div class="post-detail__comment-user-image">
                       <img
-                        src="#"
+                        :src="avatarUrl(comment.profile_image)"
                         alt=""
                       />
                     </div>
-                    <p class="post-detail__comment-author body--b3">{{ comment.author_id }}</p>
+                    <p class="post-detail__comment-author body--b3">{{ comment.author_name }}</p>
                     <p class="post-detail__comment-time body--b3">
                       {{ passTime(comment.commented_at) }}
                     </p>
@@ -568,7 +647,7 @@
                 <div class="post-detail__comment-menu">
                   <button
                     class="post-detail__comment-menu-toggle"
-                    @click="toggleCommentMenu(comment.comment_no)"
+                    @click="toggleCommentMenu(comment.comments_no)"
                   >
                     <img
                       src="/src/assets/icon/icon_actionMenu.svg"
@@ -577,7 +656,7 @@
                   </button>
                   <ul
                     class="post-detail__comment-menu-list"
-                    v-if="openedCommentMenu === comment.comment_no"
+                    v-if="openedCommentMenu === comment.comments_no"
                   >
                     <li class="post-detail__comment-menu-item">
                       <button
@@ -626,17 +705,19 @@
       <section class="post-detail__reply">
         <div class="post-detail__reply-wrapper">
           <textarea
-            name=""
-            id=""
+            v-model="replyNote"
             class="post-detail__reply-textarea"
             :placeholder="
               isLoggedIn ? `以${profile?.fullname || '我'}的身分發表留言...` : '請先登入後再留言'
             "
             :readonly="!isLoggedIn"
+            @keydown.ctrl.enter.prevent="handleSubmitComment"
           ></textarea>
           <button
-            type="submit"
+            type="button"
             class="post-detail__reply-submit"
+            :disabled="!isLoggedIn || isSendingComment || !replyNote.trim()"
+            @click="handleSubmitComment"
           >
             <img
               src="/src/assets/icon/icon_commentSend.svg"
@@ -836,10 +917,14 @@
         gap: 10px;
 
         &-image {
-          background-color: #ccc;
+          background-color: #fff;
           width: 30px;
           aspect-ratio: 1;
           border-radius: 50%;
+          border: 1px solid black;
+          img {
+            width: 100%;
+          }
         }
       }
 
