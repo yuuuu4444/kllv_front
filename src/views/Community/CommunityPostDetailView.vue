@@ -201,8 +201,12 @@
 
       if (data.status !== 'success') throw new Error(data.message || '更新失敗');
 
-      // const { images = [], image: banner } = data.data || {};
-      const { images = [], image: banner, author_name } = data.data || {};
+      const { images = [], image: banner } = data.data || {};
+      // const { images = [], image: banner, author_name } = data.data || {};
+      const me = (user.value?.user ?? user.value) || {};
+      const authorName = data.data?.author_name ?? me.fullname ?? postItem.value.author_name;
+      const profileImage =
+        data.data?.profile_image ?? me.profile_image ?? postItem.value.profile_image;
 
       postItem.value = {
         ...postItem.value,
@@ -212,7 +216,8 @@
         images, // 陣列（字串路徑）
         image: banner, // 主圖
         updated_at: new Date().toISOString(),
-        author_name,
+        author_name: authorName,
+        profile_image: profileImage,
       };
 
       editModalVisible.value = false;
