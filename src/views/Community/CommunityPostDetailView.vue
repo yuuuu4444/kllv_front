@@ -12,14 +12,24 @@
   const auth = useAuthStore();
   const { user, isLoggedIn } = storeToRefs(auth);
 
-  /*
   // 之後在編輯/刪除貼文要做v-if判斷
   const isOwner = computed(
-    () => !!user.value && !!postItem.value && user.value.user_id === postItem.value.author_id,
+    () =>
+      !!user.value?.user &&
+      !!postItem.value &&
+      user.value.user.user_id === postItem.value.author_id,
   );
-  */
-  const TEMP_USER_ID = 'user_account_001';
-  const TEMP_USER_NAME = 'Komod·Mayaw';
+
+  const avatarUrl = (src) => {
+    if (/^https?:\/\//i.test(src)) return src; // 已是完整網址
+    if (src.startsWith('/')) return `${VITE_API_BASE}${src}`;
+    return `${VITE_API_BASE}/${src}`;
+  };
+
+  const profile = computed(() => user.value?.user ?? null);
+
+  // const TEMP_USER_ID = 'user_account_001';
+  // const TEMP_USER_NAME = 'Komod·Mayaw';
   const props = defineProps({ post_no: { type: [String, Number], required: true } });
   const postItem = ref(null);
   const loading = ref(true);
@@ -54,7 +64,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ post_no: Number(no) }),
-        // credentials: 'include',
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -155,7 +165,10 @@
 
   const handleEditPost = async (payload) => {
     if (payload.post_no !== postItem.value?.post_no) return;
-    // if (!isOwner.value) { alert('僅作者可編輯此貼文'); return; }
+    if (!isOwner.value) {
+      alert('僅作者可編輯此貼文');
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -163,7 +176,7 @@
       formData.append('title', payload.title);
       formData.append('category_no', String(payload.category_no));
       formData.append('content', payload.content);
-      formData.append('author_id', TEMP_USER_ID); // 之後改用 Session，可以拉掉
+      // formData.append('author_id', TEMP_USER_ID); // 之後改用 Session，可以拉掉
 
       for (const f of payload.files ?? []) {
         if (f instanceof File) formData.append('images[]', f);
@@ -176,7 +189,7 @@
       const res = await fetch(`${VITE_API_BASE}/api/community/post_update_post.php`, {
         method: 'POST',
         body: formData,
-        // credentials: 'include',
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -188,8 +201,8 @@
 
       if (data.status !== 'success') throw new Error(data.message || '更新失敗');
 
-      const { images = [], image: banner } = data.data || {};
-      // const { images = [], image: banner, author_name } = data.data || {};
+      // const { images = [], image: banner } = data.data || {};
+      const { images = [], image: banner, author_name } = data.data || {};
 
       postItem.value = {
         ...postItem.value,
@@ -210,7 +223,10 @@
   };
 
   const handleDeletePost = () => {
-    // if (!isOwner.value) { alert('僅作者可刪除此貼文'); return; }
+    if (!isOwner.value) {
+      alert('僅作者可刪除此貼文');
+      return;
+    }
     const confirm = window.confirm('您確定要刪除此則貼文嗎?');
     if (confirm) {
       console.log('確定');
@@ -245,9 +261,9 @@
         body: JSON.stringify({
           post_no: Number(postItem.value.post_no),
           category_no: Number(payload.category_no),
-          reporter_id: TEMP_USER_ID, // 之後改用 Session，可以拉掉
+          // reporter_id: TEMP_USER_ID, // 之後改用 Session，可以拉掉
         }),
-        // credentials: 'include',
+        credentials: 'include',
       });
 
       const text = await res.text();
@@ -332,8 +348,8 @@
             <div class="post-detail__user-info">
               <div class="post-detail__author-image">
                 <img
-                  src="#"
-                  alt=""
+                  :src="avatarUrl(postItem.profile_image)"
+                  alt="作者頭像"
                 />
               </div>
               <p class="post-detail__author body--b2">{{ postItem.author_name }}</p>
@@ -363,6 +379,7 @@
                   <button
                     class="post-detail__menu-btn"
                     @click="openEditModal"
+                    v-if="isOwner"
                   >
                     <svg
                       class="post-detail__menu-icon"
@@ -384,6 +401,7 @@
                   <button
                     class="post-detail__menu-btn"
                     @click="handleDeletePost"
+                    v-if="isOwner"
                   >
                     <svg
                       class="post-detail__menu-icon"
@@ -422,6 +440,7 @@
                   <button
                     class="post-detail__menu-btn"
                     @click="openReportModal"
+                    v-if="!isOwner"
                   >
                     <div>
                       <img
@@ -559,7 +578,10 @@
             name=""
             id=""
             class="post-detail__reply-textarea"
-            :placeholder="`以${TEMP_USER_NAME}的身分發表留言...`"
+            :placeholder="
+              isLoggedIn ? `以${profile?.fullname || '我'}的身分發表留言...` : '請先登入後再留言'
+            "
+            :readonly="!isLoggedIn"
           ></textarea>
           <button
             type="submit"
@@ -640,10 +662,14 @@
     }
 
     &__author-image {
-      background-color: #ccc;
+      background-color: #fff;
       width: 30px;
       aspect-ratio: 1;
       border-radius: 50%;
+      border: 1px solid black;
+      img {
+        width: 100%;
+      }
     }
 
     &__menu {
