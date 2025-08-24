@@ -117,16 +117,16 @@
             <p class="body--b3">{{ formattedTimeRange }}</p>
           </li>
           <li>
-            <p class="body--b3">地點：</p>
+            <p class="body--b3">活動地點：</p>
             <p class="body--b3">{{ event.location }}</p>
           </li>
           <li>
             <p class="body--b3">人數限制：</p>
-            <p class="body--b3">{{ event.capacity_limit }} 人</p>
+            <p class="body--b3">{{ event.p_limit }} 人</p>
           </li>
           <li>
             <p class="body--b3">報名時間：</p>
-            <p class="body--b3">{{ event.registration_end }}</p>
+            <p class="body--b3">{{ event.reg_deadline }}</p>
           </li>
           <li>
             <p class="body--b3">報名費用：</p>
@@ -137,10 +137,17 @@
 
       <div class="event-detail-view__button-wrapper">
         <RouterLink
-          v-if="event"
+          v-if="event && event.fee_per_person > 0"
           :to="`/events/${event.event_no}/register`"
         >
           <button class="btn--process">我要報名</button>
+        </RouterLink>
+
+        <RouterLink
+          v-else-if="event && event.fee_per_person === 0"
+          :to="`/events/${event.event_no}/register-free`"
+        >
+          <button class="btn--process">我要報名(免費)</button>
         </RouterLink>
       </div>
     </div>

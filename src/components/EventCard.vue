@@ -1,3 +1,22 @@
+<script setup>
+  import { defineProps, computed } from 'vue';
+  import { RouterLink } from 'vue-router';
+
+  const props = defineProps({
+    event: {
+      type: Object,
+      required: true,
+    },
+  });
+
+  const formattedStartDate = computed(() => {
+    if (props.event && props.event.start_date) {
+      return props.event.start_date.split(' ')[0];
+    }
+    return '';
+  });
+</script>
+
 <template>
   <div class="event-card__base">
     <img
@@ -26,8 +45,8 @@
       <div class="event-card__footer">
         <div class="event-card__dates">
           <p class="body--b4">活動日期：{{ formattedStartDate }}</p>
-          <p class="body--b4">報名截止：{{ event.registration_end }}</p>
-          <p class="body--b4">名額：{{ event.capacity_limit }}人</p>
+          <p class="body--b4">報名截止：{{ event.reg_deadline }}</p>
+          <p class="body--b4">人數限制：{{ event.p_limit }}人</p>
         </div>
         <div class="event-card__price-wrapper">
           <h5
@@ -47,25 +66,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-  import { defineProps, computed } from 'vue';
-  import { RouterLink } from 'vue-router';
-
-  const props = defineProps({
-    event: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  const formattedStartDate = computed(() => {
-    if (props.event && props.event.start_date) {
-      return props.event.start_date.split(' ')[0];
-    }
-    return '';
-  });
-</script>
 
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';
