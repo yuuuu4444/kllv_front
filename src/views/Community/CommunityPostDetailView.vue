@@ -269,7 +269,21 @@
   };
 
   const showModal = ref(false);
-  const openReportModal = () => {
+  const reportTarget = ref({ type: 'post', id: null });
+
+  const openReportModal = async (target = { type: 'post', id: null }) => {
+    // 確保有最新登入狀態
+    if (!isLoggedIn.value) {
+      await auth.checkAuth();
+    }
+    if (!isLoggedIn.value) {
+      router.push({
+        name: 'login',
+      });
+      return;
+    }
+
+    reportTarget.value = target;
     showModal.value = true;
     menuPostVisible.value = false;
     menuCommentVisible.value = false;
@@ -277,37 +291,49 @@
   };
 
   async function handleSubmitReport(payload, done) {
-    if (!postItem.value?.post_no) {
-      done(false, '找不到貼文編號');
-      return;
-    }
-
-    if (!payload?.category_no) {
-      done(false, '請先選擇檢舉原因');
-      return;
-    }
+    const target = reportTarget.value?.type;
+    const id = Number(reportTarget.value?.id);
 
     try {
-      const res = await fetch(`${VITE_API_BASE}/api/community/report_create_post.php`, {
+      let url = '';
+      let body = {};
+
+      if (target === 'comment') {
+        if (!id) {
+          done(false, '找不到留言編號');
+          return;
+        }
+
+        url = `${VITE_API_BASE}/api/community/comment_report_create_post.php`;
+        body = { comment_no: id, category_no: Number(payload.category_no) };
+      } else {
+        const pn = Number(postItem.value?.post_no);
+        if (!pn) {
+          done(false, '找不到貼文編號');
+          return;
+        }
+
+        url = `${VITE_API_BASE}/api/community/report_create_post.php`;
+        body = { post_no: pn, category_no: Number(payload.category_no) };
+      }
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          post_no: Number(postItem.value.post_no),
-          category_no: Number(payload.category_no),
-          // reporter_id: TEMP_USER_ID, // 之後改用 Session，可以拉掉
-        }),
         credentials: 'include',
+        body: JSON.stringify(body),
       });
 
       const text = await res.text();
       if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error('回傳格式錯誤');
+
+      const data = JSON.parse(text);
+      done(data.status === 'success', data.message || '已送出檢舉');
+
+      if (data.status === 'success') {
+        showModal.value = false;
+        reportTarget.value = { type: 'post', id: null };
       }
-      done(data.status === 'success', data.message || '');
     } catch (error) {
       done(false, error.message || '檢舉失敗');
     }
@@ -433,6 +459,8 @@
   const isRemoved = computed(() => {
     return Number(postItem.value?.is_deleted ?? 0) === 1;
   });
+
+  const isCommentRemoved = computed(() => (c) => Number(c?.is_deleted ?? 0) === 1);
 </script>
 
 <template>
@@ -569,7 +597,7 @@
                   >
                     <button
                       class="post-detail__menu-btn"
-                      @click="openReportModal"
+                      @click="openReportModal({ type: 'post', id: Number(postItem.post_no) })"
                     >
                       <div>
                         <img
@@ -643,11 +671,18 @@
                     b{{ (currentPage - 1) * pageSize + idx + 1 }}
                   </p>
                 </div>
-                <p class="post-detail__comment-text body--b2">{{ comment.content }}</p>
+                <p
+                  class="post-detail__comment-text body--b2"
+                  v-if="!isCommentRemoved(comment)"
+                >
+                  {{ comment.content }}
+                </p>
+                <p v-else>（此留言已被下架）</p>
                 <div class="post-detail__comment-menu">
                   <button
                     class="post-detail__comment-menu-toggle"
                     @click="toggleCommentMenu(comment.comments_no)"
+                    v-if="!isOwner && !isCommentRemoved(comment)"
                   >
                     <img
                       src="/src/assets/icon/icon_actionMenu.svg"
@@ -661,7 +696,9 @@
                     <li class="post-detail__comment-menu-item">
                       <button
                         class="post-detail__menu-btn"
-                        @click="openReportModal"
+                        @click="
+                          openReportModal({ type: 'comment', id: Number(comment.comments_no) })
+                        "
                       >
                         <div>
                           <img
