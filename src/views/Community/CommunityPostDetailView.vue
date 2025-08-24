@@ -1,6 +1,7 @@
 <script setup>
   import SubBanner from '@/components/SubBanner.vue';
   import { defineProps, ref, computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import Comments from '@/assets/data/Community/community_comments_test.json';
   import ReportModal from '@/components/ReportModal.vue';
   import CreatePostModal from '@/components/CreatePostModal.vue';
@@ -8,6 +9,7 @@
   import { storeToRefs } from 'pinia';
 
   const { VITE_API_BASE } = import.meta.env;
+  const router = useRouter();
 
   const auth = useAuthStore();
   const { user, isLoggedIn } = storeToRefs(auth);
@@ -227,16 +229,41 @@
     }
   };
 
-  const handleDeletePost = () => {
+  const handleDeletePost = async () => {
     if (!isOwner.value) {
       alert('僅作者可刪除此貼文');
       return;
     }
-    const confirm = window.confirm('您確定要刪除此則貼文嗎?');
-    if (confirm) {
-      console.log('確定');
-    } else {
-      console.log('取消');
+    const ok = window.confirm('您確定要刪除此則貼文嗎?');
+    if (!ok) return;
+
+    const prev = Number(postItem.value?.is_deleted ?? 0);
+
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/community/post_delete_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ post_no: Number(postItem.value.post_no) }),
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`HTTP ${res.status} - ${text}`);
+      }
+      if (!res.ok || data.status !== 'success') {
+        throw new Error(data.message || `HTTP ${res.status}`);
+      }
+
+      postItem.value.is_deleted = 1;
+      router.push('/community');
+      menuPostVisible.value = false;
+    } catch (error) {
+      postItem.value.is_deleted = prev;
+      alert(error.message || '刪除失敗');
     }
   };
 
