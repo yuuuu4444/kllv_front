@@ -323,6 +323,10 @@
     if (hours < 24) return `${hours} 小時前`;
     return past.toISOString().slice(0, 10);
   };
+
+  const isRemoved = computed(() => {
+    return Number(postItem.value?.is_deleted ?? 0) === 1;
+  });
 </script>
 
 <template>
@@ -344,152 +348,167 @@
             【{{ categoryName }}】
           </h5>
           <h5 class="post-detail__title bold">
-            {{ postItem.title }}
+            {{ isRemoved ? '（此貼文已下架）' : postItem.title }}
           </h5>
         </div>
 
-        <div class="post-detail__wrapper">
-          <div class="post-detail__meta">
-            <div class="post-detail__user-info">
-              <div class="post-detail__author-image">
-                <img
-                  :src="avatarUrl(postItem.profile_image)"
-                  alt="作者頭像"
-                />
+        <div
+          v-if="isRemoved"
+          class="post-detail__removed body--b2"
+        >
+          此文章已刪除或經檢舉已下架
+        </div>
+
+        <template v-else>
+          <div class="post-detail__wrapper">
+            <div class="post-detail__meta">
+              <div class="post-detail__user-info">
+                <div class="post-detail__author-image">
+                  <img
+                    :src="avatarUrl(postItem.profile_image)"
+                    alt="作者頭像"
+                  />
+                </div>
+                <p class="post-detail__author body--b2">{{ postItem.author_name }}</p>
+                <p class="post-detail__time body--b2">{{ passTime(postItem.posted_at) }}</p>
+                <p
+                  class="post-detail__edit body--b2"
+                  v-if="showEdited"
+                >
+                  {{ passTime(postItem.updated_at) }} 已編輯
+                </p>
               </div>
-              <p class="post-detail__author body--b2">{{ postItem.author_name }}</p>
-              <p class="post-detail__time body--b2">{{ passTime(postItem.posted_at) }}</p>
-              <p
-                class="post-detail__edit body--b2"
-                v-if="showEdited"
-              >
-                {{ passTime(postItem.updated_at) }} 已編輯
-              </p>
-            </div>
-            <div class="post-detail__menu">
-              <button
-                class="post-detail__menu-toggle"
-                @click="togglePostMenu"
-              >
-                <img
-                  src="/src/assets/icon/icon_actionMenu.svg"
-                  alt=""
-                />
-              </button>
-              <ul
-                class="post-detail__menu-list"
-                v-if="menuPostVisible"
-              >
-                <li class="post-detail__menu-item">
-                  <button
-                    class="post-detail__menu-btn"
-                    @click="openEditModal"
+              <div class="post-detail__menu">
+                <button
+                  class="post-detail__menu-toggle"
+                  @click="togglePostMenu"
+                >
+                  <img
+                    src="/src/assets/icon/icon_actionMenu.svg"
+                    alt=""
+                  />
+                </button>
+                <ul
+                  class="post-detail__menu-list"
+                  v-if="menuPostVisible"
+                >
+                  <li
+                    class="post-detail__menu-item"
                     v-if="isOwner"
                   >
-                    <svg
-                      class="post-detail__menu-icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <button
+                      class="post-detail__menu-btn"
+                      @click="openEditModal"
                     >
-                      <path
-                        d="M3 17.4595V20.4995C3 20.7795 3.22 20.9995 3.5 20.9995H6.54C6.67 20.9995 6.8 20.9495 6.89 20.8495L17.81 9.93951L14.06 6.18951L3.15 17.0995C3.05 17.1995 3 17.3195 3 17.4595ZM20.71 7.03951C20.8027 6.947 20.8762 6.83711 20.9264 6.71614C20.9766 6.59517 21.0024 6.46548 21.0024 6.33451C21.0024 6.20355 20.9766 6.07386 20.9264 5.95289C20.8762 5.83192 20.8027 5.72203 20.71 5.62951L18.37 3.28951C18.2775 3.19681 18.1676 3.12326 18.0466 3.07308C17.9257 3.0229 17.796 2.99707 17.665 2.99707C17.534 2.99707 17.4043 3.0229 17.2834 3.07308C17.1624 3.12326 17.0525 3.19681 16.96 3.28951L15.13 5.11951L18.88 8.86951L20.71 7.03951Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    <span class="post-detail__menu-text">編輯貼文</span>
-                  </button>
-                </li>
-                <li class="post-detail__menu-item">
-                  <button
-                    class="post-detail__menu-btn"
-                    @click="handleDeletePost"
+                      <svg
+                        class="post-detail__menu-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3 17.4595V20.4995C3 20.7795 3.22 20.9995 3.5 20.9995H6.54C6.67 20.9995 6.8 20.9495 6.89 20.8495L17.81 9.93951L14.06 6.18951L3.15 17.0995C3.05 17.1995 3 17.3195 3 17.4595ZM20.71 7.03951C20.8027 6.947 20.8762 6.83711 20.9264 6.71614C20.9766 6.59517 21.0024 6.46548 21.0024 6.33451C21.0024 6.20355 20.9766 6.07386 20.9264 5.95289C20.8762 5.83192 20.8027 5.72203 20.71 5.62951L18.37 3.28951C18.2775 3.19681 18.1676 3.12326 18.0466 3.07308C17.9257 3.0229 17.796 2.99707 17.665 2.99707C17.534 2.99707 17.4043 3.0229 17.2834 3.07308C17.1624 3.12326 17.0525 3.19681 16.96 3.28951L15.13 5.11951L18.88 8.86951L20.71 7.03951Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      <span class="post-detail__menu-text">編輯貼文</span>
+                    </button>
+                  </li>
+                  <li
+                    class="post-detail__menu-item"
                     v-if="isOwner"
                   >
-                    <svg
-                      class="post-detail__menu-icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <button
+                      class="post-detail__menu-btn"
+                      @click="handleDeletePost"
                     >
-                      <path
-                        d="M18 5V19C18 19.5 17.5 20 17 20H12H7C6.5 20 6 19.5 6 19V5"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M4 5H20"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M10 4H14M10 9V16M14 9V16"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span class="post-detail__menu-text">刪除貼文</span>
-                  </button>
-                </li>
-                <li class="post-detail__menu-item">
-                  <button
-                    class="post-detail__menu-btn"
-                    @click="openReportModal"
+                      <svg
+                        class="post-detail__menu-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M18 5V19C18 19.5 17.5 20 17 20H12H7C6.5 20 6 19.5 6 19V5"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M4 5H20"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M10 4H14M10 9V16M14 9V16"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span class="post-detail__menu-text">刪除貼文</span>
+                    </button>
+                  </li>
+                  <li
+                    class="post-detail__menu-item"
                     v-if="!isOwner"
                   >
-                    <div>
-                      <img
-                        src="/src/assets/icon/icon_report.svg"
-                        alt=""
-                      />
-                    </div>
-                    <span class="post-detail__menu-text">檢舉貼文</span>
-                  </button>
-                </li>
-              </ul>
+                    <button
+                      class="post-detail__menu-btn"
+                      @click="openReportModal"
+                    >
+                      <div>
+                        <img
+                          src="/src/assets/icon/icon_report.svg"
+                          alt=""
+                        />
+                      </div>
+                      <span class="post-detail__menu-text">檢舉貼文</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <ReportModal
+              v-model:visible="showModal"
+              :categories="reportCategories"
+              :loading="loadingReportCats"
+              @submit="handleSubmitReport"
+            />
+
+            <CreatePostModal
+              v-if="editModalVisible"
+              :key="modalKey"
+              v-model:visible="editModalVisible"
+              :post="editingPost"
+              @edit="handleEditPost"
+            />
+
+            <div class="post-detail__content">
+              <p class="post-detail__desc body--b2">{{ postItem.content }}</p>
+              <div
+                class="post-detail__images"
+                v-if="photoList.length"
+              >
+                <img
+                  v-for="(src, i) in photoList"
+                  :key="src + i"
+                  :src="src"
+                  alt="貼文照片"
+                />
+              </div>
             </div>
           </div>
-
-          <ReportModal
-            v-model:visible="showModal"
-            :categories="reportCategories"
-            :loading="loadingReportCats"
-            @submit="handleSubmitReport"
-          />
-
-          <CreatePostModal
-            v-if="editModalVisible"
-            :key="modalKey"
-            v-model:visible="editModalVisible"
-            :post="editingPost"
-            @edit="handleEditPost"
-          />
-
-          <div class="post-detail__content">
-            <p class="post-detail__desc body--b2">{{ postItem.content }}</p>
-            <div
-              class="post-detail__images"
-              v-if="photoList.length"
-            >
-              <img
-                v-for="(src, i) in photoList"
-                :key="src + i"
-                :src="src"
-                alt="貼文照片"
-              />
-            </div>
-          </div>
-        </div>
+        </template>
       </section>
 
       <section class="post-detail__comment">
@@ -907,6 +926,15 @@
           width: 100%;
         }
       }
+    }
+
+    .post-detail__removed {
+      padding: 20px;
+      text-align: center;
+      border: 1px dashed #ccc;
+      border-radius: 8px;
+      background: #f8f8f8;
+      color: #666;
     }
   }
 </style>
