@@ -83,11 +83,15 @@
       if (data.status !== 'success') throw new Error(data.message || '建立失敗');
 
       const d = data.data;
+      const me = (user.value?.user ?? user.value) || {}; // 目前登入者
 
       posts.value.unshift({
         ...d,
         category: getCategoryName(d.category_no, d.category_name),
         created_at: d.posted_at,
+        author_id: me.user_id,
+        author_fullname: me.fullname,
+        author_profile_image: me.profile_image,
       });
     } catch (error) {
       alert(error.message);
