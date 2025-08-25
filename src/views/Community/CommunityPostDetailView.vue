@@ -458,6 +458,20 @@
   });
 
   const isCommentRemoved = computed(() => (c) => Number(c?.is_deleted ?? 0) === 1);
+
+  const currentUserId = computed(() =>
+    String(user.value?.user?.user_id ?? user.value?.user_id ?? ''),
+  );
+
+  // 取留言作者
+  const getCommentAuthorId = (c) => String(c?.author_id ?? c?.user_id ?? c?.author?.user_id ?? '');
+
+  // 是不是我自己的留言
+  const isMyComment = (c) => {
+    const me = currentUserId.value;
+    const author = getCommentAuthorId(c);
+    return !!me && !!author && me === author;
+  };
 </script>
 
 <template>
@@ -679,7 +693,7 @@
                   <button
                     class="post-detail__comment-menu-toggle"
                     @click="toggleCommentMenu(comment.comments_no)"
-                    v-if="!isOwner && !isCommentRemoved(comment)"
+                    v-if="!isCommentRemoved(comment) && !isMyComment(comment)"
                   >
                     <img
                       src="/src/assets/icon/icon_actionMenu.svg"
