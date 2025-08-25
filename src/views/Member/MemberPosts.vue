@@ -207,11 +207,12 @@
   const deletePost = async (postNo) => {
     if (confirm('確定要刪除這篇貼文嗎？')) {
       try {
-        const apiUrl = `${VITE_API_BASE}/api/member/post_delete.php?post_no=${postNo}`;
+        const apiUrl = `${VITE_API_BASE}/api/community/post_delete_post.php?post_no=${postNo}`;
         const res = await fetch(apiUrl, {
           method: 'POST',
-          // headers: { 'Content-Type': 'application/json' },
-          // body: JSON.stringify({ post_no: postNo }),
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ post_no: postNo }),
         });
 
         const data = await res.json();
