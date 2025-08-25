@@ -1,10 +1,12 @@
 <script setup>
   import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
   import MemberModal from '@/components/MemberModal.vue';
   import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
 
   const router = useRouter();
+  const auth = useAuthStore();
   const isFormVisible = ref(false);
   const viewingMember = ref(null);
 
@@ -31,19 +33,23 @@
   // GET家庭成員
   const isLoading = ref(true);
   const fetchFamilyMembers = async () => {
-    isLoading.value = true; // 開始載入
+    isLoading.value = true;
     try {
       const apiUrl = `${VITE_API_BASE}/api/member/family_get.php`;
-      const res = await fetch(apiUrl);
+      const res = await fetch(apiUrl, {
+        credentials: 'include',
+      });
       console.log(res);
 
       if (!res.ok) {
-        // 如果伺服器回應 4xx 或 5xx 錯誤
+        if (res.status === 401) {
+          auth.logout();
+          router.push('/login');
+        }
         throw new Error(`伺服器錯誤: ${res.status}`);
       }
 
       const data = await res.json();
-
       if (data.status === 'success') {
         // API 成功回傳資料，將其賦值給 familyMembers
         familyMembers.value = data.data;
@@ -55,7 +61,7 @@
       console.error('獲取家庭成員時發生錯誤:', error);
       alert(error.message); // 顯示錯誤訊息給使用者
     } finally {
-      isLoading.value = false; // 載入結束
+      isLoading.value = false;
     }
   };
 
@@ -108,6 +114,7 @@
       const apiUrl = `${VITE_API_BASE}/api/member/family_add_post.php`;
       const res = await fetch(apiUrl, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -153,7 +160,8 @@
         const apiUrl = `${VITE_API_BASE}/api/member/family_delete_post.php`;
 
         const res = await fetch(apiUrl, {
-          method: 'POST', // 使用 POST 方法
+          method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -209,8 +217,17 @@
     screenWidth.value = window.innerWidth;
   };
   onMounted(() => {
-    // 在元件掛載到畫面上時，自動呼叫 API 函式來獲取資料
-    fetchFamilyMembers();
+    if (!auth.isLoggedIn) {
+      auth.checkAuth().then((isSuccess) => {
+        if (isSuccess) {
+          fetchFamilyMembers(); // 確認登入後才 fetch
+        } else {
+          router.push('/login');
+        }
+      });
+    } else {
+      fetchFamilyMembers(); // 如果已經登入了，直接 fetch
+    }
     window.addEventListener('resize', handleResize);
   });
   onBeforeUnmount(() => {
