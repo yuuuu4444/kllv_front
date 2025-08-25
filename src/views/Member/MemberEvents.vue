@@ -1,3 +1,239 @@
+<script setup>
+  import {
+    ref,
+    reactive,
+    computed,
+    onMounted,
+    onBeforeUnmount,
+    defineProps,
+    defineEmits,
+  } from 'vue';
+  import { useRouter } from 'vue-router';
+  import MemberModal from '@/components/MemberModal.vue';
+  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
+
+  // 原本從父層接收 props
+  // const props = defineProps({
+  //   userEvents: { type: Array, required: true, default: () => [] },
+  // });
+  // 原本元件發出的事件
+  // const emit = defineEmits(['cancel-event']);
+
+  const router = useRouter();
+  // 引入環境變數
+  const { VITE_API_BASE } = import.meta.env;
+
+  // --- 狀態管理 ---
+
+  const selectedEvent = ref(null);
+  const viewingEvent = ref(null);
+  const cancellingEvent = ref(null);
+  const cancellationReasonNo = ref('');
+
+  const userEvents = ref([]); //API
+  const cancelReasons = ref([]); //API
+  // 原本的取消彈窗資料
+  // const cancelReasons = ref([
+  //   { reason_no: 1, reason_name: '報錯活動/重複報名' },
+  //   { reason_no: 2, reason_name: '疫情/健康安全考量' },
+  //   { reason_no: 3, reason_name: '家庭因素(如照顧小孩、長輩等)' },
+  //   { reason_no: 4, reason_name: '工作臨時安排' },
+  //   { reason_no: 5, reason_name: '對活動內容不感興趣了' },
+  //   { reason_no: 6, reason_name: '其他原因' },
+  // ]);
+
+  // GET活動報名列表
+  const fetchUserEvents = async () => {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/member/events_regs_get.php`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`伺服器錯誤: ${res.status}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        userEvents.value = data.data;
+        // API 載入成功後，預設選取第一筆活動
+        if (data.data.length > 0 && !isMobile.value) {
+          selectedEvent.value = data.data[0];
+        }
+      } else {
+        throw new Error(data.message || '無法獲取活動報名列表');
+      }
+    } catch (err) {
+      console.error('獲取活動報名列表時發生錯誤:', err);
+      alert(err.message);
+    }
+  };
+
+  //GET取消原因
+  const fetchCancelReasons = async () => {
+    try {
+      const res = await fetch(`${VITE_API_BASE}/api/member/cancel_reasons_get.php`);
+      if (!res.ok) throw new Error(`伺服器錯誤: ${res.status}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        cancelReasons.value = data.data;
+      } else {
+        throw new Error(data.message || '無法獲取取消原因選項');
+      }
+    } catch (err) {
+      console.error('獲取取消原因選項時發生錯誤:', err);
+      alert(err.message);
+    }
+  };
+
+  // --- 分頁 ---
+  const eventsPageSize = ref(3); // 每頁顯示 3 筆
+  const eventsCurrentPage = ref(1);
+
+  //原本從 props.userEvents計算頁數
+  // const eventsTotalPages = computed(() =>
+  //   Math.ceil(props.userEvents.length / eventsPageSize.value),
+  // );
+
+  const eventsTotalPages = computed(
+    () => Math.ceil(userEvents.value.length / eventsPageSize.value) || 1,
+  );
+
+  const isEventsFirstPage = computed(() => eventsCurrentPage.value === 1);
+  const isEventsLastPage = computed(() => eventsCurrentPage.value === eventsTotalPages.value);
+
+  // 原本從 props.userEvents計算當前資料
+  // const paginatedEvents = computed(() => {
+  //   const startIndex = (eventsCurrentPage.value - 1) * eventsPageSize.value;
+  //   const endIndex = startIndex + eventsPageSize.value;
+  //   return props.userEvents.slice(startIndex, endIndex);
+  // });
+
+  const paginatedEvents = computed(() => {
+    const startIndex = (eventsCurrentPage.value - 1) * eventsPageSize.value;
+    const endIndex = startIndex + eventsPageSize.value;
+    return userEvents.value.slice(startIndex, endIndex);
+  });
+
+  const eventsGoPrev = () => {
+    if (!isEventsFirstPage.value) eventsCurrentPage.value--;
+  };
+  const eventsGoNext = () => {
+    if (!isEventsLastPage.value) eventsCurrentPage.value++;
+  };
+
+  // --- 輔助函式 (純計算，不改變狀態) ---
+  const isCancellable = (event) => {
+    if (!event || event.status !== 2) return false;
+    const eventDate = new Date(event.activity_date);
+    const today = new Date();
+    const threeDaysLater = new Date();
+    threeDaysLater.setDate(today.getDate() + 3);
+    return eventDate > threeDaysLater;
+  };
+  const getCancelButtonText = (event) => {
+    if (event.status === 3) return '已取消';
+    if (isCancellable(event)) return '我要取消';
+    return '無法取消';
+  };
+  const getCancelButtonClass = (event) => {
+    if (event.status === 3) return 'is-cancelled';
+    if (isCancellable(event)) return 'is-active';
+    return 'is-disabled';
+  };
+
+  // --- 事件處理函式 (會改變狀態) ---
+  const goBackToMenu = () => router.push('/member');
+  const selectEvent = (event) => {
+    selectedEvent.value = event;
+  };
+  const showEventDetails = (event) => {
+    if (isMobile.value) viewingEvent.value = event;
+  };
+  const hideEventDetails = () => {
+    viewingEvent.value = null;
+  };
+  const showCancelForm = (event) => {
+    cancellingEvent.value = event;
+  };
+  const hideCancelForm = () => {
+    cancellingEvent.value = null;
+    cancellationReasonNo.value = '';
+  };
+
+  // const submitCancellation = () => {
+  //   if (!cancellationReasonNo.value) {
+  //     alert('請選擇取消原因！');
+  //     return;
+  //   }
+  //   emit('cancel-event', cancellingEvent.value.reg_no, cancellationReasonNo.value);
+  //   alert(`活動「${cancellingEvent.value.title}」的取消請求已送出！`);
+  //   hideCancelForm();
+  //   hideEventDetails();
+  // };
+
+  //POST取消原因
+  const submitCancellation = async () => {
+    if (!cancellationReasonNo.value) {
+      alert('請選擇取消原因！');
+      return;
+    }
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/member/event_cancel_post.php`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_no: cancellingEvent.value.reg_no, // 使用 reg_no
+          reason_no: cancellationReasonNo.value,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'success') {
+        // 更新成功後，直接修改前端的資料狀態來實現即時更新
+        const eventToUpdate = userEvents.value.find(
+          (e) => e.reg_no === cancellingEvent.value.reg_no,
+        );
+        if (eventToUpdate) {
+          eventToUpdate.status = 3; // 3 = 已取消
+          eventToUpdate.reason_no = Number(cancellationReasonNo.value);
+        }
+        alert(`活動「${cancellingEvent.value.title}」的取消請求已送出！`);
+        hideCancelForm();
+        hideEventDetails();
+      } else {
+        throw new Error(data.message || '取消失敗');
+      }
+    } catch (err) {
+      console.error('取消活動時發生錯誤:', err);
+      alert(err.message);
+    }
+  };
+
+  // --- RWD 判斷 ---
+  const screenWidth = ref(window.innerWidth);
+  const handleResize = () => {
+    screenWidth.value = window.innerWidth;
+  };
+  onMounted(() => {
+    // if (paginatedEvents.value.length > 0) {
+    //   selectedEvent.value = props.userEvents[0];
+    // }
+    fetchUserEvents();
+    fetchCancelReasons();
+    window.addEventListener('resize', handleResize);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
+  });
+
+  const isMobile = computed(() => screenWidth.value < 768);
+  const isModalOpen = computed(() => cancellingEvent.value !== null && !isMobile.value);
+  const isMobileDetailVisible = computed(
+    () => viewingEvent.value !== null && isMobile.value && !cancellingEvent.value,
+  );
+  const isMobileCancelFormVisible = computed(
+    () => cancellingEvent.value !== null && isMobile.value,
+  );
+</script>
+
 <template>
   <div class="eventsPage">
     <!-- 手機版表格、桌面版列表 顯示狀態 -->
@@ -22,13 +258,13 @@
           <tbody>
             <tr
               v-for="event in paginatedEvents"
-              :key="event.order_no"
+              :key="event.reg_no"
               @click="selectEvent(event)"
               class="is-clickable"
-              :class="{ 'is-active': selectedEvent && selectedEvent.order_no === event.order_no }"
+              :class="{ 'is-active': selectedEvent && selectedEvent.reg_no === event.reg_no }"
             >
               <td>{{ event.activity_date }}</td>
-              <td>{{ event.activity_name }}</td>
+              <td>{{ event.title }}</td>
               <td class="cancel-cell">
                 <button
                   class="btn--membercancel"
@@ -74,7 +310,7 @@
           <div class="eventDetailContainer">
             <div class="detailItem">
               <span class="label">活動名稱：</span>
-              <span class="value">{{ selectedEvent.activity_name }}</span>
+              <span class="value">{{ selectedEvent.title }}</span>
             </div>
             <div class="detailItem">
               <span class="label">活動時間：</span>
@@ -82,24 +318,24 @@
             </div>
             <div class="detailItem">
               <span class="label">活動地點：</span>
-              <span class="value">{{ selectedEvent.activity_location }}</span>
+              <span class="value">{{ selectedEvent.location }}</span>
             </div>
             <div class="detailItem">
               <span class="label">已付金額：</span>
-              <span class="value">{{ selectedEvent.total_amount }} 元</span>
+              <span class="value">{{ selectedEvent.fee_total }} 元</span>
             </div>
             <div class="detailItem">
               <span class="label">參加人數：</span>
-              <span class="value">{{ selectedEvent.attendance }} 人</span>
+              <span class="value">{{ selectedEvent.p_total }} 人</span>
             </div>
             <div
               v-for="(participant, index) in selectedEvent.participants"
-              :key="participant.participant_no"
+              :key="participant.plist_no"
               class="participant-item"
             >
               <div class="detailItem">
                 <span class="label">參加人{{ index + 1 }}：</span>
-                <span class="value">{{ participant.full_name }}</span>
+                <span class="value">{{ participant.fullname }}</span>
               </div>
               <div class="detailItem">
                 <span class="label">電子信箱：</span>
@@ -107,7 +343,7 @@
               </div>
               <div class="detailItem">
                 <span class="label">連絡電話：</span>
-                <span class="value">{{ participant.phone }}</span>
+                <span class="value">{{ participant.phone_number }}</span>
               </div>
             </div>
           </div>
@@ -118,13 +354,13 @@
       <div class="mobileList">
         <div
           v-for="event in paginatedEvents"
-          :key="event.order_no"
+          :key="event.reg_no"
           class="mobileList__item"
           @click="showEventDetails(event)"
         >
           <div class="item__info">
             <span class="item__date">{{ event.activity_date }}</span>
-            <span class="item__name">{{ event.activity_name }}</span>
+            <span class="item__name">{{ event.title }}</span>
           </div>
           <span
             v-if="event.status === 3"
@@ -183,7 +419,7 @@
       >
         <div class="detailItem">
           <span class="label">活動名稱：</span>
-          <span class="value">{{ viewingEvent.activity_name }}</span>
+          <span class="value">{{ viewingEvent.title }}</span>
         </div>
         <div class="detailItem">
           <span class="label">活動時間：</span>
@@ -191,24 +427,24 @@
         </div>
         <div class="detailItem">
           <span class="label">活動地點：</span>
-          <span class="value">{{ viewingEvent.activity_location }}</span>
+          <span class="value">{{ viewingEvent.location }}</span>
         </div>
         <div class="detailItem">
           <span class="label">已付金額：</span>
-          <span class="value">{{ viewingEvent.total_amount }} 元</span>
+          <span class="value">{{ viewingEvent.fee_total }} 元</span>
         </div>
         <div class="detailItem">
           <span class="label">參加人數：</span>
-          <span class="value">{{ viewingEvent.attendance }} 人</span>
+          <span class="value">{{ viewingEvent.p_total }} 人</span>
         </div>
         <div
           v-for="(participant, index) in viewingEvent.participants"
-          :key="participant.participant_no"
+          :key="participant.plist_no"
           class="participant-item"
         >
           <div class="detailItem">
             <span class="label">參加人{{ index + 1 }}：</span>
-            <span class="value">{{ participant.full_name }}</span>
+            <span class="value">{{ participant.fullname }}</span>
           </div>
           <div class="detailItem">
             <span class="label">電子信箱：</span>
@@ -216,7 +452,7 @@
           </div>
           <div class="detailItem">
             <span class="label">連絡電話：</span>
-            <span class="value">{{ participant.phone }}</span>
+            <span class="value">{{ participant.phone_number }}</span>
           </div>
         </div>
       </div>
@@ -338,142 +574,6 @@
     </MemberModal>
   </div>
 </template>
-
-<script setup>
-  import {
-    ref,
-    reactive,
-    computed,
-    onMounted,
-    onBeforeUnmount,
-    defineProps,
-    defineEmits,
-  } from 'vue';
-  import { useRouter } from 'vue-router';
-  import MemberModal from '@/components/MemberModal.vue';
-  import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
-
-  // 從父層接收 props
-  const props = defineProps({
-    userEvents: { type: Array, required: true, default: () => [] },
-  });
-  // 元件發出的事件
-  const emit = defineEmits(['cancel-event']);
-
-  const router = useRouter();
-
-  // --- 狀態管理 ---
-  const selectedEvent = ref(null);
-  const viewingEvent = ref(null);
-  const cancellingEvent = ref(null);
-  const cancellationReasonNo = ref('');
-
-  // --- 彈窗取消資料 ---
-  const cancelReasons = ref([
-    { reason_no: 1, reason_name: '報錯活動/重複報名' },
-    { reason_no: 2, reason_name: '疫情/健康安全考量' },
-    { reason_no: 3, reason_name: '家庭因素(如照顧小孩、長輩等)' },
-    { reason_no: 4, reason_name: '工作臨時安排' },
-    { reason_no: 5, reason_name: '對活動內容不感興趣了' },
-    { reason_no: 6, reason_name: '其他原因' },
-  ]);
-
-  // --- 分頁 ---
-  const eventsPageSize = ref(3); // 每頁顯示 3 筆
-  const eventsCurrentPage = ref(1);
-  const eventsTotalPages = computed(() =>
-    Math.ceil(props.userEvents.length / eventsPageSize.value),
-  );
-  const isEventsFirstPage = computed(() => eventsCurrentPage.value === 1);
-  const isEventsLastPage = computed(() => eventsCurrentPage.value === eventsTotalPages.value);
-
-  // 从 props.userEvents計算當前資料
-  const paginatedEvents = computed(() => {
-    const startIndex = (eventsCurrentPage.value - 1) * eventsPageSize.value;
-    const endIndex = startIndex + eventsPageSize.value;
-    return props.userEvents.slice(startIndex, endIndex);
-  });
-
-  const eventsGoPrev = () => {
-    if (!isEventsFirstPage.value) eventsCurrentPage.value--;
-  };
-  const eventsGoNext = () => {
-    if (!isEventsLastPage.value) eventsCurrentPage.value++;
-  };
-
-  // --- 輔助函式 (純計算，不改變狀態) ---
-  const isCancellable = (event) => {
-    if (!event || event.status !== 2) return false;
-    const eventDate = new Date(event.activity_date);
-    const today = new Date();
-    const threeDaysLater = new Date();
-    threeDaysLater.setDate(today.getDate() + 3);
-    return eventDate > threeDaysLater;
-  };
-  const getCancelButtonText = (event) => {
-    if (event.status === 3) return '已取消';
-    if (isCancellable(event)) return '我要取消';
-    return '無法取消';
-  };
-  const getCancelButtonClass = (event) => {
-    if (event.status === 3) return 'is-cancelled';
-    if (isCancellable(event)) return 'is-active';
-    return 'is-disabled';
-  };
-
-  // --- 事件處理函式 (會改變狀態) ---
-  const goBackToMenu = () => router.push('/member');
-  const selectEvent = (event) => {
-    selectedEvent.value = event;
-  };
-  const showEventDetails = (event) => {
-    if (isMobile.value) viewingEvent.value = event;
-  };
-  const hideEventDetails = () => {
-    viewingEvent.value = null;
-  };
-  const showCancelForm = (event) => {
-    cancellingEvent.value = event;
-  };
-  const hideCancelForm = () => {
-    cancellingEvent.value = null;
-    cancellationReasonNo.value = '';
-  };
-  const submitCancellation = () => {
-    if (!cancellationReasonNo.value) {
-      alert('請選擇取消原因！');
-      return;
-    }
-    emit('cancel-event', cancellingEvent.value.order_no, cancellationReasonNo.value);
-    alert(`活動「${cancellingEvent.value.activity_name}」的取消請求已送出！`);
-    hideCancelForm();
-    hideEventDetails();
-  };
-
-  // --- RWD 判斷 ---
-  const screenWidth = ref(window.innerWidth);
-  const handleResize = () => {
-    screenWidth.value = window.innerWidth;
-  };
-  onMounted(() => {
-    if (paginatedEvents.value.length > 0) {
-      selectedEvent.value = props.userEvents[0];
-    }
-    window.addEventListener('resize', handleResize);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  const isMobile = computed(() => screenWidth.value < 768);
-  const isModalOpen = computed(() => cancellingEvent.value !== null && !isMobile.value);
-  const isMobileDetailVisible = computed(
-    () => viewingEvent.value !== null && isMobile.value && !cancellingEvent.value,
-  );
-  const isMobileCancelFormVisible = computed(
-    () => cancellingEvent.value !== null && isMobile.value,
-  );
-</script>
 
 <style lang="scss" scoped>
   .eventsPage {
