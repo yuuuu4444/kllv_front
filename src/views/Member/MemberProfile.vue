@@ -1,9 +1,10 @@
 <script setup>
-  import { ref, reactive, onMounted, computed, defineEmits } from 'vue';
+  import { ref, reactive, onMounted, computed, defineEmits, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
+  import { useAuthStore } from '@/stores/auth';
 
-  const emit = defineEmits(['update:avatar']);
+  // const emit = defineEmits(['update:avatar']);
   const router = useRouter();
   // const props = defineProps({
   //   userData: {
@@ -11,6 +12,7 @@
   //     required: true,
   //   },
   // });
+  const auth = useAuthStore();
 
   const isEditing = ref(false);
   const localUserData = reactive({
@@ -35,40 +37,80 @@
 
   // 引入環境變數
   const { VITE_API_BASE } = import.meta.env;
-  console.log(VITE_API_BASE);
 
   // 原本用父層傳遞個人資料
   // onMounted(() => {
   //   Object.assign(localUserData, props.userData);
   // });
 
+  // if (auth.user) {
+  //   Object.assign(localUserData, auth.user);
+  //   // localUserData.address 可能是空的
+  // }
+
+  watch(
+    () => auth.user,
+    (newUser) => {
+      const currentUser = newUser && newUser.user ? newUser.user : newUser;
+      if (currentUser) {
+        Object.assign(localUserData, currentUser);
+        originalUserData.value = { ...currentUser };
+      }
+    },
+    { immediate: true, deep: true },
+  );
+
   //GET獲取個人資料
   onMounted(async () => {
-    isLoading.value = true;
-    error.value = null;
-    try {
-      const apiUrl = `${VITE_API_BASE}/api/member/profile_get.php`;
-      const res = await fetch(apiUrl);
-      // if (!res.ok) {
-      //   throw new Error(`HTTP 錯誤！狀態: ${res.status}`);
-      // }
-      const data = await res.json();
-
-      if (data.status === 'success') {
-        Object.assign(localUserData, data.data);
-        originalUserData.value = { ...data.data };
-
-        // 通知父層更新側邊欄頭像，使用計算後的完整 URL
-        emit('update:avatar', displayAvatar.value);
-      } else {
-        // 如果後端回傳的 JSON 中 status 不是 'success'
-        throw new Error(data.message || '獲取資料失敗');
+    // 檢查 Pinia 中是否有登入狀態，如果沒有，可能使用者是直接透過 URL 進來
+    // 這種情況下 auth.checkAuth() 先執行
+    if (!auth.isLoggedIn) {
+      const isLoggedIn = await auth.checkAuth();
+      if (!isLoggedIn) {
+        // 如果檢查後還是未登入，則跳轉
+        router.push('/login');
+        return; // 提前結束 onMounted
       }
-    } catch (err) {
-      console.error('API 請求失敗:', err);
-      error.value = err.message;
-    } finally {
-      isLoading.value = false;
+    }
+
+    //如果沒有地址，則再次呼叫 profile_get.php 來獲取最完整的資料
+    if (!localUserData.address) {
+      isLoading.value = true;
+      error.value = null;
+      try {
+        const apiUrl = `${VITE_API_BASE}/api/member/profile_get.php`;
+        const res = await fetch(apiUrl, {
+          credentials: 'include', //Session Cookie
+        });
+
+        if (!res.ok) {
+          // 如果是 401 未登入，跳轉到登入頁
+          if (res.status === 401) {
+            auth.logout(); // 清除前端狀態
+            router.push('/login');
+          }
+          throw new Error(`HTTP 錯誤！狀態: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.status === 'success') {
+          Object.assign(localUserData, data.data);
+          originalUserData.value = { ...data.data };
+
+          // 通知父層更新側邊欄頭像，使用計算後的完整 URL
+          // emit('update:avatar', displayAvatar.value);
+
+          auth.setUser(data.data);
+        } else {
+          // 如果後端回傳的 JSON 中 status 不是 'success'
+          throw new Error(data.message || '獲取資料失敗');
+        }
+      } catch (err) {
+        console.error('API 請求失敗:', err);
+        error.value = err.message;
+      } finally {
+        isLoading.value = false;
+      }
     }
   });
 
@@ -154,6 +196,7 @@
       const apiUrl = `${VITE_API_BASE}/api/member/avatar_upload_post.php`;
       const res = await fetch(apiUrl, {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 
@@ -164,7 +207,7 @@
         // 上傳成功後，我們用後端回傳的【真實相對路徑】再次更新本地狀態
         // 這會覆蓋掉剛才的 base64 URL，displayAvatar 會自動重新計算
         localUserData.profile_image = data.data.profile_image_url;
-        alert('大頭貼上傳成功!');
+        alert('大頭貼上傳成功！請按下儲存保存變更！');
       } else {
         throw new Error(data.message);
       }
@@ -177,24 +220,28 @@
   const displayAvatar = computed(() => {
     const imagePath = localUserData.profile_image;
     console.log(imagePath);
-
     // 情況1: 如果路徑是一個完整的 URL (例如上傳後回傳的)
     if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) {
       return imagePath;
     }
-
     // 情況2: 路徑是後端回傳的相對路徑 (例如 '/uploads/avatars/user123.jpg')
     // 這種路徑通常以斜線開頭
     if (imagePath.startsWith('/')) {
       return `${VITE_API_BASE}${imagePath}`;
     }
-
     // (備用) 如果因為某些未知原因，路徑格式不符預期
     // 回傳一個絕對不會壞掉的本地預設圖，但理論上不會執行到這裡
     return '/image/default_avatar.png';
+
+    // 優先顯示本地預覽的 Base64 圖片
+    if (localUserData.profile_image && localUserData.profile_image.startsWith('data:image')) {
+      return localUserData.profile_image;
+    }
+    // // 其他情況，都直接信任 Pinia store 計算好的 avatarUrl
+    // return auth.avatarUrl;
   });
 
-  //PATCH修改個人資訊
+  //POST(PATCH)修改個人資訊
   const saveChanges = async () => {
     if (!localUserData.phone_number) {
       alert('「聯絡電話」欄位不得為空');
@@ -206,22 +253,10 @@
     const allowedFields = ['nickname', 'phone_number', 'gender', 'profile_image'];
 
     for (const key of allowedFields) {
+      // 只要本地資料和原始備份資料不同，就加入 payload
       if (localUserData[key] !== originalUserData.value[key]) {
-        // 儲存時只傳送相對路徑或檔名
-        const imageValue = localUserData[key];
-        if (key === 'profile_image' && imageValue.startsWith('data:image')) {
-          // 如果是 base64 預覽圖，說明圖片已上傳，但 saveChanges 比 handleFileChange 的 API 回應更快
-          // 此時應該等待 stagedAvatarUrl，或者在真實應用中，將上傳和儲存合併
-          // 為了簡單起見，假設 handleFileChange 已經將它更新為相對路徑了
-          // 因此，我們只需要傳送不是 http 開頭的路徑
-          continue; // 暫時跳過 base64 的儲存
-        }
-        // 只儲存相對路徑
-        if (key === 'profile_image' && imageValue.startsWith('http')) {
-          payload[key] = new URL(imageValue).pathname;
-        } else {
-          payload[key] = imageValue;
-        }
+        // 不再做任何路徑處理，直接將當前的值加入
+        payload[key] = localUserData[key];
       }
     }
 
@@ -233,9 +268,10 @@
     isLoading.value = true;
     error.value = null;
     try {
-      const apiUrl = `${VITE_API_BASE}/api/member/profile_update_patch.php`;
+      const apiUrl = `${VITE_API_BASE}/api/member/profile_update_post.php`;
       const res = await fetch(apiUrl, {
-        method: 'PATCH',
+        method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
@@ -249,7 +285,10 @@
         originalUserData.value = { ...data.data };
 
         // 再次通知父層更新側邊欄，使用計算後的完整 URL
-        emit('update:avatar', displayAvatar.value);
+        // emit('update:avatar', displayAvatar.value);
+
+        // 同步更新 Pinia store
+        auth.setUser(data.data);
 
         isEditing.value = false;
         phoneFieldTouched.value = false;
@@ -305,7 +344,6 @@
     <div class="profilePage__avatarContainer">
       <img
         :src="displayAvatar"
-        alt="使用者頭像"
         class="profilePage__avatar"
         :class="{ 'is-editable': isEditing }"
         @click="isEditing && triggerFileUpload()"
