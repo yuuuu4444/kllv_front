@@ -5,22 +5,34 @@
   import 'aos/dist/aos.css';
 
   function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mapContainer = document.querySelector('.about-section');
+    if (mapContainer) {
+      mapContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   }
 
   onMounted(() => {
     AOS.init({
-      once: false, // 每次進 viewport 都動畫
+      once: false,
       duration: 900,
       offset: 80,
     });
-    // 確保動畫正確（有時 SPA 元素動態渲染）
-    setTimeout(() => {
-      AOS.refreshHard();
-    }, 250);
-  });
 
-  onUpdated(() => {
     setTimeout(() => {
       AOS.refreshHard();
     }, 250);
@@ -42,7 +54,7 @@
       <h1 class="bold">空瀧浪里 就像這樣</h1>
     </div>
   </section> -->
-    <section class="about-section">
+    <section class="about-section" id="about-section">
        <div class="container">
     <div class="breadcrumb">
       <RouterLink to="/">
@@ -55,23 +67,39 @@
     </div>
     </div>
 
-
       <div class="map-container">
-        <img
-          src="../../assets/image/about_map.png"
-          alt="社區地圖"
-          class="map-image"
-          data-aos="fade"
-        />
+      <img src="../../assets/image/about_map.png" alt="社區地圖" class="map-image" />
+      <img src="../../assets/image/about01.gif" alt="動態圖" class="custom-gif01" />
 
-        <!-- 說明文字泡泡 -->
-        <div class="speech-bubble">
-          <p class="">您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
+        <div class="location-marker location-center" data-aos="zoom-in">
+          <img src="../../assets/image/about_center.png" alt="活動中心" class="location-icon clickable "   @click="scrollToSection('mayor-intro3')" />
+          <div class="location-label-center">活動中心</div>
+          <div class="speech-bubble">
+            <p>社區活動多元，聚會聯誼好去處，里民互動成長，歡迎參加每場活動！</p>
+          </div>
+        </div>
+
+        <div class="location-marker location-office" data-aos="zoom-in">
+        <img src="../../assets/image/about_office.png" alt="里辦公室" class="location-icon clickable" @click="scrollToSection('mayor-intro')"/>
+          <div class="location-label-office">里辦公室</div>
+          <div class="speech-bubble">
+            <p>您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
+          </div>
+        </div>
+
+        <div class="location-marker location-farm" data-aos="zoom-in">
+        <img src="../../assets/image/about_farm.png" alt="有機梨園" class="location-icon clickable" @click="scrollToSection('mayor-intro2')"/>
+          <div class="location-label-farm">有機梨園</div>
+          <div class="speech-bubble">
+            <p>自然農法共耕，農事體驗，親近自然，親子踏青，樂在美好生活。</p>
+          </div>
         </div>
       </div>
 
+
       <!-- 下方描述文字 -->
       <div class="about-text-container">
+        <img src="../../assets/image/about02.gif" alt="動態圖" class="custom-gif02" />
         <div
           class="about-text"
           data-aos="fade"
@@ -88,7 +116,7 @@
         </div>
       </div>
     </section>
-    <section class="mayor-intro">
+    <section class="mayor-intro" id="mayor-intro">
       <div class="leader-info">
         <h2 class="bold">里長簡介</h2>
       </div>
@@ -175,7 +203,7 @@
         </p>
       </div>
     </section>
-    <section class="mayor-intro2">
+    <section class="mayor-intro2" id="mayor-intro2">
       <div class="leader-info">
         <h2 class="bold">特色農產</h2>
       </div>
@@ -239,7 +267,7 @@
         </p>
       </div>
     </section>
-    <section class="mayor-intro3">
+    <section class="mayor-intro3" id="mayor-intro3">
       <div class="leader-info">
         <h2 class="bold">活動中心</h2>
       </div>
@@ -336,6 +364,8 @@
     color: $black;
   }
   .section-title {
+    max-width: 1920px;
+    margin: 0 auto;
     margin-bottom: 40px;
     position: relative;
     text-align: center;
@@ -384,50 +414,135 @@
 }
 }
 
-
-
   // 地圖區塊
-  // .about-section {
-  // }
-  .map-container {
-    position: relative;
-    max-width: 683px;
-    margin: 0 auto;
 
+  .map-container {
+      position: relative; 
+      max-width: 683px;
+      margin: 0 auto; 
     .map-image {
-      position: relative;
-      top: 100px;
-      width: 100%;
-      display: block;
-      border-radius: 12px;
-    }
-    .speech-bubble {
+        position: relative; 
+        top: 100px;
+        display: block;
+        width: 100%;
+        height: auto; 
+        z-index: 1;
+     }
+    .location-marker {
       position: absolute;
-      top: 40%;
-      left: 80%;
-      width: clamp(168px,14vw,14vw);
-      height: clamp(180px,8.2vw,8.2vw);
-      background: white;
-      padding: 32px;
-      border-radius: $border-r-lg;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-      text-align: left;
-      p{
-        font-family: $font-sans;
-        font-size: clamp(14px,1vw,20px);
-        font-style: normal;
-        font-weight: 400;
-        line-height: 150%;
-        letter-spacing: 0.2em;
-      }
+        .speech-bubble {
+          position: absolute;
+          bottom: 120%; 
+          left: 50%;
+          transform: translateX(-50%);
+          display: none; 
+          width: 180px;
+          background: #ffffff;
+          color: #000000;
+          padding: 8px 12px;
+          border-radius: 8px;
+          text-align: left;
+          font-size: 14px;
+          line-height: 1.4;
+        }
+        .speech-bubble::after {
+          content: "";
+          position: absolute;
+          top: 100%; 
+          left: 50%;
+          transform: translateX(-50%);
+          border-width: 10px;
+          border-style: solid;
+          border-color: #ffffff transparent transparent transparent;
+        }
     }
-  }
+    .location-marker:hover .location-icon {
+    transform: scale(1.1);
+    }
+    .location-marker:hover .speech-bubble {
+    display: block;
+    @include mobile{
+            display: none;
+        }
+    }
+    .location-center { top: 17%; left: 51%; 
+      z-index: 2;
+    @include mobile{
+        top: 8%; left: 50%;
+       }}
+    .location-office { top: 35%; left: 15%; 
+      z-index: 2;
+    @include mobile{
+        top: 25%; left: 15%;
+       }}
+    .location-farm  { top: 55%; left: 63%; 
+      z-index: 2;
+    @include mobile{
+        top: 45%; left: 63%;
+       }}
+    .location-icon {
+      width: 90%;  
+      height: auto; 
+      transition: transform 0.2s ease-in-out;
+      @include mobile{
+        width: 50%;
+       }
+    }
+    .location-label-office {
+      position: absolute;
+      top: 105%;
+      left: 21%;
+      text-align: center;
+      font-size: 20px;
+      color: #333;
+      margin-top: 4px;
+      font-weight: bold;
+      @include mobile{
+        font-size: 16px;
+        top: 105%;
+        left: 5%;
+       }
+    }
+    .location-label-center {
+      position: absolute;
+      top: 105%;
+      left: 1%;
+      text-align: center;
+      font-size: 20px;
+      color: #333;
+      margin-top: 4px;
+      font-weight: bold;
+      @include mobile{
+        font-size: 16px;
+        top: 106%;
+        left: -10%;
+       }
+    }
+    .location-label-farm {
+      position: absolute;
+      top: 105%;
+      left: 20%;
+      text-align: center;
+      font-size: 20px;
+      color: #333;
+      margin-top: 4px;
+      font-weight: bold;
+       @include mobile{
+        font-size: 16px;
+        top: 105%;
+        left: 5%;
+       }
+    }
+}
 
   // 關於社區簡介
   .about-text-container {
+    max-width: 1920px;
+    margin: 0 auto;
     background-color: $primary-c100;
     padding: 115px;
     text-align: center;
+    position: relative;
     @include flex-center;
     .about-text {
       width: 788px;
@@ -650,7 +765,7 @@
         }
       }
       .map-container {
-        max-width: 100vw;
+        max-width: 90vw;
         .map-image {
           top: 4vw;
           border-radius: 4vw;
@@ -776,4 +891,38 @@
       align-items: center;
     }
   }
+  
+  .clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+  }
+
+  .clickable:hover {
+    transform: scale(1.1);
+  }
+  
+  .custom-gif01 {
+  position: absolute;
+  top: 25%;    
+  right: -20%;   
+  width: 172px; 
+  height: auto;
+  // z-index: 10; 
+  pointer-events: none; 
+  @include mobile{
+    display: none;
+   }
+  }
+  .custom-gif02 {
+    position: absolute;
+    top: -20%;    
+    left: 5%;   
+    width: 172px; 
+    height: auto;
+    z-index: 10; 
+    pointer-events: none; 
+    @include mobile{
+    display: none;
+   }
+  } 
 </style>
