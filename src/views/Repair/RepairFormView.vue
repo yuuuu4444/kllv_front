@@ -250,6 +250,7 @@
               id="location"
               v-model="location"
               required
+              :disabled="submitting"
             />
           </div>
           <div class="repair-form__field">
@@ -312,6 +313,7 @@
               id="desc"
               v-model="desc"
               required
+              :disabled="submitting"
             ></textarea>
           </div>
           <div class="repair-form__privacy">
@@ -338,8 +340,9 @@
           <button
             type="submit"
             class="btn--process"
+            :disabled="submitting"
           >
-            確認送出
+            {{ submitting ? '送出中…' : '確認送出' }}
           </button>
         </div>
       </form>
