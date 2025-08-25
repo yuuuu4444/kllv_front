@@ -42,7 +42,9 @@
     isLoading.value = true;
     try {
       const apiUrl = `${VITE_API_BASE}/api/member/repairs_get.php`;
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
 
       const data = await response.json();
