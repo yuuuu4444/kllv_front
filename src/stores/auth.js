@@ -75,11 +75,8 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await fetch(`${VITE_API_BASE}/api/login/login_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 帶上 session cookie
-        body: JSON.stringify({
-          user_id: user_id,
-          password: password,
-        }),
+        credentials: 'include',
+        body: JSON.stringify({ user_id, password }),
       });
       const data = await res.json();
       if (data.status === 'success') {
