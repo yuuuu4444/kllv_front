@@ -656,7 +656,10 @@
         </template>
       </section>
 
-      <section class="post-detail__comment">
+      <section
+        class="post-detail__comment"
+        v-if="totalPages != 0"
+      >
         <div class="post-detail__comment-list">
           <ul>
             <li
@@ -847,6 +850,10 @@
       aspect-ratio: 1;
       border-radius: 50%;
       border: 1px solid black;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       img {
         width: 100%;
       }
@@ -970,6 +977,10 @@
           aspect-ratio: 1;
           border-radius: 50%;
           border: 1px solid black;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           img {
             width: 100%;
           }
