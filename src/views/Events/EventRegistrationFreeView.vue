@@ -1,3 +1,208 @@
+<script setup>
+  import SubBanner from '@/components/SubBanner.vue';
+  import { ref, reactive, computed, onMounted } from 'vue';
+  import { useRoute, RouterLink, useRouter } from 'vue-router';
+  import EventMemberModal from '@/components/EventMemberModal.vue';
+  import { useAuthStore } from '@/stores/auth';
+
+  // 初始化
+  const route = useRoute();
+  const router = useRouter();
+  const authStore = useAuthStore();
+  const { VITE_API_BASE } = import.meta.env;
+
+  // State(狀態管理)
+  const event = ref(null);
+  const isLoading = ref(true);
+  const registeredList = ref([]);
+  const paymentMethod = ref('');
+  const agreedToTerms = ref(false);
+  const isSubmitting = ref(false);
+
+  // 表單相關 State
+  const initialFormState = {
+    user_id: '',
+    full_name: '',
+    id_number: '',
+    birth_date: '',
+    phone: '',
+    address: '',
+    email: '',
+    emergency_name: '',
+    emergency_phone: '',
+    emergency_relation: '',
+  };
+  const form = reactive({ ...initialFormState });
+  const resetForm = () => {
+    Object.assign(form, initialFormState);
+  };
+
+  // 彈窗相關State
+  const isModalOpen = ref(false);
+  const memberList = ref([]);
+
+  onMounted(async () => {
+    isLoading.value = true;
+    const eventId = route.params.id;
+    if (!eventId) {
+      alert('缺少活動 ID');
+      router.push('/events');
+      return;
+    }
+
+    try {
+      // 1.取活動詳情
+      const eventRes = await fetch(
+        `${VITE_API_BASE}/api/events/event_get_by_id.php?event_no=${eventId}`,
+      );
+      if (!eventRes.ok) throw new Error('無法獲取活動詳情');
+      const eventData = await eventRes.json();
+      if (eventData.status === 'success') {
+        event.value = eventData.data;
+      } else {
+        throw new Error(eventData.message);
+      }
+
+      // 2.如果使用者已登入，獲取家庭成員列表
+      if (authStore.isLoggedIn) {
+        const memberRes = await fetch(`${VITE_API_BASE}/api/events/sub_accounts_get.php`, {
+          credentials: 'include',
+        });
+        if (memberRes.ok) {
+          const memberData = await memberRes.json();
+          if (memberData.status === 'success') {
+            memberList.value = memberData.data.map((m) => ({
+              user_account: m.user_id,
+              full_name: m.fullname,
+              id_number: m.id_number,
+              birth_date: m.birth_date,
+              phone: m.phone_number,
+              user_id: m.user_id,
+              email: m.email,
+              address: m.address,
+            }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('載入報名頁面失敗:', error);
+      alert(error.message || '載入頁面資料失敗');
+      router.push('/events');
+    } finally {
+      isLoading.value = false;
+    }
+  });
+
+  // const totalCost = computed(
+  //   () => (event.value?.fee_per_person || 0) * registeredList.value.length,
+  // );
+  const isReadyToProceed = computed(() => {
+    return agreedToTerms.value && registeredList.value.length > 0;
+    // return agreedToTerms.value && registeredList.value.length > 0 && paymentMethod.value !== '';
+  });
+
+  const addRegistered = () => {
+    if (!form.user_id) {
+      form.user_id = authStore.user.user_id;
+    }
+    registeredList.value.push({ ...form });
+    resetForm();
+  };
+  const removeRegistered = (index) => {
+    registeredList.value.splice(index, 1);
+  };
+
+  const handleMemberConfirm = (selectedMember) => {
+    form.user_id = selectedMember.user_id;
+    form.full_name = selectedMember.full_name;
+    form.id_number = selectedMember.id_number;
+    form.birth_date = selectedMember.birth_date;
+    form.phone = selectedMember.phone;
+    form.email = selectedMember.email;
+    form.address = selectedMember.address;
+    isModalOpen.value = false;
+  };
+
+  // const handleMemberConfirm = (selectedMember) => {
+  //   form.user_id = selectedMember.user_id;
+  //   form.full_name = selectedMember.fullname;
+  //   form.id_number = selectedMember.id_number;
+  //   form.birth_date = selectedMember.birth_date;
+  //   form.phone = selectedMember.phone_number;
+  //   form.email = selectedMember.email;
+  //   form.address = selectedMember.address;
+  //   isModalOpen.value = false;
+  // };
+
+  async function goToCompletionPage() {
+    // 1.登入檢查
+    if (!authStore.isLoggedIn) {
+      alert('請先登入會員！');
+      router.push('/login');
+      return;
+    }
+
+    isSubmitting.value = true;
+    try {
+      // 2.組裝要POST的JSON
+      const payload = {
+        event_no: event.value.event_no,
+        fee_total: 0,
+        payment_no: null,
+        participants: registeredList.value.map((p) => ({
+          user_id: p.user_id,
+          phone: p.phone,
+          id_number: p.id_number,
+          birth_date: p.birth_date,
+          emergency_name: p.emergency_name,
+          emergency_phone: p.emergency_phone,
+          emergency_relation: p.emergency_relation,
+          birth_date: p.birth_date ? p.birth_date.split(' ')[0] : null,
+        })),
+      };
+      // 轉換付款方式代碼
+      switch (paymentMethod.value) {
+        case 'creditCard':
+          payload.payment_no = 1;
+          break;
+        case 'transfer':
+          payload.payment_no = 2;
+          break;
+        case 'cash':
+          payload.payment_no = 3;
+          break;
+      }
+
+      // 3.呼叫API
+      const response = await fetch(`${VITE_API_BASE}/api/events/registrations_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // 攜帶session cookie
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        alert(result.message);
+        // if (paymentMethod.value === 'creditCard') {
+        //   router.push('/events/complete/paid');
+        // } else {
+        router.push(`/events/complete/paid?reg_no=${result.data.reg_no}`);
+        // router.push(`/events/complete/paid?reg_no=${newRegNo}`);
+        // router.push('/events/complete/unpaid');
+        // }
+      } else {
+        throw new Error(result.message || '報名失敗');
+      }
+    } catch (error) {
+      console.error('報名時發生錯誤:', error);
+      alert('報名失敗：' + error.message);
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+</script>
+
 <template>
   <div class="reg-view">
     <SubBanner title="活動報名" />
@@ -245,92 +450,6 @@
     />
   </div>
 </template>
-
-<script setup>
-  import SubBanner from '@/components/SubBanner.vue';
-  import { ref, reactive, computed } from 'vue';
-  import { useRoute, RouterLink, useRouter } from 'vue-router';
-  import EventMemberModal from '@/components/EventMemberModal.vue';
-  import eventsData from '@/assets/data/Events/events.json';
-
-  const router = useRouter();
-  const route = useRoute();
-
-  const allEvents = eventsData;
-  const event = computed(() => {
-    const eventId = parseInt(route.params.id, 10);
-    return allEvents.find((e) => e.event_no === eventId);
-  });
-
-  const isModalOpen = ref(false);
-
-  const initialFormState = {
-    full_name: '',
-    id_number: '',
-    birth_date: '',
-    phone: '',
-    address: '',
-    email: '',
-    emergency_name: '',
-    emergency_phone: '',
-    emergency_relation: '',
-  };
-  const form = reactive({ ...initialFormState });
-  const resetForm = () => {
-    Object.assign(form, initialFormState);
-  };
-
-  const registeredList = ref([]);
-  const addRegistered = () => {
-    registeredList.value.push({ ...form });
-    resetForm();
-  };
-  const removeRegistered = (index) => {
-    registeredList.value.splice(index, 1);
-  };
-
-  const memberList = ref([
-    {
-      user_account: 'KomodMayaw',
-      full_name: 'Komod-Mayaw',
-      id_number: 'F123498765',
-      birth_date: '80/7/29',
-      phone: '0988123456',
-    },
-    {
-      user_account: 'FodayAfo',
-      full_name: 'Foday-Afo',
-      id_number: 'A011115678',
-      birth_date: '54/10/03',
-      phone: '0988123459',
-    },
-    {
-      user_account: 'MaJunHua',
-      full_name: '馬俊華',
-      id_number: 'F987651234',
-      birth_date: '84/01/06',
-      phone: '0988456789',
-    },
-  ]);
-
-  const handleMemberConfirm = (selectedMember) => {
-    form.full_name = selectedMember.full_name;
-    form.id_number = selectedMember.id_number;
-    form.birth_date = selectedMember.birth_date;
-    form.phone = selectedMember.phone;
-    isModalOpen.value = false;
-  };
-
-  const agreedToTerms = ref(false);
-
-  const isReadyToProceed = computed(() => {
-    return agreedToTerms.value && registeredList.value.length > 0;
-  });
-
-  const goToCompletionPage = () => {
-    router.push('/events/complete/paid');
-  };
-</script>
 
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';

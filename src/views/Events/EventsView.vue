@@ -1,3 +1,94 @@
+<script setup>
+  import MainBanner from '@/components/MainBanner.vue';
+  import { ref, computed, onMounted } from 'vue';
+  import EventCard from '@/components/EventCard.vue';
+  import { RouterLink } from 'vue-router';
+
+  // import eventsData from '@/assets/data/Events/events.json';
+  // import categoriesData from '@/assets/data/Events/event_categories.json';
+  const { VITE_API_BASE } = import.meta.env;
+
+  const allEvents = ref([]);
+  const filterCategories = ref([]);
+  const isLoading = ref(true); // 新增載入狀態
+
+  const activeCategory = ref(0);
+  const currentPage = ref(1);
+  const itemsPerPage = ref(6);
+
+  onMounted(async () => {
+    isLoading.value = true;
+    try {
+      const [eventsRes, categoriesRes] = await Promise.all([
+        fetch(`${VITE_API_BASE}/api/events/events_get.php`),
+        fetch(`${VITE_API_BASE}/api/events/events_categories_get.php`),
+      ]);
+
+      if (!eventsRes.ok || !categoriesRes.ok) throw new Error('API 請求失敗');
+
+      const eventsResult = await eventsRes.json();
+      const categoriesResult = await categoriesRes.json();
+
+      if (eventsResult.status === 'success') {
+        // API 回傳的資料已經包含 category_name，不需要再手動mapping
+        allEvents.value = eventsResult.data;
+      }
+      if (categoriesResult.status === 'success') {
+        // API回傳的分類，加上「全部活動」的選項
+        filterCategories.value = [
+          { category_no: 0, category_name: '全部活動' },
+          ...categoriesResult.data,
+        ];
+      }
+    } catch (error) {
+      console.error('載入活動列表頁失敗:', error);
+      alert('無法載入活動，請稍後再試');
+    } finally {
+      isLoading.value = false;
+    }
+  });
+
+  // 篩選和分頁邏輯維持
+  const selectCategory = (categoryNo) => {
+    activeCategory.value = categoryNo;
+    currentPage.value = 1;
+  };
+
+  // const filteredEvents = computed(() => {
+  //   const selectedCategoryNo = Number(activeCategory.value);
+  //   if (selectedCategoryNo === 0) {
+  //     return allEvents.value;
+  //   }
+  //   return allEvents.value.filter((event) => event.category_no === selectedCategoryNo);
+  // });
+
+  const filteredEvents = computed(() => {
+    if (activeCategory.value === 0) {
+      return allEvents.value;
+    }
+    return allEvents.value.filter((event) => event.category_no == activeCategory.value);
+  });
+
+  const totalPages = computed(() => {
+    if (filteredEvents.value.length === 0) return 1;
+    return Math.ceil(filteredEvents.value.length / itemsPerPage.value);
+  });
+
+  const paginatedEvents = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    return filteredEvents.value.slice(startIndex, endIndex);
+  });
+
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) currentPage.value++;
+  };
+
+  const prevPage = () => {
+    if (currentPage.value > 1) currentPage.value--;
+  };
+</script>
+
 <template>
   <div class="events-view">
     <MainBanner
@@ -93,58 +184,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-  import MainBanner from '@/components/MainBanner.vue';
-  import { ref, computed, onMounted } from 'vue';
-  import EventCard from '@/components/EventCard.vue';
-  import { RouterLink } from 'vue-router';
-
-  import eventsData from '@/assets/data/Events/events.json';
-  import categoriesData from '@/assets/data/Events/event_categories.json';
-
-  const filterCategories = ref([]);
-  const activeCategory = ref(0);
-  const currentPage = ref(1);
-  const itemsPerPage = ref(6);
-  const allEvents = ref([]);
-
-  onMounted(() => {
-    const categoryMap = new Map(categoriesData.map((cat) => [cat.category_no, cat.category_name]));
-    const processedEvents = eventsData.map((event) => ({
-      ...event,
-      category_name: categoryMap.get(event.category_no) || '未分類',
-    }));
-    allEvents.value = processedEvents;
-    filterCategories.value = [{ category_no: 0, category_name: '全部活動' }, ...categoriesData];
-  });
-
-  const selectCategory = (categoryNo) => {
-    activeCategory.value = categoryNo;
-    currentPage.value = 1;
-  };
-  const filteredEvents = computed(() => {
-    if (activeCategory.value === 0) {
-      return allEvents.value;
-    }
-    return allEvents.value.filter((event) => event.category_no === activeCategory.value);
-  });
-  const totalPages = computed(() => {
-    if (filteredEvents.value.length === 0) return 1;
-    return Math.ceil(filteredEvents.value.length / itemsPerPage.value);
-  });
-  const paginatedEvents = computed(() => {
-    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-    const endIndex = startIndex + itemsPerPage.value;
-    return filteredEvents.value.slice(startIndex, endIndex);
-  });
-  const nextPage = () => {
-    if (currentPage.value < totalPages.value) currentPage.value++;
-  };
-  const prevPage = () => {
-    if (currentPage.value > 1) currentPage.value--;
-  };
-</script>
 
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';

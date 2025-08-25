@@ -1,3 +1,28 @@
+<script setup>
+  import { ref } from 'vue';
+
+  const props = defineProps({
+    members: {
+      type: Array,
+      required: true,
+    },
+  });
+  const emit = defineEmits(['close', 'confirm']);
+
+  const selectedMember = ref(null);
+  const selectMember = (member) => {
+    selectedMember.value = member;
+  };
+  const closeModal = () => {
+    emit('close');
+  };
+  const confirmSelection = () => {
+    if (selectedMember.value) {
+      emit('confirm', selectedMember.value);
+    }
+  };
+</script>
+
 <template>
   <div
     class="member-modal__overlay"
@@ -89,31 +114,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-  import { ref } from 'vue';
-
-  const props = defineProps({
-    members: {
-      type: Array,
-      required: true,
-    },
-  });
-  const emit = defineEmits(['close', 'confirm']);
-
-  const selectedMember = ref(null);
-  const selectMember = (member) => {
-    selectedMember.value = member;
-  };
-  const closeModal = () => {
-    emit('close');
-  };
-  const confirmSelection = () => {
-    if (selectedMember.value) {
-      emit('confirm', selectedMember.value);
-    }
-  };
-</script>
 
 <style lang="scss" scoped>
   @import '@/assets/scss/style.scss';
