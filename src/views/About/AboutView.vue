@@ -306,7 +306,7 @@
         <span>課程報名</span>
       </RouterLink>
 
-      <div class="back-to-top">
+      <div class="back-to-top3">
         <p class="body--b2">
           <a
             href="#"
@@ -558,6 +558,9 @@
         height: 13.89vh;
         border-radius: 30px 0 0 30px;
         overflow: hidden;
+        @include mobile{
+          border-radius: 1.563vw 0 0 1.563vw;
+        }
         img {
           width: 100%;
           height: 100%;
@@ -573,12 +576,13 @@
       }
     }
 
-    .back-to-top {
+    .back-to-top,.back-to-top3{
       cursor: pointer;
       text-decoration: underline;
       text-align: right;
       margin-bottom: 240px;
     }
+    
   }
   .mayor-intro2 {
     .intro-section {
@@ -694,6 +698,7 @@
           }
         }
       }
+      
       .leader-info {
         &::before,
         &::after {
@@ -728,6 +733,11 @@
       .back-to-top {
         margin-bottom: 8vw;
         text-align: right;
+      }
+      .back-to-top3 {
+        text-align: right;
+        margin-bottom: 0px;
+        padding-bottom: 15px;
       }
     }
     .mayor-intro2 {
