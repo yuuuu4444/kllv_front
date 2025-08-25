@@ -124,6 +124,7 @@
           created_at: p.posted_at,
           author_id: p.author_id,
           author_fullname: p.fullname,
+          author_profile_image: p.profile_image || p.author_profile_image || '',
           // _cover: p.image,
         }));
     } catch (e) {
@@ -328,7 +329,7 @@
                 <div class="community-wrapper__meta">
                   <div class="community-wrapper__author-image">
                     <img
-                      :src="avatarUrl(profileImg)"
+                      :src="avatarUrl(post.author_profile_image)"
                       alt=""
                     />
                   </div>
