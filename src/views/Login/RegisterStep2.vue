@@ -33,6 +33,7 @@
 
   // 新增 household_no 相關狀態
   const household_no = ref('');
+  const generatedUserId = ref('');
 
   function goToCancel() {
     router.push('/register-step1');
@@ -120,68 +121,42 @@
   async function submitRegistration() {
     if (!validateForm()) return;
 
-    try {
-      const payload = {
-        user_id: account.value,
-        password: password.value,
-        email: email.value,
-        fullname: fullname.value,
-        nickname: nickname.value || '',
-        id_number: idNumber.value,
-        phone_number: phone.value,
-        birth_date: birthDate.value,
-        gender: gender.value,
-        role_type: 0,
-        household_no: household_no.value,
-        // 移除 created_at，由後端處理
-      };
+    // 直接組合 payload，假設 household_no 已在前端暫存
+    const payload = {
+      user_id: account.value,
+      fullname: fullname.value,
+      nickname: nickname.value || '',
+      password: password.value,
+      phone_number: phone.value,
+      email: email.value,
+      id_number: idNumber.value,
+      birth_date: birthDate.value,
+      gender: gender.value,
+      household_no: registerStore.household_no, // 前端暫存
+      role_type: 0,
+    };
 
-      const res = await fetch(`${VITE_API_BASE}/api/login/register_post.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 加入此行以支援 session
-        body: JSON.stringify(payload),
-      });
+    const res = await fetch(`${VITE_API_BASE}/api/login/register_post.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
 
-      const data = await res.json();
-      if (data.status === 'success') {
-        router.push('/register-check');
+    const data = await res.json();
+    if (data.status === 'success') {
+      generatedUserId.value = data.user_id;
+      router.push('/register-check');
+    } else {
+      if (data.message.includes('帳號已存在')) {
+        accountError.value = '此帳號已被使用';
+      } else if (data.message.includes('信箱')) {
+        emailError.value = '此信箱已被註冊';
       } else {
-        if (data.message.includes('帳號已存在')) {
-          accountError.value = '此帳號已被使用';
-        } else if (data.message.includes('Email')) {
-          emailError.value = '此信箱已被註冊';
-        } else {
-          generalError.value = data.message || '註冊失敗，請稍後再試';
-        }
+        generalError.value = data.message || '註冊失敗，請稍後再試';
       }
-    } catch (err) {
-      console.error('註冊錯誤:', err);
-      generalError.value = '系統錯誤，請稍後再試';
     }
   }
-
-  // 在元件載入時獲取 household_no
-  onMounted(async () => {
-    try {
-      const res = await fetch(`${VITE_API_BASE}/api/login/households_get.php`, {
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (data.status === 'success' && data.data.length > 0) {
-        // 取得最後一筆資料的 household_no 並加 1
-        const lastNo = data.data[data.data.length - 1].household_no;
-        household_no.value = String(Number(lastNo) + 1);
-      } else {
-        // 如果沒有資料，從 1 開始
-        household_no.value = '1';
-      }
-    } catch (err) {
-      console.error('獲取戶號失敗:', err);
-      household_no.value = '1'; // 發生錯誤時預設值
-    }
-  });
 </script>
 
 <template>
@@ -199,7 +174,7 @@
           <div class="step-label gray">成員資料</div>
         </div>
       </div>
-      <form @submit.prevent="(submitRegistration, submitRegistration2)">
+      <form @submit.prevent="submitRegistration">
         <!-- 地址顯示 -->
         <div class="form-group">
           <label>地址</label>
