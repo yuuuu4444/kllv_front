@@ -19,6 +19,7 @@ export default [
     path: '/repair/form',
     name: 'repairform',
     component: RepairFormView,
+    meta: { requiresAuth: true },
   },
   {
     path: '/repair/complete/:repair_no(\\d+)?',

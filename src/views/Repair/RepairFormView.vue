@@ -13,10 +13,11 @@
 
   const auth = useAuthStore();
   const { user } = storeToRefs(auth);
+  const profile = computed(() => user.value ?? null);
 
-  // const reporterId = computed(() => user.value?.user_id ?? '');
-  // const reporterName = computed(() => user.value?.fullname ?? '');
-  // const reporterPhone = computed(() => user.value?.phone_number ?? '');
+  const reporterId = computed(() => profile.value?.user_id ?? '');
+  const reporterName = computed(() => profile.value?.fullname ?? '');
+  const reporterPhone = computed(() => profile.value?.phone_number ?? '');
 
   const selectedCategoryNo = ref('');
   const location = ref('');
@@ -36,9 +37,9 @@
   const today = new Date().toISOString().slice(0, 10);
 
   // 假資料：王小明
-  const reporterId = ref('user_account_001'); // 對應 user_id
-  const reporterName = ref('Komod·Mayaw'); // fullname
-  const reporterPhone = ref('0987654321'); // phone_number
+  // const reporterId = ref('user_account_001'); // 對應 user_id
+  // const reporterName = ref('Komod·Mayaw'); // fullname
+  // const reporterPhone = ref('0987654321'); // phone_number
 
   onMounted(async () => {
     loadingCats.value = true;
@@ -60,7 +61,7 @@
     formData.append('location', location.value);
     formData.append('category_no', String(Number(selectedCategoryNo.value)));
     formData.append('description', desc.value);
-    formData.append('reporter_id', reporterId.value);
+    // formData.append('reporter_id', reporterId.value);
     formData.append('status', '0');
 
     files.value.forEach((f) => {
@@ -72,6 +73,7 @@
       const res = await fetch(`${VITE_API_BASE}/api/repair/repair_add_post.php`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
       // const data = await res.json();
 
@@ -136,6 +138,13 @@
     files.value[index] = null;
     previews.value[index] = '';
   };
+
+  onMounted(async () => {
+    await auth.checkAuth();
+
+    // console.log('ERICERIC:\n' + JSON.stringify(data.data, null, 2));
+    console.log('auth.user =', user.value);
+  });
 </script>
 
 <template>
