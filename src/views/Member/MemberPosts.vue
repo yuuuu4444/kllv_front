@@ -103,7 +103,9 @@
     isLoadingPosts.value = true;
     try {
       const apiUrl = `${VITE_API_BASE}/api/member/posts_get.php`;
-      const res = await fetch(apiUrl);
+      const res = await fetch(apiUrl, {
+        credentials: 'include',
+      });
       if (!res.ok) throw new Error(`伺服器錯誤: ${res.status}`);
 
       const data = await res.json();
@@ -126,7 +128,9 @@
     isLoadingReplies.value = true;
     try {
       const apiUrl = `${VITE_API_BASE}/api/member/replies_get.php`;
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
 
       const data = await response.json();
@@ -337,7 +341,7 @@
               <!-- 編輯按鈕 -->
               <td class="postTable__cell--action">
                 <router-link
-                  :to="`/community/${post.post_no}/edit`"
+                  :to="`/community/${post.post_no}`"
                   :class="['iconButton', { 'iconButton--disabled': post.is_reported }]"
                   :event="post.is_reported ? '' : 'click'"
                   aria-label="編輯貼文"
@@ -597,7 +601,7 @@
           <!-- 只有未被檢舉的貼文才能編輯 -->
           <template v-if="!showActionsModalForPost.is_reported">
             <router-link
-              :to="`/community/${showActionsModalForPost.post_no}/edit`"
+              :to="`/community/${showActionsModalForPost.post_no}`"
               class="mobileActions__item"
             >
               <svg
