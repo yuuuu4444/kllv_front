@@ -1,16 +1,75 @@
+<script setup>
+  import { ref, reactive, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
+
+  // defineProps({
+  //   userData: {
+  //     type: Object,
+  //     required: true,
+  //   },
+  // });
+
+  const router = useRouter();
+  const auth = useAuthStore();
+
+  const allMenuItems = ref([
+    { name: '個人資料', path: '/member/profile' },
+    { name: '家庭成員', path: '/member/family' },
+    { name: '活動報名', path: '/member/events' },
+    { name: '維修通報', path: '/member/repairs' },
+    { name: '討論區足跡', path: '/member/posts' },
+    { name: '重設密碼', path: '/member/password' },
+  ]);
+
+  // 因應check_session.php回傳的資料包了一層'user'
+  // 判斷真正的 user 物件
+  const currentUser = computed(() => {
+    // 情況 1: 資料來自 check_session.php 的嵌套結構
+    if (auth.user && auth.user.user) {
+      return auth.user.user;
+    }
+    // 情況 2: 資料來自自己 API (profile_update) 的扁平結構
+    // 透過檢查是否存在一個明確的 key (例如 user_id) 來判斷
+    if (auth.user && auth.user.user_id) {
+      return auth.user;
+    }
+    // 情況 3: 尚未載入或已登出
+    return null;
+  });
+
+  const filteredMenuItems = computed(() => {
+    if (!currentUser.value) {
+      // 提供一個安全的預設值
+      return [{ name: '個人資料', path: '/member/profile' }];
+    }
+    if (currentUser.value.role_type != 0) {
+      return allMenuItems.value.filter((item) => item.name !== '家庭成員');
+    }
+    return allMenuItems.value;
+  });
+
+  const userData = computed(() => currentUser.value || { profile_image: '' });
+
+  const handleLogout = async () => {
+    await auth.logout();
+    router.push('/login');
+    alert('已成功登出!');
+  };
+</script>
+
 <template>
   <div class="memeberMobileMenu">
     <h3 class="memeberMobileMenu__title">帳戶管理</h3>
     <div class="memeberMobileMenu__avatarContainer">
       <img
-        :src="userData.profile_image"
-        alt="使用者頭像"
+        :src="auth.avatarUrl"
         class="memeberMobileMenu__avatar"
       />
     </div>
     <ul class="memeberMobileMenu__list">
       <li
-        v-for="item in memberMenuItems"
+        v-for="item in filteredMenuItems"
         :key="item.name"
         class="memeberMobileMenu__listItem"
       >
@@ -31,31 +90,6 @@
     </button>
   </div>
 </template>
-
-<script setup>
-  import { ref, reactive } from 'vue';
-
-  defineProps({
-    userData: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  // 這些資料未來應從 Pinia store 獲取，以確保所有頁面同步
-  const memberMenuItems = ref([
-    { name: '個人資料', path: '/member/profile' },
-    { name: '家庭成員', path: '/member/family' },
-    { name: '活動報名', path: '/member/events' },
-    { name: '維修通報', path: '/member/repairs' },
-    { name: '討論區足跡', path: '/member/posts' },
-    { name: '重設密碼', path: '/member/password' },
-  ]);
-
-  const handleLogout = () => {
-    alert('帳號已登出');
-  };
-</script>
 
 <style lang="scss" scoped>
   .memeberMobileMenu {

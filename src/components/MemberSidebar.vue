@@ -1,9 +1,27 @@
+<script setup>
+  defineProps({
+    avatarUrl: {
+      type: String,
+      required: true,
+      default: '',
+    },
+
+    menuItems: {
+      type: Array,
+      required: true,
+      default: () => [],
+    },
+  });
+
+  // defineEmits 用於聲明此元件會觸發哪些自定義事件
+  defineEmits(['logout']);
+</script>
+
 <template>
   <aside class="memberSidebar">
     <h5 class="memberSidebar__title">帳戶管理</h5>
     <img
       :src="avatarUrl"
-      alt="使用者頭像"
       class="memberSidebar__avatar"
     />
 
@@ -30,23 +48,6 @@
     </button>
   </aside>
 </template>
-
-<script setup>
-  defineProps({
-    avatarUrl: {
-      type: String,
-      required: true,
-    },
-
-    menuItems: {
-      type: Array,
-      required: true,
-    },
-  });
-
-  // defineEmits 用於聲明此元件會觸發哪些自定義事件
-  defineEmits(['logout']);
-</script>
 
 <style lang="scss" scoped>
   .memberSidebar {
