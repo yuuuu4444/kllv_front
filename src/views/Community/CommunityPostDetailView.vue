@@ -849,7 +849,7 @@
       width: 30px;
       aspect-ratio: 1;
       border-radius: 50%;
-      border: 1px solid black;
+      border: 1px solid #999;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -976,7 +976,7 @@
           width: 30px;
           aspect-ratio: 1;
           border-radius: 50%;
-          border: 1px solid black;
+          border: 1px solid #999;
           overflow: hidden;
           display: flex;
           align-items: center;

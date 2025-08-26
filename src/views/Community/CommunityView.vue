@@ -638,6 +638,10 @@
           border-radius: $border-r-lg;
         }
 
+        &__author-image {
+          border: 1px solid #999;
+        }
+
         &__content {
           width: 85%;
         }
