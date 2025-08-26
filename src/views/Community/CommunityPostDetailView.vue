@@ -673,7 +673,7 @@
                     <div class="post-detail__comment-user-image">
                       <img
                         :src="avatarUrl(comment.profile_image)"
-                        alt=""
+                        alt="留言者頭像"
                       />
                     </div>
                     <p class="post-detail__comment-author body--b3">{{ comment.author_name }}</p>
