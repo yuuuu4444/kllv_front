@@ -41,7 +41,7 @@
 // })
 
 
-// ③ 手機偵測（≤768px）
+//  手機偵測（≤768px）
 const isMobile = ref(false)
 let mql
 const updateIsMobile = () => (isMobile.value = mql.matches)
@@ -148,6 +148,12 @@ onBeforeUnmount(() => {
       :showHeader="true"
       :showFooter="true"
     ></NewsBoard>
+    <div class="background-gif"data-aos="fade-up">
+      <img src="../assets/image/new.gif" alt="">
+    </div>
+      <div class="background-gif2"data-aos="fade-up">
+      <img src="../assets/image/sun.gif" alt="">
+    </div>
   </div>
 
   <!-- cards -->
@@ -157,7 +163,7 @@ onBeforeUnmount(() => {
     </div>
 
       <!-- 卡片輪播 -->
-<Swiper
+<Swiper data-aos="fade-up"
   :effect="'coverflow'"
   :grabCursor="true"
   :modules="[Navigation, Pagination]"
@@ -200,7 +206,6 @@ onBeforeUnmount(() => {
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M16 17.7633V2.23829C16 1.81329 15.85 1.45679 15.55 1.16879C15.25 0.880787 14.9 0.737286 14.5 0.738286C14.375 0.738286 14.2435 0.756787 14.1055 0.793787C13.9675 0.830787 13.8365 0.887287 13.7125 0.963287L1.4875 8.72579C1.2625 8.87579 1.0935 9.06329 0.980499 9.28829C0.867499 9.51329 0.8115 9.75079 0.8125 10.0008C0.8135 10.2508 0.869499 10.4883 0.980499 10.7133C1.0915 10.9383 1.2605 11.1258 1.4875 11.2758L13.7125 19.0383C13.8375 19.1133 13.9685 19.1698 14.1055 19.2078C14.2425 19.2458 14.374 19.2643 14.5 19.2633C14.9 19.2633 15.25 19.1193 15.55 18.8313C15.85 18.5433 16 18.1873 16 17.7633Z" fill="white"/>
 </svg>
-
   </button>
   <button class="events-next" type="button" aria-label="下一組">
     <svg width="18" height="18" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -267,6 +272,9 @@ data-aos="fade-up">
 
 <section class="about">
   <div class="mask"></div>
+      <div class="background-gif3"data-aos="fade-up">
+      <img src="../assets/image/owl.gif" alt="">
+    </div>
   <h2 class="about__title bold">空瀧浪里 就像這樣</h2>
   <div class="about__container"
   data-aos="fade-up">
@@ -281,12 +289,18 @@ data-aos="fade-up">
         四周群山環繞，村民們充滿活力地生活著。<br>
         這裡沒有紅綠燈、便利商店和超市，但卻充滿了笑容和豐富的自然風光。
       </p>
+    <div class="background-gif4"data-aos="fade-up">
+      <img src="../assets/image/click.gif" alt="">
+    </div>
       </div>
-       <RouterLink to="/about" class="">
+       
       <button class="about__infoBtn btn--process">
+        <RouterLink to="/about" class="">
         <p class="body--b2">了解空瀧浪里更多訊息</p>
+        </RouterLink>
       </button>
-      </RouterLink>
+      
+
     </div>
   </div>
   
@@ -447,11 +461,46 @@ data-aos="fade-up">
       padding-left: 2%;
       padding-right: 2%;
     }
+    .background-gif{
+      position: absolute;
+      width: 7vw;
+      z-index: 1;
+      top: -2%;
+      left: 15%;
+      img{
+        width: 100%;
+      }
+    @include mobile{
+      display: none;
+    }
+    @include desktop{
+      left: 6%;
+    }
+    }
+    .background-gif2{
+      position: absolute;
+      width: 10vw;
+      z-index: 1;
+      bottom: 5%;
+      right: 5%;
+      img{
+        width: 100%;
+      }
+    @include mobile{
+      display: none;
+    }
+    @include desktop{
+      right: 3%;
+      bottom: 1%;
+    }
+    }
   }
   .newsboard {
     margin: -3.125vw 0 3.125vw;
     z-index: 9;
-
+    &:hover{
+      
+    }
 }
 .EventsContainer{
   padding-top: 21px;
@@ -606,6 +655,7 @@ data-aos="fade-up">
 .about{
   background-image: url(/src/assets/image/about_01.jpg);
   position: relative;
+
   .mask {
     position: absolute;
     inset: 0;
@@ -619,6 +669,19 @@ data-aos="fade-up">
     > *:not(.mask) {
     position: relative;
     z-index: 2;
+  }
+    .background-gif3{
+      position: absolute;
+      width: 150px;
+      z-index: 3;
+      top: -18.8%;
+      left: 15%;
+      img{
+        width: 100%;
+      }
+    @include mobile{
+      display: none;
+    }
   }
   &__title{
     color: $white;
@@ -681,6 +744,9 @@ data-aos="fade-up">
   position: relative;
   top: -30px;
   background-color: $highlight-c;
+  p{
+    color: $white;
+  }
   @include mobile{
     width: 220px;
     height: 50px;
@@ -691,7 +757,22 @@ data-aos="fade-up">
     background-color: $highlight-c500;
   }
   }
-
+    .background-gif4{
+      pointer-events: none;
+      position: absolute;
+      width: 120px;
+      z-index: 3;
+      bottom: -24% ;
+      right: 20%;
+      
+      img{
+        pointer-events: none;
+        width: 100%;
+      }
+    @include mobile{
+      display: none;
+    }
+  }
 }
 .register{
   background-color: $primary-c000;
@@ -711,7 +792,6 @@ data-aos="fade-up">
   top: -5vw;
   img{
     width: 100%;
-
   }
   @include mobile{
     display:none ;
