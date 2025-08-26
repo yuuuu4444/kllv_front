@@ -1,15 +1,47 @@
 <script setup>
   import MainBanner from '@/components/MainBanner.vue';
-  import { onMounted, onUpdated } from 'vue';
+  import { ref, onMounted, onUpdated } from 'vue';
   import AOS from 'aos';
   import 'aos/dist/aos.css';
+
+  const { VITE_API_BASE } = import.meta.env;
+  const chiefData = ref(null);
+  const isLoading = ref(true);
+  const error = ref(null);
+
+  async function fetchVillageChief() {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const apiUrl = `${VITE_API_BASE}/api/about/public_village_chief_get.php`;
+      const res = await fetch(apiUrl);
+
+      if (!res.ok) {
+        throw new Error(`HTTP 錯誤: ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.status !== 'success') {
+        throw new Error(data.message || '取得里長資料失敗');
+      }
+      //只取第一筆資料
+      if (data.data && data.data.length > 0) {
+        chiefData.value = data.data[0];
+      }
+    } catch (err) {
+      error.value = err.message || '資料載入失敗';
+      console.error('獲取里長資料時發生錯誤:', error.value);
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   function scrollToTop() {
     const mapContainer = document.querySelector('.about-section');
     if (mapContainer) {
       mapContainer.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -21,12 +53,13 @@
     if (element) {
       element.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     }
   }
 
-  onMounted(() => {
+  onMounted(async () => {
+    await fetchVillageChief();
     AOS.init({
       once: false,
       duration: 900,
@@ -36,6 +69,13 @@
     setTimeout(() => {
       AOS.refreshHard();
     }, 250);
+
+    import('vue').then(({ nextTick }) => {
+      nextTick(() => {
+        AOS.refreshHard();
+        scrollToTop();
+      });
+    });
   });
 </script>
 
@@ -47,48 +87,83 @@
       titleAos="fade"
     />
     <!-- <section class="banner-container">
-     <img :src="banner" alt="" />
+    <img :src="banner" alt="" />
     <div class="overlay">
     </div>
     <div class="text-overlay">
       <h1 class="bold">空瀧浪里 就像這樣</h1>
     </div>
   </section> -->
-    <section class="about-section" id="about-section">
-       <div class="container">
-    <div class="breadcrumb">
-      <RouterLink to="/">
-        <p class="body--b3">首頁</p>
-      </RouterLink>
-      <p class="body--b3">/</p>
-      <RouterLink to="/about">
-        <p class="body--b3">關於社區</p>
-      </RouterLink>
-    </div>
-    </div>
+    <section
+      class="about-section"
+      id="about-section"
+    >
+      <div class="container">
+        <div class="breadcrumb">
+          <RouterLink to="/">
+            <p class="body--b3">首頁</p>
+          </RouterLink>
+          <p class="body--b3">/</p>
+          <RouterLink to="/about">
+            <p class="body--b3">關於社區</p>
+          </RouterLink>
+        </div>
+      </div>
 
       <div class="map-container">
-      <img src="../../assets/image/about_map.png" alt="社區地圖" class="map-image" />
-      <img src="../../assets/image/about01.gif" alt="動態圖" class="custom-gif01" />
+        <img
+          src="../../assets/image/about_map.png"
+          alt="社區地圖"
+          class="map-image"
+        />
+        <img
+          src="../../assets/image/about01.gif"
+          alt="動態圖"
+          class="custom-gif01"
+        />
 
-        <div class="location-marker location-center" data-aos="zoom-in">
-          <img src="../../assets/image/about_center.png" alt="活動中心" class="location-icon clickable "   @click="scrollToSection('mayor-intro3')" />
+        <div
+          class="location-marker location-center"
+          data-aos="zoom-in"
+        >
+          <img
+            src="../../assets/image/about_center.png"
+            alt="活動中心"
+            class="location-icon clickable"
+            @click="scrollToSection('mayor-intro3')"
+          />
           <div class="location-label-center">活動中心</div>
           <div class="speech-bubble">
             <p>社區活動多元，聚會聯誼好去處，里民互動成長，歡迎參加每場活動！</p>
           </div>
         </div>
 
-        <div class="location-marker location-office" data-aos="zoom-in">
-        <img src="../../assets/image/about_office.png" alt="里辦公室" class="location-icon clickable" @click="scrollToSection('mayor-intro')"/>
+        <div
+          class="location-marker location-office"
+          data-aos="zoom-in"
+        >
+          <img
+            src="../../assets/image/about_office.png"
+            alt="里辦公室"
+            class="location-icon clickable"
+            @click="scrollToSection('mayor-intro')"
+          />
           <div class="location-label-office">里辦公室</div>
           <div class="speech-bubble">
             <p>您的社區好厝邊，辦事親切有效率，活動服務樣樣通，歡迎隨時來坐坐！</p>
           </div>
         </div>
 
-        <div class="location-marker location-farm" data-aos="zoom-in">
-        <img src="../../assets/image/about_farm.png" alt="有機梨園" class="location-icon clickable" @click="scrollToSection('mayor-intro2')"/>
+        <div
+          class="location-marker location-farm"
+          data-aos="zoom-in"
+        >
+          <img
+            src="../../assets/image/about_farm.png"
+            alt="有機梨園"
+            class="location-icon clickable"
+            @click="scrollToSection('mayor-intro2')"
+          />
           <div class="location-label-farm">有機梨園</div>
           <div class="speech-bubble">
             <p>自然農法共耕，農事體驗，親近自然，親子踏青，樂在美好生活。</p>
@@ -96,10 +171,13 @@
         </div>
       </div>
 
-
       <!-- 下方描述文字 -->
       <div class="about-text-container">
-        <img src="../../assets/image/about02.gif" alt="動態圖" class="custom-gif02" />
+        <img
+          src="../../assets/image/about02.gif"
+          alt="動態圖"
+          class="custom-gif02"
+        />
         <div
           class="about-text"
           data-aos="fade"
@@ -116,94 +194,117 @@
         </div>
       </div>
     </section>
-    <section class="mayor-intro" id="mayor-intro">
+    <section
+      class="mayor-intro"
+      id="mayor-intro"
+    >
       <div class="leader-info">
         <h2 class="bold">里長簡介</h2>
       </div>
 
       <div
-        class="intro-section"
-        data-aos="fade"
+        v-if="isLoading"
+        class="loading-state"
       >
-        <div class="images">
-          <div class="img-large">
-            <img
-              src="../../assets/image/about_01.jpg"
-              alt="梨樹"
-            />
-          </div>
-          <div class="img-small">
-            <img
-              src="../../assets/image/about_02_leader.jpg"
-              alt="里長"
-            />
-          </div>
-        </div>
+        正在載入里長資料...
       </div>
       <div
-        class="text-content"
-        data-aos="fade"
+        v-else-if="error"
+        class="error-state"
       >
-        <div class="text-content-title">
-          <h3 class="regular">孔融郎 里長</h3>
-        </div>
-        <div class="text-content-inner">
-          <p class="body--b2">
-            孔融郎里長，自上任以來，里長致力於打造一個溫暖、有教育力的社區，讓「空瀧浪里」成為真正值得驕傲的美德家園。出身在地家庭的孔融郎里長，深知社區的每一分土地與人情，將「教育即生活」作為施政核心，推動多項以品格與環保為主軸的社區建設與活動，包括：
-          </p>
-
-          <ul>
-            <li><p class="body--b2">推廣有機梨園教育體驗，讓孩子認識土地、尊重自然</p></li>
-            <li><p class="body--b2">設立「活動中心」，定期舉辦親子共學與長者共伴課程</p></li>
-            <li><p class="body--b2">提倡世代共融、鄰里互助，建立更具人情味的里民關係</p></li>
-          </ul>
-          <p class="body--b2">
-            以謙遜為本、服務為志，致力於讓每一位居民都能在空瀧浪里找到歸屬與驕傲。
-          </p>
-        </div>
+        資料載入失敗：{{ error }}
       </div>
+      <template v-else-if="chiefData">
+        <div
+          class="intro-section"
+          data-aos="fade"
+        >
+          <div class="images">
+            <div class="img-large">
+              <img
+                src="../../assets/image/about_01.jpg"
+                alt="梨樹"
+              />
+            </div>
+            <div class="img-small">
+              <img
+                :src="`${VITE_API_BASE}${chiefData.profile_image}`"
+                :alt="chiefData.fullname"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="text-content"
+          data-aos="fade"
+        >
+          <div class="text-content-title">
+            <h3 class="regular">{{ chiefData.fullname }} 里長</h3>
+          </div>
+          <div class="text-content-inner">
+            <p class="body--b2">
+              {{ chiefData.introduction }}
+            </p>
+          </div>
+        </div>
+        <div
+          class="contacts"
+          data-aos="fade"
+        >
+          <div class="contact-item">
+            <img
+              src="../../assets/image/tel.png"
+              alt="電話"
+            />
+            <div><h4 class="regular">里辦電話</h4></div>
+            <div>
+              <p class="body--b2">{{ chiefData.phone_number }}</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <img
+              src="../../assets/image/mail.png"
+              alt="信箱"
+            />
+            <div><h4 class="regular">里辦信箱</h4></div>
+            <div>
+              <p class="body--b2">{{ chiefData.email }}</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <img
+              src="../../assets/image/map.png"
+              alt="地址"
+            />
+            <div><h4 class="regular">里辦地址</h4></div>
+            <div>
+              <p class="body--b2">{{ chiefData.address }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="back-to-top">
+          <p class="body--b2">
+            <a
+              href="#"
+              @click.prevent="scrollToTop"
+            >
+              TOP
+            </a>
+          </p>
+        </div>
+      </template>
       <div
-        class="contacts"
-        data-aos="fade"
+        v-else
+        class="empty-state"
       >
-        <div class="contact-item">
-          <img
-            src="../../assets/image/tel.png"
-            alt="電話"
-          />
-          <div><h4 class="regular">里辦電話</h4></div>
-          <div><p class="body--b2">0987654321</p></div>
-        </div>
-        <div class="contact-item">
-          <img
-            src="../../assets/image/mail.png"
-            alt="信箱"
-          />
-          <div><h4 class="regular">里辦信箱</h4></div>
-          <div><p class="body--b2">konlongzhood@gmail.com</p></div>
-        </div>
-        <div class="contact-item">
-          <img
-            src="../../assets/image/map.png"
-            alt="地址"
-          />
-          <div><h4 class="regular">里辦地址</h4></div>
-          <div><p class="body--b2">桃園市中壢區<br></br>空瀧浪里孔融路1號</p></div>
-        </div>
-      </div>
-
-      <div class="back-to-top">
-        <p class="body--b2">
-          <a
-            href="#"
-            @click.prevent="scrollToTop"
-          >
-            TOP
-          </a>
-        </p>
+        里長資料正在準備中...
       </div>
     </section>
-    <section class="mayor-intro2" id="mayor-intro2">
+    <section
+      class="mayor-intro2"
+      id="mayor-intro2"
+    >
       <div class="leader-info">
         <h2 class="bold">特色農產</h2>
       </div>
@@ -267,7 +368,10 @@
         </p>
       </div>
     </section>
-    <section class="mayor-intro3" id="mayor-intro3">
+    <section
+      class="mayor-intro3"
+      id="mayor-intro3"
+    >
       <div class="leader-info">
         <h2 class="bold">活動中心</h2>
       </div>
@@ -363,6 +467,17 @@
   a {
     color: $black;
   }
+
+  //狀態樣式
+  .loading-state,
+  .error-state,
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+    font-size: 18px;
+  }
+
   .section-title {
     max-width: 1920px;
     margin: 0 auto;
@@ -391,102 +506,114 @@
     }
   }
 
-// 麵包屑
-.container{
-      padding: 1.5625vw 18.75vw 0 ;
-      @include desktop {
-        padding-left: 10%;
-        padding-right: 10%;
-      }
-.breadcrumb {
+  // 麵包屑
+  .container {
+    padding: 1.5625vw 18.75vw 0;
+    @include desktop {
+      padding-left: 10%;
+      padding-right: 10%;
+    }
+    .breadcrumb {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 5px;
-      
-  p {
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 32px;
-      letter-spacing: 0.2em;
+
+      p {
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 32px;
+        letter-spacing: 0.2em;
+      }
+    }
   }
-}
-}
 
   // 地圖區塊
 
   .map-container {
-      position: relative; 
-      max-width: 683px;
-      margin: 0 auto; 
+    position: relative;
+    max-width: 683px;
+    margin: 0 auto;
     .map-image {
-        position: relative; 
-        top: 100px;
-        display: block;
-        width: 100%;
-        height: auto; 
-        z-index: 1;
-     }
+      position: relative;
+      top: 100px;
+      display: block;
+      width: 100%;
+      height: auto;
+      z-index: 1;
+    }
     .location-marker {
       position: absolute;
-        .speech-bubble {
-          position: absolute;
-          bottom: 120%; 
-          left: 50%;
-          transform: translateX(-50%);
-          display: none; 
-          width: 180px;
-          background: #ffffff;
-          color: #000000;
-          padding: 8px 12px;
-          border-radius: 8px;
-          text-align: left;
-          font-size: 14px;
-          line-height: 1.4;
-        }
-        .speech-bubble::after {
-          content: "";
-          position: absolute;
-          top: 100%; 
-          left: 50%;
-          transform: translateX(-50%);
-          border-width: 10px;
-          border-style: solid;
-          border-color: #ffffff transparent transparent transparent;
-        }
+      .speech-bubble {
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        width: 180px;
+        background: #ffffff;
+        color: #000000;
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .speech-bubble::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 10px;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+      }
     }
     .location-marker:hover .location-icon {
-    transform: scale(1.1);
+      transform: scale(1.1);
     }
     .location-marker:hover .speech-bubble {
-    display: block;
-    @include mobile{
-            display: none;
-        }
+      display: block;
+      @include mobile {
+        display: none;
+      }
     }
-    .location-center { top: 17%; left: 51%; 
+    .location-center {
+      top: 17%;
+      left: 51%;
       z-index: 2;
-    @include mobile{
-        top: 8%; left: 50%;
-       }}
-    .location-office { top: 35%; left: 15%; 
+      @include mobile {
+        top: 8%;
+        left: 50%;
+      }
+    }
+    .location-office {
+      top: 35%;
+      left: 15%;
       z-index: 2;
-    @include mobile{
-        top: 25%; left: 15%;
-       }}
-    .location-farm  { top: 55%; left: 63%; 
+      @include mobile {
+        top: 25%;
+        left: 15%;
+      }
+    }
+    .location-farm {
+      top: 55%;
+      left: 63%;
       z-index: 2;
-    @include mobile{
-        top: 45%; left: 63%;
-       }}
+      @include mobile {
+        top: 45%;
+        left: 63%;
+      }
+    }
     .location-icon {
-      width: 90%;  
-      height: auto; 
+      width: 90%;
+      height: auto;
       transition: transform 0.2s ease-in-out;
-      @include mobile{
+      @include mobile {
         width: 50%;
-       }
+      }
     }
     .location-label-office {
       position: absolute;
@@ -497,11 +624,11 @@
       color: #333;
       margin-top: 4px;
       font-weight: bold;
-      @include mobile{
+      @include mobile {
         font-size: 16px;
         top: 105%;
         left: 5%;
-       }
+      }
     }
     .location-label-center {
       position: absolute;
@@ -512,11 +639,11 @@
       color: #333;
       margin-top: 4px;
       font-weight: bold;
-      @include mobile{
+      @include mobile {
         font-size: 16px;
         top: 106%;
         left: -10%;
-       }
+      }
     }
     .location-label-farm {
       position: absolute;
@@ -527,13 +654,13 @@
       color: #333;
       margin-top: 4px;
       font-weight: bold;
-       @include mobile{
+      @include mobile {
         font-size: 16px;
         top: 105%;
         left: 5%;
-       }
+      }
     }
-}
+  }
 
   // 關於社區簡介
   .about-text-container {
@@ -559,7 +686,7 @@
     text-align: center;
     line-height: 1.4;
     // margin: 0 10%;
-    @include mobile{
+    @include mobile {
       margin: 0 5%;
     }
     .leader-info {
@@ -588,7 +715,7 @@
         grid-template-rows: repeat(6, 0.5fr);
         position: relative;
         height: 400px;
-        
+
         .img-large,
         .img-small {
           border-radius: $border-r-lg;
@@ -642,11 +769,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        h4{
-          font-size: clamp(20px,1.46vw,28px);
+        h4 {
+          font-size: clamp(20px, 1.46vw, 28px);
         }
-        p{
-          font-size: clamp(13px,1vw,20px);
+        p {
+          font-size: clamp(13px, 1vw, 20px);
         }
         img {
           width: 36px;
@@ -673,7 +800,7 @@
         height: 13.89vh;
         border-radius: 30px 0 0 30px;
         overflow: hidden;
-        @include mobile{
+        @include mobile {
           border-radius: 1.563vw 0 0 1.563vw;
         }
         img {
@@ -691,13 +818,13 @@
       }
     }
 
-    .back-to-top,.back-to-top3{
+    .back-to-top,
+    .back-to-top3 {
       cursor: pointer;
       text-decoration: underline;
       text-align: right;
       margin-bottom: 240px;
     }
-    
   }
   .mayor-intro2 {
     .intro-section {
@@ -744,11 +871,11 @@
   }
   @include desktop {
     .leader-info {
-        &::before,
-        &::after {
+      &::before,
+      &::after {
         display: none;
-        }
       }
+    }
   }
   // RWD
   @include mobile {
@@ -802,8 +929,7 @@
       padding: 0 10px;
       .intro-section {
         .images {
-          
-          width:85vw;
+          width: 85vw;
           .img-large {
             grid-row: 1 / 5;
           }
@@ -813,11 +939,11 @@
           }
         }
       }
-      
+
       .leader-info {
         &::before,
         &::after {
-      display: none;
+          display: none;
         }
       }
       .text-content {
@@ -891,38 +1017,38 @@
       align-items: center;
     }
   }
-  
+
   .clickable {
-  cursor: pointer;
-  transition: transform 0.2s;
+    cursor: pointer;
+    transition: transform 0.2s;
   }
 
   .clickable:hover {
     transform: scale(1.1);
   }
-  
+
   .custom-gif01 {
-  position: absolute;
-  top: 25%;    
-  right: -20%;   
-  width: 172px; 
-  height: auto;
-  // z-index: 10; 
-  pointer-events: none; 
-  @include mobile{
-    display: none;
-   }
+    position: absolute;
+    top: 25%;
+    right: -20%;
+    width: 172px;
+    height: auto;
+    // z-index: 10;
+    pointer-events: none;
+    @include mobile {
+      display: none;
+    }
   }
   .custom-gif02 {
     position: absolute;
-    top: -20%;    
-    left: 5%;   
-    width: 172px; 
+    top: -20%;
+    left: 5%;
+    width: 172px;
     height: auto;
-    z-index: 10; 
-    pointer-events: none; 
-    @include mobile{
-    display: none;
-   }
-  } 
+    z-index: 10;
+    pointer-events: none;
+    @include mobile {
+      display: none;
+    }
+  }
 </style>
