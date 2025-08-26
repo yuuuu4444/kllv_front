@@ -125,8 +125,8 @@
             <p class="body--b3">{{ event.p_limit }} 人</p>
           </li>
           <li>
-            <p class="body--b3">報名時間：</p>
-            <p class="body--b3">{{ event.reg_deadline }}</p>
+            <p class="body--b3">報名截止：</p>
+            <p class="body--b3">{{ event.reg_deadline }} 23:59前</p>
           </li>
           <li>
             <p class="body--b3">報名費用：</p>
