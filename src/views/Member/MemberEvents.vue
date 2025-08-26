@@ -32,6 +32,7 @@
 
   const userEvents = ref([]); //API
   const cancelReasons = ref([]); //API
+  const isLoading = ref(true);
   // 原本的取消彈窗資料
   // const cancelReasons = ref([
   //   { reason_no: 1, reason_name: '報錯活動/重複報名' },
@@ -44,6 +45,7 @@
 
   // GET活動報名列表
   const fetchUserEvents = async () => {
+    isLoading.value = true;
     try {
       const res = await fetch(`${VITE_API_BASE}/api/member/events_regs_get.php`, {
         credentials: 'include',
@@ -62,6 +64,8 @@
     } catch (err) {
       console.error('獲取活動報名列表時發生錯誤:', err);
       alert(err.message);
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -120,14 +124,15 @@
 
   // --- 輔助函式 (純計算，不改變狀態) ---
   const isCancellable = (event) => {
-    if (!event || event.status !== 2) return false;
-    const eventDate = new Date(event.activity_date);
+    if (event.status === 3) return false;
+    const eventDate = new Date(event.activity_date); //已取消不能再取消
     const today = new Date();
     const threeDaysLater = new Date();
     threeDaysLater.setDate(today.getDate() + 3);
     return eventDate > threeDaysLater;
   };
   const getCancelButtonText = (event) => {
+    //活動三天前無法取消
     if (event.status === 3) return '已取消';
     if (isCancellable(event)) return '我要取消';
     return '無法取消';
@@ -247,59 +252,73 @@
 
       <!-- 桌面版：活動表格 -->
       <div class="eventsPage__desktopView">
-        <table class="eventTable">
-          <thead>
-            <tr>
-              <th>活動日期</th>
-              <th>報名項目</th>
-              <th>取消</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="event in paginatedEvents"
-              :key="event.reg_no"
-              @click="selectEvent(event)"
-              class="is-clickable"
-              :class="{ 'is-active': selectedEvent && selectedEvent.reg_no === event.reg_no }"
-            >
-              <td>{{ event.activity_date }}</td>
-              <td>{{ event.title }}</td>
-              <td class="cancel-cell">
-                <button
-                  class="btn--membercancel"
-                  :class="getCancelButtonClass(event)"
-                  :disabled="event.status === 3 || !isCancellable(event)"
-                  @click.stop="isCancellable(event) && showCancelForm(event)"
-                >
-                  {{ getCancelButtonText(event) }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- 桌面版：分頁 -->
         <div
-          v-if="eventsTotalPages > 1"
-          class="pagination"
+          v-if="isLoading"
+          class="info-state"
         >
-          <button
-            class="pagination__button btn--changepage"
-            @click="eventsGoPrev"
-            :disabled="isEventsFirstPage"
-          >
-            <
-          </button>
-          <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="eventsGoNext"
-            :disabled="isEventsLastPage"
-          >
-            >
-          </button>
+          <p>正在載入活動報名紀錄...</p>
         </div>
+        <div
+          v-else-if="userEvents.length === 0"
+          class="info-state"
+        >
+          <p>您尚未報名任何活動。</p>
+        </div>
+        <template v-else>
+          <table class="eventTable">
+            <thead>
+              <tr>
+                <th>活動日期</th>
+                <th>報名項目</th>
+                <th>取消</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="event in paginatedEvents"
+                :key="event.reg_no"
+                @click="selectEvent(event)"
+                class="is-clickable"
+                :class="{ 'is-active': selectedEvent && selectedEvent.reg_no === event.reg_no }"
+              >
+                <td>{{ event.activity_date }}</td>
+                <td>{{ event.title }}</td>
+                <td class="cancel-cell">
+                  <button
+                    class="btn--membercancel"
+                    :class="getCancelButtonClass(event)"
+                    :disabled="event.status === 3 || !isCancellable(event)"
+                    @click.stop="isCancellable(event) && showCancelForm(event)"
+                  >
+                    {{ getCancelButtonText(event) }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 桌面版：分頁 -->
+          <div
+            v-if="eventsTotalPages > 1"
+            class="pagination"
+          >
+            <button
+              class="pagination__button btn--changepage"
+              @click="eventsGoPrev"
+              :disabled="isEventsFirstPage"
+            >
+              <
+            </button>
+            <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="eventsGoNext"
+              :disabled="isEventsLastPage"
+            >
+              >
+            </button>
+          </div>
+        </template>
 
         <!-- 桌面版：詳細資訊 -->
         <div
@@ -353,43 +372,57 @@
       <!-- 手機版：活動列表 -->
       <div class="mobileList">
         <div
-          v-for="event in paginatedEvents"
-          :key="event.reg_no"
-          class="mobileList__item"
-          @click="showEventDetails(event)"
+          v-if="isLoading"
+          class="info-state"
         >
-          <div class="item__info">
-            <span class="item__date">{{ event.activity_date }}</span>
-            <span class="item__name">{{ event.title }}</span>
-          </div>
-          <span
-            v-if="event.status === 3"
-            class="statusChip is-cancelled"
-          >
-            已取消
-          </span>
+          <p>正在載入活動報名紀錄...</p>
         </div>
-        <!-- 手機版：分頁 -->
         <div
-          v-if="eventsTotalPages > 1"
-          class="pagination"
+          v-else-if="userEvents.length === 0"
+          class="info-state"
         >
-          <button
-            class="pagination__button btn--changepage"
-            @click="eventsGoPrev"
-            :disabled="isEventsFirstPage"
-          >
-            &lt;
-          </button>
-          <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="eventsGoNext"
-            :disabled="isEventsLastPage"
-          >
-            &gt;
-          </button>
+          <p>您尚未報名任何活動。</p>
         </div>
+        <template v-else>
+          <div
+            v-for="event in paginatedEvents"
+            :key="event.reg_no"
+            class="mobileList__item"
+            @click="showEventDetails(event)"
+          >
+            <div class="item__info">
+              <span class="item__date">{{ event.activity_date }}</span>
+              <span class="item__name">{{ event.title }}</span>
+            </div>
+            <span
+              v-if="event.status === 3"
+              class="statusChip is-cancelled"
+            >
+              已取消
+            </span>
+          </div>
+          <!-- 手機版：分頁 -->
+          <div
+            v-if="eventsTotalPages > 1"
+            class="pagination"
+          >
+            <button
+              class="pagination__button btn--changepage"
+              @click="eventsGoPrev"
+              :disabled="isEventsFirstPage"
+            >
+              &lt;
+            </button>
+            <p class="pagination__current">{{ eventsCurrentPage }} / {{ eventsTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="eventsGoNext"
+              :disabled="isEventsLastPage"
+            >
+              &gt;
+            </button>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -586,6 +619,11 @@
     &__desktopView {
       display: block;
     }
+  }
+  .info-state {
+    text-align: center;
+    padding: 40px;
+    color: $neutral-c;
   }
 
   .eventsPage .eventTable {
