@@ -1,4 +1,14 @@
-<script setup></script>
+<script setup>
+  import { onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
+
+  onMounted(() => {
+    setTimeout(() => {
+      router.push('/member');
+    }, 3000);
+  });
+</script>
 
 <template>
   <div class="login-container">

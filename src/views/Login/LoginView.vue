@@ -38,7 +38,14 @@
         // 登入成功後導向 member
         router.push('/member');
       } else {
-        loginError.value = result.message;
+        // 新增判斷：帳號尚未啟用時跳轉
+        if (result.message === '帳號尚未啟用') {
+          // 存到 localStorage
+          localStorage.setItem('user_id', user_id.value);
+          router.push('/resident-account');
+        } else {
+          loginError.value = result.message;
+        }
       }
     } catch (err) {
       console.error('登入流程錯誤:', err);
