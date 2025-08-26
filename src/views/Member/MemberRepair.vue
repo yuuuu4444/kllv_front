@@ -115,102 +115,130 @@
 
     <!-- 桌面版：維修表格 -->
     <div class="repairPage__desktopView">
-      <table class="repairTable">
-        <thead>
-          <tr>
-            <th>通報日期</th>
-            <th>案件編號</th>
-            <th>查報類別</th>
-            <th>處理狀態</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="report in paginatedRepairs"
-            :key="report.repair_no"
-            class="repairTable__row"
-          >
-            <td>{{ report.reported_at }}</td>
-            <td>
-              <router-link
-                :to="`/repair/${report.repair_no}`"
-                class="repairTable__link"
-              >
-                {{ report.formatted_repair_no }}
-              </router-link>
-            </td>
-            <td>{{ report.category_name }}</td>
-            <td>
-              <!-- 根據 status 顯示對應的文字 -->
-              <span :class="['statusChip', getStatusClass(report.status)]">
-                {{ getStatusText(report.status) }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!-- 分頁 -->
       <div
-        v-if="totalPages > 1"
-        class="pagination"
+        v-if="isLoading"
+        class="info-state"
       >
-        <button
-          class="pagination__button btn--changepage"
-          @click="goPrev"
-          :disabled="isFirstPage"
-        >
-          &lt;
-        </button>
-        <p class="pagination__current">{{ currentPage }} / {{ totalPages }}</p>
-        <button
-          class="pagination__button btn--changepage"
-          @click="goNext"
-          :disabled="isLastPage"
-        >
-          &gt;
-        </button>
+        <p>正在載入維修通報紀錄...</p>
       </div>
+      <div
+        v-else-if="repairReports.length === 0"
+        class="info-state"
+      >
+        <p>您尚未有任何維修通報紀錄。</p>
+      </div>
+      <template v-else>
+        <table class="repairTable">
+          <thead>
+            <tr>
+              <th>通報日期</th>
+              <th>案件編號</th>
+              <th>查報類別</th>
+              <th>處理狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="report in paginatedRepairs"
+              :key="report.repair_no"
+              class="repairTable__row"
+            >
+              <td>{{ report.reported_at }}</td>
+              <td>
+                <router-link
+                  :to="`/repair/${report.repair_no}`"
+                  class="repairTable__link"
+                >
+                  {{ report.formatted_repair_no }}
+                </router-link>
+              </td>
+              <td>{{ report.category_name }}</td>
+              <td>
+                <!-- 根據 status 顯示對應的文字 -->
+                <span :class="['statusChip', getStatusClass(report.status)]">
+                  {{ getStatusText(report.status) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- 分頁 -->
+        <div
+          v-if="totalPages > 1"
+          class="pagination"
+        >
+          <button
+            class="pagination__button btn--changepage"
+            @click="goPrev"
+            :disabled="isFirstPage"
+          >
+            &lt;
+          </button>
+          <p class="pagination__current">{{ currentPage }} / {{ totalPages }}</p>
+          <button
+            class="pagination__button btn--changepage"
+            @click="goNext"
+            :disabled="isLastPage"
+          >
+            &gt;
+          </button>
+        </div>
+      </template>
     </div>
 
     <!-- 手機版：維修列表 -->
     <div class="repairPage__mobileView">
       <div
-        v-for="report in paginatedRepairs"
-        :key="report.repair_no"
-        class="mobileList__item"
+        v-if="isLoading"
+        class="info-state"
       >
-        <router-link
-          :to="`/repair/${report.repair_no}`"
-          class="mobileList__info"
-        >
-          <span class="mobileList__id">{{ report.formatted_repair_no }}</span>
-          <span class="mobileList__category">{{ report.category_name }}</span>
-        </router-link>
-        <span :class="['statusChip', getStatusClass(report.status)]">
-          {{ getStatusText(report.status) }}
-        </span>
+        <p>正在載入維修通報紀錄...</p>
       </div>
-      <!-- 分頁 -->
       <div
-        v-if="totalPages > 1"
-        class="pagination"
+        v-else-if="repairReports.length === 0"
+        class="info-state"
       >
-        <button
-          class="pagination__button btn--changepage"
-          @click="goPrev"
-          :disabled="isFirstPage"
-        >
-          &lt;
-        </button>
-        <p class="pagination__current">{{ currentPage }} / {{ totalPages }}</p>
-        <button
-          class="pagination__button btn--changepage"
-          @click="goNext"
-          :disabled="isLastPage"
-        >
-          &gt;
-        </button>
+        <p>您尚未有任何維修通報紀錄。</p>
       </div>
+      <template v-else>
+        <div
+          v-for="report in paginatedRepairs"
+          :key="report.repair_no"
+          class="mobileList__item"
+        >
+          <router-link
+            :to="`/repair/${report.repair_no}`"
+            class="mobileList__info"
+          >
+            <span class="mobileList__id">{{ report.formatted_repair_no }}</span>
+            <span class="mobileList__category">{{ report.category_name }}</span>
+          </router-link>
+          <span :class="['statusChip', getStatusClass(report.status)]">
+            {{ getStatusText(report.status) }}
+          </span>
+        </div>
+        <!-- 分頁 -->
+        <div
+          v-if="totalPages > 1"
+          class="pagination"
+        >
+          <button
+            class="pagination__button btn--changepage"
+            @click="goPrev"
+            :disabled="isFirstPage"
+          >
+            &lt;
+          </button>
+          <p class="pagination__current">{{ currentPage }} / {{ totalPages }}</p>
+          <button
+            class="pagination__button btn--changepage"
+            @click="goNext"
+            :disabled="isLastPage"
+          >
+            &gt;
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -229,6 +257,11 @@
     &__mobileView {
       display: none;
     }
+  }
+  .info-state {
+    text-align: center;
+    padding: 40px;
+    color: $neutral-c;
   }
 
   .repairTable {
