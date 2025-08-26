@@ -1,10 +1,12 @@
 <script setup>
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
   import MemberModal from '@/components/MemberModal.vue';
   import MemberMobileHeader from '@/components/MemberMobileHeader.vue';
 
   const router = useRouter();
+  const auth = useAuthStore();
   // 引入環境變數
   const { VITE_API_BASE } = import.meta.env;
 
@@ -207,7 +209,7 @@
   const deletePost = async (postNo) => {
     if (confirm('確定要刪除這篇貼文嗎？')) {
       try {
-        const apiUrl = `${VITE_API_BASE}/api/community/post_delete_post.php?post_no=${postNo}`;
+        const apiUrl = `${VITE_API_BASE}/api/community/post_delete_post.php`;
         const res = await fetch(apiUrl, {
           method: 'POST',
           credentials: 'include',
@@ -245,9 +247,19 @@
     screenWidth.value = window.innerWidth;
   };
   onMounted(() => {
-    // 元件載入時，同時獲取兩種資料
-    fetchMyPosts();
-    fetchMyReplies();
+    if (!auth.isLoggedIn) {
+      auth.checkAuth().then((isSuccess) => {
+        if (isSuccess) {
+          fetchMyPosts();
+          fetchMyReplies();
+        } else {
+          router.push('/login');
+        }
+      });
+    } else {
+      fetchMyPosts();
+      fetchMyReplies();
+    }
     window.addEventListener('resize', handleResize);
   });
 
@@ -304,100 +316,114 @@
           已回覆貼文
         </button>
       </div>
-      <!-- 1. 貼文表格 -->
+      <!-- 1. 已發布貼文表格 -->
       <div
         v-show="desktopActiveTab === 'posts'"
         class="postSection"
       >
-        <!-- <h5 class="postSection__title">貼文</h5> -->
-        <table class="postTable">
-          <thead>
-            <tr>
-              <th>發布日期</th>
-              <th>文章標題</th>
-              <th>編輯</th>
-              <th>刪除</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="post in paginatedPosts"
-              :key="post.post_no"
-              class="postTable__row"
-              :class="{ 'is-reported': post.is_reported }"
-            >
-              <td>{{ post.posted_at }}</td>
-
-              <td>
-                <span v-if="post.is_reported">{{ post.title }}</span>
-                <router-link
-                  v-else
-                  :to="`/community/${post.post_no}`"
-                  class="postTable__link"
-                >
-                  {{ post.title }}
-                </router-link>
-              </td>
-
-              <!-- 編輯按鈕 -->
-              <td class="postTable__cell--action">
-                <router-link
-                  :to="`/community/${post.post_no}`"
-                  :class="['iconButton', { 'iconButton--disabled': post.is_reported }]"
-                  :event="post.is_reported ? '' : 'click'"
-                  aria-label="編輯貼文"
-                >
-                  <svg
-                    class="iconButton__icon"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M3 17.46V20.5C3 20.78 3.22 21 3.5 21H6.54C6.67 21 6.8 20.95 6.89 20.85L17.81 9.94L14.06 6.19L3.15 17.1C3.05 17.2 3 17.32 3 17.46ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z"
-                    />
-                  </svg>
-                </router-link>
-              </td>
-
-              <!-- 刪除按鈕 -->
-              <td class="postTable__cell--action">
-                <button
-                  class="iconButton"
-                  :disabled="post.is_reported"
-                  @click="!post.is_reported && deletePost(post.post_no)"
-                  :class="{ 'iconButton--disabled': post.is_reported }"
-                  aria-label="刪除貼文"
-                >
-                  <svg
-                    class="iconButton__icon iconButton__icon--delete"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 4C7.581 4 4 7.582 4 12C4 16.418 7.581 20 12 20C16.419 20 20 16.418 20 12C20 7.582 16.419 4 12 4ZM15.707 14.293C15.8945 14.4805 15.9998 14.7348 15.9998 15C15.9998 15.2652 15.8945 15.5195 15.707 15.707C15.5195 15.8945 15.2652 15.9998 15 15.9998C14.7348 15.9998 14.4805 15.8945 14.293 15.707L12 13.414L9.707 15.707C9.61435 15.8002 9.50419 15.8741 9.38285 15.9246C9.26152 15.9751 9.13141 16.001 9 16.001C8.86859 16.001 8.73848 15.9751 8.61715 15.9246C8.49581 15.8741 8.38565 15.8002 8.293 15.707C8.10553 15.5195 8.00021 15.2652 8.00021 15C8.00021 14.7348 8.10553 14.4805 8.293 14.293L10.586 12L8.293 9.707C8.10549 9.51949 8.00015 9.26518 8.00015 9C8.00015 8.73482 8.10549 8.48051 8.293 8.293C8.48051 8.10549 8.73482 8.00015 9 8.00015C9.26518 8.00015 9.51949 8.10549 9.707 8.293L12 10.586L14.293 8.293C14.4805 8.10549 14.7348 8.00015 15 8.00015C15.2652 8.00015 15.5195 8.10549 15.707 8.293C15.8945 8.48051 15.9998 8.73482 15.9998 9C15.9998 9.26518 15.8945 9.51949 15.707 9.707L13.414 12L15.707 14.293Z"
-                    />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- 分頁 -->
-        <div class="pagination">
-          <button
-            class="pagination__button btn--changepage"
-            @click="postsGoPrev"
-            :disabled="isPostsFirstPage"
-          >
-            <
-          </button>
-          <p class="pagination__current">{{ postsCurrentPage }} / {{ postsTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="postsGoNext"
-            :disabled="isPostsLastPage"
-          >
-            >
-          </button>
+        <div
+          v-if="isLoadingPosts"
+          class="info-state"
+        >
+          <p>正在載入已發佈貼文...</p>
         </div>
+        <div
+          v-else-if="myPosts.length === 0"
+          class="info-state"
+        >
+          <p>您尚未發佈任何貼文。</p>
+        </div>
+        <template v-else>
+          <table class="postTable">
+            <thead>
+              <tr>
+                <th>發布日期</th>
+                <th>文章標題</th>
+                <th>編輯</th>
+                <th>刪除</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="post in paginatedPosts"
+                :key="post.post_no"
+                class="postTable__row"
+                :class="{ 'is-reported': post.is_reported }"
+              >
+                <td>{{ post.posted_at }}</td>
+
+                <td>
+                  <span v-if="post.is_reported">{{ post.title }}</span>
+                  <router-link
+                    v-else
+                    :to="`/community/${post.post_no}`"
+                    class="postTable__link"
+                  >
+                    {{ post.title }}
+                  </router-link>
+                </td>
+
+                <!-- 編輯按鈕 -->
+                <td class="postTable__cell--action">
+                  <router-link
+                    :to="`/community/${post.post_no}`"
+                    :class="['iconButton', { 'iconButton--disabled': post.is_reported }]"
+                    :event="post.is_reported ? '' : 'click'"
+                    aria-label="編輯貼文"
+                  >
+                    <svg
+                      class="iconButton__icon"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M3 17.46V20.5C3 20.78 3.22 21 3.5 21H6.54C6.67 21 6.8 20.95 6.89 20.85L17.81 9.94L14.06 6.19L3.15 17.1C3.05 17.2 3 17.32 3 17.46ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z"
+                      />
+                    </svg>
+                  </router-link>
+                </td>
+
+                <!-- 刪除按鈕 -->
+                <td class="postTable__cell--action">
+                  <button
+                    class="iconButton"
+                    :disabled="post.is_reported"
+                    @click="!post.is_reported && deletePost(post.post_no)"
+                    :class="{ 'iconButton--disabled': post.is_reported }"
+                    aria-label="刪除貼文"
+                  >
+                    <svg
+                      class="iconButton__icon iconButton__icon--delete"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M12 4C7.581 4 4 7.582 4 12C4 16.418 7.581 20 12 20C16.419 20 20 16.418 20 12C20 7.582 16.419 4 12 4ZM15.707 14.293C15.8945 14.4805 15.9998 14.7348 15.9998 15C15.9998 15.2652 15.8945 15.5195 15.707 15.707C15.5195 15.8945 15.2652 15.9998 15 15.9998C14.7348 15.9998 14.4805 15.8945 14.293 15.707L12 13.414L9.707 15.707C9.61435 15.8002 9.50419 15.8741 9.38285 15.9246C9.26152 15.9751 9.13141 16.001 9 16.001C8.86859 16.001 8.73848 15.9751 8.61715 15.9246C8.49581 15.8741 8.38565 15.8002 8.293 15.707C8.10553 15.5195 8.00021 15.2652 8.00021 15C8.00021 14.7348 8.10553 14.4805 8.293 14.293L10.586 12L8.293 9.707C8.10549 9.51949 8.00015 9.26518 8.00015 9C8.00015 8.73482 8.10549 8.48051 8.293 8.293C8.48051 8.10549 8.73482 8.00015 9 8.00015C9.26518 8.00015 9.51949 8.10549 9.707 8.293L12 10.586L14.293 8.293C14.4805 8.10549 14.7348 8.00015 15 8.00015C15.2652 8.00015 15.5195 8.10549 15.707 8.293C15.8945 8.48051 15.9998 8.73482 15.9998 9C15.9998 9.26518 15.8945 9.51949 15.707 9.707L13.414 12L15.707 14.293Z"
+                      />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- 分頁 -->
+          <div class="pagination">
+            <button
+              class="pagination__button btn--changepage"
+              @click="postsGoPrev"
+              :disabled="isPostsFirstPage"
+            >
+              <
+            </button>
+            <p class="pagination__current">{{ postsCurrentPage }} / {{ postsTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="postsGoNext"
+              :disabled="isPostsLastPage"
+            >
+              >
+            </button>
+          </div>
+        </template>
+        <!-- <h5 class="postSection__title">貼文</h5> -->
       </div>
 
       <!-- 2. 已回覆貼文表格 -->
@@ -405,51 +431,65 @@
         v-show="desktopActiveTab === 'replies'"
         class="postSection"
       >
-        <!-- <h5 class="postSection__title bold">已回覆貼文</h5> -->
-        <table class="postTable">
-          <thead>
-            <tr>
-              <th>回覆日期</th>
-              <th>原文標題</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="reply in paginatedReplies"
-              :key="reply.comments_no"
-              class="postTable__row"
-            >
-              <td>{{ reply.commented_at }}</td>
-              <td>
-                <router-link
-                  v-if="!reply.is_deleted"
-                  :to="`/community/${reply.post_no}`"
-                  class="postTable__link"
-                >
-                  {{ reply.title }}
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- 分頁 -->
-        <div class="pagination">
-          <button
-            class="pagination__button btn--changepage"
-            @click="repliesGoPrev"
-            :disabled="isRepliesFirstPage"
-          >
-            <
-          </button>
-          <p class="pagination__current">{{ repliesCurrentPage }} / {{ repliesTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="repliesGoNext"
-            :disabled="isRepliesLastPage"
-          >
-            >
-          </button>
+        <div
+          v-if="isLoadingReplies"
+          class="info-state"
+        >
+          <p>正在載入已回覆貼文...</p>
         </div>
+        <div
+          v-else-if="myReplies.length === 0"
+          class="info-state"
+        >
+          <p>您尚未回覆任何貼文。</p>
+        </div>
+        <template v-else>
+          <table class="postTable">
+            <thead>
+              <tr>
+                <th>回覆日期</th>
+                <th>原文標題</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="reply in paginatedReplies"
+                :key="reply.comments_no"
+                class="postTable__row"
+              >
+                <td>{{ reply.commented_at }}</td>
+                <td>
+                  <router-link
+                    v-if="!reply.is_deleted"
+                    :to="`/community/${reply.post_no}`"
+                    class="postTable__link"
+                  >
+                    {{ reply.title }}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- 分頁 -->
+          <div class="pagination">
+            <button
+              class="pagination__button btn--changepage"
+              @click="repliesGoPrev"
+              :disabled="isRepliesFirstPage"
+            >
+              <
+            </button>
+            <p class="pagination__current">{{ repliesCurrentPage }} / {{ repliesTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="repliesGoNext"
+              :disabled="isRepliesLastPage"
+            >
+              >
+            </button>
+          </div>
+        </template>
+        <!-- <h5 class="postSection__title bold">已回覆貼文</h5> -->
       </div>
     </div>
 
@@ -473,118 +513,147 @@
           已回覆貼文
         </div>
       </div>
-      <!-- 第二層：貼文列表 -->
+      <!-- 第二層：1. 已發布貼文列表 -->
       <div
         v-else-if="mobileView === 'posts'"
         class="mobileList"
       >
         <h5 class="mobileList__title bold">已發布貼文</h5>
         <div
-          v-for="post in paginatedPosts"
-          :key="post.post_no"
-          class="mobileList__item"
+          v-if="isLoadingPosts"
+          class="info-state"
         >
+          <p>正在載入已發佈貼文...</p>
+        </div>
+        <div
+          v-else-if="myPosts.length === 0"
+          class="info-state"
+        >
+          <p>您尚未發佈任何貼文。</p>
+        </div>
+        <template v-else>
           <div
-            v-if="post.is_reported"
-            class="mobileList__info is-reported"
+            v-for="post in paginatedPosts"
+            :key="post.post_no"
+            class="mobileList__item"
           >
-            <span class="mobileList__date">{{ post.posted_at }}</span>
-            <span class="mobileList__name">{{ post.title }}</span>
-          </div>
-          <router-link
-            v-else
-            :to="`/community/${post.post_no}`"
-            class="mobileList__info"
-          >
-            <span class="mobileList__date">{{ post.posted_at }}</span>
-            <span class="mobileList__name">{{ post.title }}</span>
-          </router-link>
+            <div
+              v-if="post.is_reported"
+              class="mobileList__info is-reported"
+            >
+              <span class="mobileList__date">{{ post.posted_at }}</span>
+              <span class="mobileList__name">{{ post.title }}</span>
+            </div>
+            <router-link
+              v-else
+              :to="`/community/${post.post_no}`"
+              class="mobileList__info"
+            >
+              <span class="mobileList__date">{{ post.posted_at }}</span>
+              <span class="mobileList__name">{{ post.title }}</span>
+            </router-link>
 
-          <!-- “...” 按鈕，被檢舉時也禁用 -->
-          <button
-            @click="openActionsModal(post)"
-            class="iconButton"
-            :disabled="post.is_reported"
-          >
-            <svg
-              class="moreIcon"
-              viewBox="0 0 24 24"
-              :class="{ 'is-disabled': post.is_reported }"
+            <!-- “...” 按鈕，被檢舉時也禁用 -->
+            <button
+              @click="openActionsModal(post)"
+              class="iconButton"
+              :disabled="post.is_reported"
             >
-              <path
-                d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z"
-              />
-            </svg>
-          </button>
-        </div>
-        <!-- 分頁 -->
-        <div class="pagination">
-          <button
-            class="pagination__button btn--changepage"
-            @click="postsGoPrev"
-            :disabled="isPostsFirstPage"
-          >
-            <
-          </button>
-          <p class="pagination__current">{{ postsCurrentPage }} / {{ postsTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="postsGoNext"
-            :disabled="isPostsLastPage"
-          >
+              <svg
+                class="moreIcon"
+                viewBox="0 0 24 24"
+                :class="{ 'is-disabled': post.is_reported }"
+              >
+                <path
+                  d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <!-- 分頁 -->
+          <div class="pagination">
+            <button
+              class="pagination__button btn--changepage"
+              @click="postsGoPrev"
+              :disabled="isPostsFirstPage"
             >
-          </button>
-        </div>
+              <
+            </button>
+            <p class="pagination__current">{{ postsCurrentPage }} / {{ postsTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="postsGoNext"
+              :disabled="isPostsLastPage"
+            >
+              >
+            </button>
+          </div>
+        </template>
       </div>
-      <!-- 第二層：已回覆貼文列表 -->
+
+      <!-- 第二層：2. 已回覆貼文列表 -->
       <div
         v-else-if="mobileView === 'replies'"
         class="mobileList"
       >
         <h5 class="mobileList__title">已回覆貼文</h5>
         <div
-          v-for="reply in paginatedReplies"
-          :key="reply.comments_no"
-          class="mobileList__item"
+          v-if="isLoadingReplies"
+          class="info-state"
         >
-          <router-link
-            v-if="!reply.is_deleted"
-            :to="`/community/${reply.post_no}`"
-            class="mobileList__info"
+          <p>正在載入已回覆貼文...</p>
+        </div>
+        <div
+          v-else-if="myReplies.length === 0"
+          class="info-state"
+        >
+          <p>您尚未回覆任何貼文。</p>
+        </div>
+        <template v-else>
+          <div
+            v-for="reply in paginatedReplies"
+            :key="reply.comments_no"
+            class="mobileList__item"
           >
-            <span class="mobileList__date">{{ reply.commented_at }}</span>
-            <span class="mobileList__name">{{ reply.title }}</span>
-          </router-link>
-          <!-- 
+            <router-link
+              v-if="!reply.is_deleted"
+              :to="`/community/${reply.post_no}`"
+              class="mobileList__info"
+            >
+              <span class="mobileList__date">{{ reply.commented_at }}</span>
+              <span class="mobileList__name">{{ reply.title }}</span>
+            </router-link>
+            <!-- 
             或者，直接導向一個不存在的路徑，讓 Vue Router 的萬用匹配 (*) 來處理 404 
             <router-link v-if="!reply.is_deleted" ... >
           -->
-          <div
-            v-else
-            class="mobileList__info is-deleted"
-          >
-            <span class="mobileList__date">{{ reply.commented_at }}</span>
-            <span class="mobileList__name">{{ reply.title }} (原文已刪除)</span>
-          </div>
-        </div>
-        <!-- 分頁 -->
-        <div class="pagination">
-          <button
-            class="pagination__button btn--changepage"
-            @click="repliesGoPrev"
-            :disabled="isRepliesFirstPage"
-          >
-            <
-          </button>
-          <p class="pagination__current">{{ repliesCurrentPage }} / {{ repliesTotalPages }}</p>
-          <button
-            class="pagination__button btn--changepage"
-            @click="repliesGoNext"
-            :disabled="isRepliesLastPage"
-          >
+            <div
+              v-else
+              class="mobileList__info is-deleted"
             >
-          </button>
-        </div>
+              <span class="mobileList__date">{{ reply.commented_at }}</span>
+              <span class="mobileList__name">{{ reply.title }} (原文已刪除)</span>
+            </div>
+          </div>
+          <!-- 分頁 -->
+          <div class="pagination">
+            <button
+              class="pagination__button btn--changepage"
+              @click="repliesGoPrev"
+              :disabled="isRepliesFirstPage"
+            >
+              <
+            </button>
+            <p class="pagination__current">{{ repliesCurrentPage }} / {{ repliesTotalPages }}</p>
+            <button
+              class="pagination__button btn--changepage"
+              @click="repliesGoNext"
+              :disabled="isRepliesLastPage"
+            >
+              >
+            </button>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -671,6 +740,11 @@
       margin-top: 30px;
       margin-bottom: 32px;
     }
+  }
+  .info-state {
+    text-align: center;
+    padding: 40px;
+    color: $neutral-c;
   }
 
   // 預設隱藏手機
