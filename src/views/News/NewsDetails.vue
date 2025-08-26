@@ -119,7 +119,7 @@
         </div>
       </div>
       <div v-else>
-        <h2 class="bold">找不到這篇新聞</h2>
+        <h2 class="bold">載入中．．．</h2>
       </div>
       <div class="backbtn">
         <button

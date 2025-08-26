@@ -40,12 +40,17 @@ router.beforeEach(async (to, from, next) => {
 
   // 布林值，判斷這個路由是否需要登入
   const requiresAuth = to.meta.requiresAuth;
+  const guestOnly = to.meta.guestOnly;
 
   // 如果需要登入，但尚未登入：導向登入頁，同時帶上 query 參數 redirect，表示登入成功後要回去的頁面
   if (requiresAuth && !auth.isLoggedIn) {
     next({ path: '/login', query: { redirect: to.fullPath } });
 
-    // 如果不需要登入，或已經登入：導向目標頁
+    // 如果需要未登入，但已經登入：導向成員頁
+  } else if (guestOnly && auth.isLoggedIn) {
+    next({ path: '/member' });
+
+    //
   } else {
     next();
   }
