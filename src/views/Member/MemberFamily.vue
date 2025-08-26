@@ -13,6 +13,7 @@
   // 引入環境變數
   const { VITE_API_BASE } = import.meta.env;
   const familyMembers = ref([]);
+  const isLoading = ref(true);
 
   // 假的家庭成員資料
   // const familyMembers = ref([
@@ -31,7 +32,6 @@
   // ]);
 
   // GET家庭成員
-  const isLoading = ref(true);
   const fetchFamilyMembers = async () => {
     isLoading.value = true;
     try {
@@ -264,9 +264,34 @@
         class="mobile-only-header"
       />
       <h5 class="familyPage__title bold">家庭成員</h5>
+      <div
+        v-if="isLoading"
+        class="info-state"
+      >
+        正在載入家庭成員...
+      </div>
+      <div
+        v-else-if="familyMembers.length === 0"
+        class="info-state"
+      >
+        <p>目前沒有家庭成員資料</p>
+        <div class="desktopTable">
+          <div class="desktopTable__actions">
+            <button
+              @click="showAddForm"
+              class="btn--membersend"
+            >
+              新增
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- 桌面版：表格 -->
-      <div class="desktopTable">
+      <div
+        v-else
+        class="desktopTable"
+      >
         <table>
           <thead>
             <tr>
@@ -299,12 +324,7 @@
             </tr>
           </tbody>
         </table>
-        <div
-          v-if="familyMembers.length === 0"
-          class="tableEmptyState"
-        >
-          <p>目前沒有家庭成員資料</p>
-        </div>
+
         <div class="desktopTable__actions">
           <button
             @click="showAddForm"
@@ -314,6 +334,7 @@
           </button>
         </div>
       </div>
+
       <!-- 手機版：列表 -->
       <div class="mobileList">
         <div
@@ -338,6 +359,7 @@
             </svg>
           </button>
         </div>
+
         <div
           class="mobileList__item is-add-button"
           @click="showAddForm"
@@ -554,6 +576,12 @@
     }
   }
 
+  .info-state {
+    text-align: center;
+    padding: 40px;
+    color: $neutral-c;
+  }
+
   .desktopTable {
     display: block;
     width: 100%;
@@ -635,7 +663,7 @@
         }
       }
     }
-    .tableEmptyState {
+    .info-state {
       text-align: center;
       padding: 40px;
       color: $neutral-c;
