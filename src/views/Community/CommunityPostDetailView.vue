@@ -328,7 +328,7 @@
       done(data.status === 'success', data.message || '已送出檢舉');
 
       if (data.status === 'success') {
-        showModal.value = false;
+        // showModal.value = false;
         reportTarget.value = { type: 'post', id: null };
       }
     } catch (error) {
