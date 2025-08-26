@@ -319,7 +319,7 @@
               <div class="community-wrapper__image">
                 <img
                   :src="coverUrl(post.image)"
-                  alt=""
+                  alt="發文圖片"
                 />
               </div>
               <div class="community-wrapper__content">
@@ -330,7 +330,7 @@
                   <div class="community-wrapper__author-image">
                     <img
                       :src="avatarUrl(post.author_profile_image)"
-                      alt=""
+                      alt="發文者頭像"
                     />
                   </div>
                   <p class="community-wrapper__author body--b3">{{ post.author_fullname }}</p>
@@ -482,8 +482,11 @@
         flex-wrap: wrap-reverse;
       }
 
+      &__title {
+        line-height: 1.5em;
+      }
+
       &__image {
-        // @include flex-center;
         width: 200px;
         aspect-ratio: 1;
         overflow: hidden;
@@ -630,14 +633,17 @@
           flex-direction: column-reverse;
           align-items: center;
           justify-content: center;
-          gap: 10px;
+          gap: 15px;
           background-color: $white;
           border-radius: $border-r-lg;
         }
 
-        &__content,
-        &__image {
+        &__content {
           width: 85%;
+        }
+
+        &__image {
+          width: 60%;
         }
       }
     }
