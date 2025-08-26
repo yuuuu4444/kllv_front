@@ -82,7 +82,7 @@
         </div>
         <div class="form-group">
           <label for="login-password">密碼</label>
-          <div class="password-toggle">
+          <div class="password-wrapper">
             <input
               :type="showPassword ? 'text' : 'password'"
               id="login-password"
@@ -90,7 +90,15 @@
               :class="{ 'input-error': passwordError }"
               placeholder="請輸入密碼"
             />
+            <!-- 眼睛 icon -->
+            <span
+              class="toggle-icon"
+              @click="showPassword = !showPassword"
+            >
+              {{ showPassword ? '不看' : '看' }}
+            </span>
           </div>
+
           <div
             v-if="passwordError"
             class="form-error"
@@ -117,7 +125,7 @@
           class="btn--membersend"
           :disabled="isLoading"
         >
-          {{ isLoading ? '登入中...' : '登入' }}
+          {{ isLoading ? '...' : '登入' }}
         </button>
 
         <p class="register-text">
@@ -186,9 +194,27 @@
     box-shadow: 0 0px 5px 0 $primary-c300;
     outline: none;
   }
-  .password-toggle input {
-    width: 100%;
-    box-sizing: border-box;
+  .password-wrapper {
+    position: relative;
+
+    input {
+      width: 100%;
+      padding-right: 36px;
+    }
+
+    .toggle-icon {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: $neutral-c;
+      cursor: pointer;
+
+      &:hover {
+        color: $primary-c300;
+      }
+    }
   }
   .forgot-link {
     display: block;
