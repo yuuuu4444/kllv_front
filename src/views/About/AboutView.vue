@@ -542,6 +542,7 @@
     }
     .location-marker {
       position: absolute;
+      filter: drop-shadow(0px 0px 12px rgba(177, 237, 248, 0.849));
       .speech-bubble {
         position: absolute;
         bottom: 120%;
@@ -883,7 +884,7 @@
         align-items: flex-start;
         gap: 1vw;
         p {
-          font-size: 12px;
+          font-size: 16px;
           line-height: 168%;
           letter-spacing: 0.1em;
         }
