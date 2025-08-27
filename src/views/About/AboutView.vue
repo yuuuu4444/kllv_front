@@ -37,15 +37,7 @@
   }
 
   function scrollToTop() {
-    const mapContainer = document.querySelector('.about-section');
-    if (mapContainer) {
-      mapContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function scrollToSection(sectionId) {
