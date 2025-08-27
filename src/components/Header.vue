@@ -8,7 +8,10 @@
   // 開啟子選單
   const isOpen = ref(false);
   const openDropdown = () => {
-    isOpen.value = !isOpen.value;
+    isOpen.value = true;
+  };
+  const closeDropdown = () => {
+    isOpen.value = false;
   };
 
   // 隱藏導覽列
@@ -85,7 +88,8 @@
         </li>
         <li
           class="mainbar__item dropdown"
-          @click="openDropdown"
+          @mouseenter="openDropdown"
+          @mouseleave="closeDropdown"
         >
           <a>
             <div class="icon__wrap">
@@ -586,17 +590,14 @@
       }
       .dropdown {
         position: relative;
-        cursor: pointer;
+        // cursor: pointer;
 
         &:hover {
           h5 {
             color: $black;
           }
-        }
-
-        &:hover {
-          h5 {
-            color: $black;
+          .dropdown__list{
+            display: flex !important;
           }
         }
 
@@ -612,7 +613,18 @@
           gap: 1.042vw;
           border-radius: 0 0 15px 15px;
           background-color: $white;
+          transition: opacity 0.2 ease;
+            &::before {
+            content: '';
+            position: absolute;
+            top: -1.042vw;
+            left: 0;
+            right: 0;
+            height: 1.042vw;
+            background: transparent;
+          }
         }
+        
         &__item {
           &:hover {
             h5 {
