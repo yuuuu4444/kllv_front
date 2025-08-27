@@ -37,7 +37,13 @@
   }
 
   function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mapContainer = document.querySelector('.about-section');
+    if (mapContainer) {
+      mapContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
   }
 
   function scrollToSection(sectionId) {
@@ -65,7 +71,6 @@
     import('vue').then(({ nextTick }) => {
       nextTick(() => {
         AOS.refreshHard();
-        scrollToTop();
       });
     });
   });
