@@ -99,14 +99,11 @@
       gender: gender.value,
     };
     try {
-      const res = await fetch(
-        'http://localhost:8888/kllv_backend_php/api/login/resident_post.php',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        },
-      );
+      const res = await fetch(`${VITE_API_BASE}/api/login/resident_post.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       if (data.status === 'success') {
         router.push('/resident-success');
