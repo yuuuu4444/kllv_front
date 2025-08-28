@@ -132,10 +132,10 @@
     return eventDate > threeDaysLater;
   };
   const getCancelButtonText = (event) => {
-    //活動三天前無法取消
+    //活動前三天無法取消
     if (event.status === 3) return '已取消';
     if (isCancellable(event)) return '我要取消';
-    return '無法取消';
+    return '活動前三天無法取消';
   };
   const getCancelButtonClass = (event) => {
     if (event.status === 3) return 'is-cancelled';
