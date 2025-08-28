@@ -466,6 +466,12 @@
                   >
                     {{ reply.title }}
                   </router-link>
+                  <span
+                    v-else
+                    class="postTable__text--deleted"
+                  >
+                    {{ reply.title }} (原文已删除)
+                  </span>
                 </td>
               </tr>
             </tbody>
