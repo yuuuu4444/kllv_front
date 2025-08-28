@@ -107,17 +107,17 @@
       hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) return false;
 
     // 檢查地址是否已被註冊
     const addressExists = await checkAddress(address.value);
 
     if (addressExists) {
       addressError.value = '此地址已被註冊';
-      return;
+      return false;
     }
 
-    // **只暫存，不送出到後端**
+    // 暫存資料
     registerStore.city = city.value;
     registerStore.district = district.value;
     registerStore.village = village.value;
@@ -125,6 +125,7 @@
 
     // 導向下一步
     router.push('/register-step2');
+    return true;
   }
 
   function goToLogin() {
@@ -132,8 +133,10 @@
   }
 
   async function handleRegister() {
-    await goToRegisterStep2();
-    await submitAddress();
+    const canProceed = await goToRegisterStep2();
+    if (canProceed) {
+      await submitAddress();
+    }
   }
 </script>
 
