@@ -275,32 +275,50 @@
         >
           我要發文
         </button>
-        <button
-          class="community__phone-btn"
-          @click="openCreateModal"
-        >
-          +
-        </button>
-    <div class="community__phone-fab">
-          <svg width="59" height="61" viewBox="0 0 57 57" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <!-- 以中心(28.5,28.5)半徑20畫一個圓路徑 -->
-      <path id="circlePath"
-        d="M30,30 m -23,0
-          a 20,20 0 1,1 43,0
-          a 20,20 0 1,1 -39,0" />
-    </defs>
+        <div class="community__phone-btn">
+          <div class="community__phone-fab">
+            <svg
+              width="59"
+              height="61"
+              viewBox="0 0 57 57"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <!-- 以中心(28.5,28.5)半徑20畫一個圓路徑 -->
+                <path
+                  id="circlePath"
+                  d="M30,30 m -23,0
+                a 20,20 0 1,1 43,0
+                a 20,20 0 1,1 -39,0"
+                />
+              </defs>
 
-    <!-- 參考用的圓 -->
-    <circle cx="20" cy="20" r="20" fill="none" stroke="none" />
+              <!-- 參考用的圓 -->
+              <circle
+                cx="20"
+                cy="20"
+                r="20"
+                fill="none"
+                stroke="none"
+              />
 
-    <text font-size="12" fill="#F66541">
-      <textPath href="#circlePath" startOffset="25%" text-anchor="middle" >
-        我要發文
-      </textPath>
-    </text>
-  </svg>
-  </div>
+              <text
+                font-size="12"
+                fill="#F66541"
+              >
+                <textPath
+                  href="#circlePath"
+                  startOffset="25%"
+                  text-anchor="middle"
+                >
+                  我要發文
+                </textPath>
+              </text>
+            </svg>
+          </div>
+
+          <button @click="openCreateModal">+</button>
+        </div>
       </div>
 
       <CreatePostModal
@@ -618,21 +636,28 @@
           }
         }
         &__phone-btn {
-          display: block;
+          display: flex;
+          justify-content: center;
+          align-items: center;
           width: 50px;
           aspect-ratio: 1;
           border-radius: 50%;
           border: none;
           background-color: $highlight-c;
-          color: $white;
-          font-size: 30px;
+
           cursor: pointer;
           position: fixed;
           bottom: 15vh;
           right: 5vw;
           z-index: 1;
+          button {
+            border: none;
+            background-color: $highlight-c;
+            color: $white;
+            font-size: 30px;
+          }
         }
-        &__phone-fab{
+        &__phone-fab {
           pointer-events: none;
           position: fixed;
           bottom: 15.5vh;
