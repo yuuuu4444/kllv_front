@@ -242,7 +242,7 @@ data-aos="fade-up">
       </div>
       <h5 class="Event-title">里民開講</h5>
       <div class="Events-btn-container">
-      <RouterLink to="/Events" class="Events-btn">
+      <RouterLink to="/community" class="Events-btn">
         <span>參與討論</span>
       </RouterLink>
       </div>
@@ -259,7 +259,7 @@ data-aos="fade-up">
       </div>
       <h5 class="Event-title">維修通報</h5>
       <div class="Events-btn-container">
-      <RouterLink to="/Events" class="Events-btn">
+      <RouterLink to="/Repair" class="Events-btn">
         <span>立即報修</span>
       </RouterLink>
       </div>
