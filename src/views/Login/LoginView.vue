@@ -315,4 +315,9 @@
       max-width: 98vw;
     }
   }
+
+  input[type='password']::-ms-reveal,
+  input[type='password']::-ms-clear {
+    display: none;
+  }
 </style>
